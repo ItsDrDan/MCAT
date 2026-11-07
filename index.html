@@ -5,6 +5,13 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>MCAT Study Hub · ItsDrDan</title>
 <meta name="description" content="Free MCAT study hub: original practice questions for all four sections, a Daily 5, and a week-by-week study plan.">
+<link rel="icon" href="assets/icon_hub_32.png">
+<link rel="apple-touch-icon" href="assets/icon_hub_180.png">
+<meta property="og:title" content="MCAT Study Hub by ItsDrDan">
+<meta property="og:description" content="3,750 free, original MCAT practice questions for all four sections, a Daily 5, and a week-by-week study plan.">
+<meta property="og:image" content="https://itsdrdan.github.io/MCAT/assets/og.png">
+<meta property="og:url" content="https://itsdrdan.github.io/MCAT/">
+<meta name="twitter:card" content="summary_large_image">
 <style>
 :root{
   --bg:#f5f6fb;--surface:#fff;--ink:#1f2a44;--muted:#4f5a74;--faint:#646c82;--line:#e3e6f0;--line2:#d5d9e8;
@@ -29,7 +36,7 @@ button{font:inherit}
 .top .wrap{display:flex;align-items:center;gap:18px;height:66px}
 .brand{display:flex;align-items:center;gap:10px;text-decoration:none;font-weight:800;font-size:18px;white-space:nowrap}
 .brand small{font-weight:700;color:#6b5aa6;font-size:14px}
-.brand svg{width:38px;height:38px}
+.brand img{width:42px;height:42px}
 .tsearch{flex:1;max-width:380px;position:relative}
 .tsearch input{width:100%;border:1px solid var(--line2);border-radius:999px;padding:10px 14px 10px 38px;font:inherit;font-size:15px;background:#fff}
 .tsearch svg{position:absolute;left:13px;top:50%;transform:translateY(-50%);width:16px;height:16px;color:var(--faint)}
@@ -56,7 +63,7 @@ nav.links a:hover{background:#f1f0f8}
 .chips{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:16px}
 .chip{background:#fff;border:1px solid var(--line2);border-radius:999px;padding:6px 14px;font-weight:700;cursor:pointer;font-size:15px;color:var(--ink);text-decoration:none}
 .chip:hover{border-color:#a99be0}
-.heroart{position:absolute;right:-30px;top:20px;width:340px;opacity:.55;pointer-events:none}
+.heroart{position:absolute;right:30px;bottom:-6px;width:300px;pointer-events:none;filter:drop-shadow(0 10px 18px #6b4fc922)}
 @media(max-width:900px){.heroart{display:none}}
 /* sections */
 section.blk{padding:34px 0 8px}
@@ -176,6 +183,24 @@ h2.big{font-size:clamp(26px,3.4vw,38px);margin-bottom:18px}
 .sr em{font-style:normal;background:#fff3c4;border-radius:4px;padding:0 2px}
 footer{margin-top:50px;border-top:1px solid var(--line);padding:22px 0 30px;font-size:14px;color:var(--muted)}
 footer p{margin:4px 0}
+.srow{display:flex;align-items:flex-start;justify-content:space-between;gap:8px}
+.srow img{width:74px;height:74px;margin:-6px -8px 0 0;filter:drop-shadow(0 4px 8px #1f2a4418)}
+.shead .wrap{position:relative}
+.secart{position:absolute;right:22px;top:26px;width:150px;height:150px;filter:drop-shadow(0 8px 16px #1f2a4420)}
+.shead h1,.shead .crumb{padding-right:170px}
+@media(max-width:760px){.secart{width:80px;height:80px;top:14px}.shead h1,.shead .crumb{padding-right:84px}}
+.banner .ic img{width:52px;height:52px}
+.banner .ic{width:52px;height:52px}
+.cardart{float:right;width:84px;height:84px;margin:-6px -6px 6px 10px}
+.reslist li.mi{display:flex;gap:12px;align-items:flex-start}
+.reslist li.mi img{width:46px;height:46px;flex:none}
+.reslist li.mi div{flex:1}
+.planart{width:100%;max-width:913px;display:block;margin:6px auto 0;border-radius:18px}
+.mascot{float:right;width:110px;height:auto;margin:-10px -6px 4px 12px;transition:transform .2s}
+.mascot.pop{animation:pop .45s ease}
+@keyframes pop{0%{transform:scale(.8)}60%{transform:scale(1.08)}100%{transform:scale(1)}}
+.done .mascotbig{width:190px;height:auto;display:block;margin:0 auto -4px}
+@media(max-width:560px){.mascot{width:76px}.cardart{width:64px;height:64px}}
 .hidden{display:none!important}
 @media print{.top,footer,.noprint{display:none!important}body{background:#fff}.week{break-inside:avoid}}
 </style>
@@ -185,7 +210,7 @@ footer p{margin:4px 0}
 <header class="top">
   <div class="wrap">
     <a class="brand" href="#/" aria-label="MCAT Study Hub home">
-      <svg viewBox="0 0 64 64" aria-hidden="true"><defs><linearGradient id="hg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffb3cf"/><stop offset="1" stop-color="#b9a4f5"/></linearGradient></defs><path d="M32 56 C10 40 4 28 8 18 C12 8 26 6 32 17 C38 6 52 8 56 18 C60 28 54 40 32 56Z" fill="url(#hg)"/><polyline points="10,32 22,32 26,24 31,40 36,20 40,32 54,32" fill="none" stroke="#fff" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <img src="assets/logo_hub.webp" alt="" width="42" height="42">
       <span class="nm">ItsDrDan</span> <small>/ MCAT Study Hub</small>
     </a>
     <form class="tsearch" onsubmit="event.preventDefault();doSearch(this.q.value)">
@@ -264,7 +289,7 @@ function home(){
   const totalQ=HUB.total;
   app.innerHTML=`
   <div class="hero"><div class="wrap">
-    <svg class="heroart" viewBox="0 0 64 64" aria-hidden="true"><defs><linearGradient id="hg2" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffd0e0"/><stop offset="1" stop-color="#cfc2fa"/></linearGradient></defs><path d="M32 56 C10 40 4 28 8 18 C12 8 26 6 32 17 C38 6 52 8 56 18 C60 28 54 40 32 56Z" fill="url(#hg2)"/><polyline points="10,32 22,32 26,24 31,40 36,20 40,32 54,32" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    <img class="heroart" src="assets/pulse_idle.webp" alt="Pulse, the Pre-Med Pulse mascot, waving">
     <div class="eyebrow">Dr. Dan's MCAT Study Hub</div>
     <h1>Plan your MCAT prep, <span class="grad">then practice it.</span></h1>
     <p class="lead">${fmt(totalQ)} original practice questions across all four sections. Pick a section, follow a week-by-week plan, or do five questions a day.</p>
@@ -278,7 +303,7 @@ function home(){
   <div class="wrap">
     <section class="blk" style="padding-top:24px">
       <div class="banner">
-        <div class="ic">${ICON.cal}</div>
+        <div class="ic"><img src="assets/m_daily5.webp" alt=""></div>
         <div><b>Daily 5</b>${str?`<span class="streak">🔥 ${str}-day streak</span>`:""}<p>${dd?`Done for today: ${dd.score}/5. Come back tomorrow to keep your streak.`:"One question from each section plus one from your weakest unit. About 8 minutes."}</p></div>
         <a class="btn" href="#/daily">${dd?"Review":"Start"} →</a>
       </div>
@@ -288,7 +313,7 @@ function home(){
       <h2 class="big">Pick a section</h2>
       <div class="grid4">${SECS.map(s=>`
         <a class="scard s-${s.id}" href="#/sec/${s.id}">
-          <span class="pill">${s.n}</span>
+          <div class="srow"><span class="pill">${s.n}</span><img src="assets/sec_${s.id}.webp" alt=""></div>
           <h3>${s.full}</h3>
           <p>${s.blurb}</p>
           <div class="meta"><span>${s.q} questions</span><span>${s.min} min</span></div>
@@ -300,7 +325,7 @@ function home(){
       <div class="two">
         <div class="card">${progressHTML(st)}</div>
         <div class="card">
-          <div class="kicker">Test date coming up?</div>
+          <img class="cardart" src="assets/m_study_plan.webp" alt=""><div class="kicker">Test date coming up?</div>
           <h2 style="font-size:24px;margin-bottom:6px">Build a week-by-week study plan</h2>
           <p style="color:var(--muted);margin:0 0 14px">Enter your test date and weekly hours. You get every unit spread across the weeks, CARS practice each week, and a final practice phase, with a checkbox and a practice link for each task.</p>
           <a class="btn" href="#/plan">${LS.get(PKEY,null)?"Open my plan":"Build my plan"} →</a>
@@ -337,10 +362,10 @@ function home(){
           <div class="kicker">More practice modes</div>
           <h2 style="font-size:24px;margin-bottom:8px">Inside Pre-Med Pulse</h2>
           <ul class="reslist">
-            <li><a href="${practice({mode:"drill"})}">Quick Drill</a><span>One question at a time, with step-by-step explanations.</span></li>
-            <li><a href="${practice({mode:"passage"})}">Passage Sets</a><span>Real MCAT-style passages with 4–5 questions each.</span></li>
-            <li><a href="${practice({mode:"timed"})}">Timed Mini-Section</a><span>Beat the clock at test pace (about 95 seconds a question).</span></li>
-            <li><a href="${practice({mode:"full"})}">Mini Full-Length</a><span>All four sections in real test order, with breaks.</span></li>
+            <li class="mi"><img src="assets/m_quick_drill.webp" alt=""><div><a href="${practice({mode:"drill"})}">Quick Drill</a><span>One question at a time, with step-by-step explanations.</span></div></li>
+            <li class="mi"><img src="assets/m_passage_sets.webp" alt=""><div><a href="${practice({mode:"passage"})}">Passage Sets</a><span>Real MCAT-style passages with 4–5 questions each.</span></div></li>
+            <li class="mi"><img src="assets/m_timed.webp" alt=""><div><a href="${practice({mode:"timed"})}">Timed Mini-Section</a><span>Beat the clock at test pace (about 95 seconds a question).</span></div></li>
+            <li class="mi"><img src="assets/m_full_length.webp" alt=""><div><a href="${practice({mode:"full"})}">Mini Full-Length</a><span>All four sections in real test order, with breaks.</span></div></li>
             <li><a href="https://itsdrdan.github.io/games/" target="_blank" rel="noopener">Dr. Dan's Chemistry Study Hub ↗</a><span>Shore up general and organic chemistry with my course games and videos.</span></li>
           </ul>
         </div>
@@ -349,9 +374,9 @@ function home(){
   </div>`;
 }
 function progressHTML(st){
-  if(!st.ans) return `<div class="kicker">Your progress</div><h2 style="font-size:24px;margin-bottom:6px">Nothing here yet</h2><p style="color:var(--muted);margin:0 0 14px">Answer a few questions in the Daily 5 or Pre-Med Pulse and your weakest units will show up here, so you know what to study next.</p><a class="btn ghost" href="#/daily">Try the Daily 5 →</a>`;
+  if(!st.ans) return `<img class="cardart" src="assets/pulse_thinking.webp" alt=""><div class="kicker">Your progress</div><h2 style="font-size:24px;margin-bottom:6px">Nothing here yet</h2><p style="color:var(--muted);margin:0 0 14px">Answer a few questions in the Daily 5 or Pre-Med Pulse and your weakest units will show up here, so you know what to study next.</p><a class="btn ghost" href="#/daily">Try the Daily 5 →</a>`;
   const rows=Object.entries(st.units).filter(([k,v])=>v.a>=3).map(([k,v])=>{const [s,u]=k.split(":");return {s,u:+u,p:v.c/v.a,a:v.a};}).filter(r=>HUB.units[r.s]).sort((a,b)=>a.p-b.p).slice(0,5);
-  return `<div class="kicker">Your progress</div>
+  return `<img class="cardart" src="assets/m_progress.webp" alt=""><div class="kicker">Your progress</div>
   <div class="statrow"><div><b>${fmt(st.ans)}</b><span>answered</span></div><div><b>${Math.round(st.cor/st.ans*100)}%</b><span>correct</span></div><div><b>${fmt(st.xp||0)}</b><span>XP</span></div><div><b>${Object.keys(st.units).length}</b><span>units tried</span></div></div>
   ${rows.length?`<div style="font-weight:800;margin:6px 0 2px">Study these next (weakest first)</div>`+rows.map(r=>`<div class="weak s-${SEC_OF[r.s]}"><span class="tag">${HUB.sn[r.s]}</span><span class="nm">${esc(HUB.units[r.s][r.u-1])}</span><span class="bar"><i style="width:${Math.round(r.p*100)}%"></i></span><b style="width:42px;text-align:right">${Math.round(r.p*100)}%</b><a class="btn sm ghost" href="${practice({subj:r.s,unit:r.u})}">Practice</a></div>`).join(""):`<p class="mini">Answer at least 3 questions in a unit to see it ranked here.</p>`}`;
 }
@@ -364,7 +389,7 @@ function section(id){
   const subs=s.subs;
   app.innerHTML=`
   <div class="shead s-${id}"><div class="wrap">
-    <div class="crumb"><a href="#/">Sections</a> › ${s.n}</div>
+    <img class="secart" src="assets/sec_${id}.webp" alt=""><div class="crumb"><a href="#/">Sections</a> › ${s.n}</div>
     <span class="pill">${s.n}</span>
     <h1>${s.full}</h1>
     <p>${s.blurb} On test day: <b>${s.q} questions in ${s.min} minutes</b>, scored 118–132.</p>
@@ -445,7 +470,7 @@ async function daily(){
     }
     const d=dailyState();
     app.innerHTML=`<div class="wrap quiz"><div class="card done">
-      <div class="kicker">Daily 5 · ${day}</div>
+      <img class="mascotbig" src="assets/pulse_${score===5?"victory":score>=3?"correct":"oops"}.webp" alt=""><div class="kicker">Daily 5 · ${day}</div>
       <div class="score">${score} / 5</div>
       <p style="font-size:18px">${score===5?"Perfect day! 🎉":score>=3?"Solid work. Review the misses below.":"Every miss is a lesson. Read the steps below, then practice that unit."}</p>
       <p><span class="streak">🔥 ${d.streak}-day streak</span> <span class="mini">Best: ${d.best}</span></p>
@@ -461,6 +486,7 @@ async function daily(){
       <div class="qhead"><span><span class="tag">${SEC[sid].n}</span> <span class="mini" style="font-weight:700">${HUB.sn[q.subj]} · ${esc(HUB.units[q.subj][q.unit-1])}${q._weak?" · your weakest unit":""}</span></span>
       <span class="dots">${set.map((_,k)=>`<i class="${k<i?(res[k]?"ok":"no"):k===i?"cur":""}"></i>`).join("")}</span></div>
       <div class="card">
+        <img class="mascot" id="masc" src="assets/pulse_${q.subj==="cars"?"reading":"thinking"}.webp" alt="">
         ${q.fig?`<figure class="qfig">${q.fig}</figure>`:""}
         <div class="stem">${String(q.q).replace(/\n\n/g,"<br><br>")}</div>
         <div id="opts">${o.map((oi,k)=>`<button class="opt" data-k="${oi}"><span class="l">${"ABCD"[k]}</span><span>${q.o[oi]}</span></button>`).join("")}</div>
@@ -473,6 +499,7 @@ async function daily(){
       if($("#chk").dataset.done){i++;show();window.scrollTo(0,0);return;}
       const ok=chosen===q.a; res[i]=ok; logAnswer(q,ok);
       btns.forEach(b=>{b.disabled=true;const k=+b.dataset.k;if(k===q.a)b.classList.add("right");else if(k===chosen)b.classList.add("wrong");});
+      const m=$("#masc"); m.src="assets/pulse_"+(ok?"correct":"oops")+".webp"; m.classList.remove("pop"); void m.offsetWidth; m.classList.add("pop");
       $("#fb").innerHTML=`<div class="fb"><h4>${ok?"Correct! +10 XP":"Not quite."}</h4>${ok?"":`<div>Answer: <b>${q.o[q.a]}</b></div>`}<ol>${q.e.map(x=>`<li>${x}</li>`).join("")}</ol>${q.t?`<div class="tip"><b>Professor Tip:</b> ${q.t}</div>`:""}</div>`;
       $("#chk").textContent=i+1<set.length?"Next question →":"See results →"; $("#chk").dataset.done=1;
     };
@@ -488,7 +515,7 @@ function plan(){
   app.innerHTML=`<div class="wrap" style="padding-top:28px">
     <div class="kicker">Study plan</div>
     <h1 style="font-size:clamp(30px,4vw,44px);margin-bottom:8px">Your week-by-week MCAT plan</h1>
-    <p style="color:var(--muted);max-width:780px;margin:0 0 18px">Every science unit gets a week, CARS practice runs every week, and the last stretch switches to timed sections and full-length practice. Your checkmarks save in this browser.</p>
+    <img class="planart" src="assets/hero.webp" alt="Pulse walking a path past the four MCAT sections toward a white coat"><p style="color:var(--muted);max-width:780px;margin:16px 0 18px">Every science unit gets a week, CARS practice runs every week, and the last stretch switches to timed sections and full-length practice. Your checkmarks save in this browser.</p>
     <div class="card noprint">
       <form class="form" id="pf">
         <div><label for="td">Test date</label><input id="td" type="date" required value="${P?P.date:def}" min="${today()}"></div>
@@ -556,7 +583,7 @@ function doSearch(q){q=(q||"").trim();if(!q)return;location.hash="#/search?q="+e
 const norm=s=>String(s).toLowerCase().normalize("NFKD").replace(/[̀-ͯ]/g,"").replace(/[–—−-]/g," ").replace(/\s+/g," ");
 async function search(q){
   setNav("");
-  app.innerHTML=`<div class="wrap" style="padding-top:28px"><div class="kicker">Search</div><h1 style="font-size:36px">Results for “${esc(q)}”</h1><div id="sres" class="sres"><p>Searching…</p></div></div>`;
+  app.innerHTML=`<div class="wrap" style="padding-top:28px"><img class="cardart" src="assets/m_search.webp" alt=""><div class="kicker">Search</div><h1 style="font-size:36px">Results for “${esc(q)}”</h1><div id="sres" class="sres"><p>Searching…</p></div></div>`;
   try{ if(!SIDX){const r=await fetch("data/search.json");SIDX=await r.json();} }catch(e){$("#sres").innerHTML="<p>Search couldn't load. Check your connection.</p>";return;}
   const terms=norm(q).split(" ").filter(t=>t.length>1);
   const out=[];

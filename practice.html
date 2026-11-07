@@ -3,6 +3,12 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="https://itsdrdan.github.io/MCAT/assets/icon_pulse_32.png">
+<link rel="apple-touch-icon" href="https://itsdrdan.github.io/MCAT/assets/icon_pulse_180.png">
+<meta property="og:title" content="Pre-Med Pulse: free MCAT practice by ItsDrDan">
+<meta property="og:description" content="Original MCAT practice for all four sections, with step-by-step explanations.">
+<meta property="og:image" content="https://itsdrdan.github.io/MCAT/assets/og.png">
+<meta name="twitter:card" content="summary_large_image">
 <title>Pre-Med Pulse · MCAT Science Practice</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
@@ -30,6 +36,14 @@ header.top h1{font-size:30px;line-height:1.1}
 .labels{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
 .tag{font-size:13px;font-weight:800;padding:3px 10px;border-radius:999px;background:var(--lav);color:var(--lav-d)}
 .hublink{margin-left:auto;align-self:center;font-weight:800;text-decoration:none;color:var(--lav-d);background:var(--lav);border-radius:999px;padding:7px 14px;font-size:14.5px;white-space:nowrap}
+.logo{width:76px;height:76px;flex:0 0 auto;filter:drop-shadow(0 3px 6px #6b4fc922)}
+.mode .ic{width:52px;height:52px;border-radius:50%;background:none!important}
+.mode .ic img{width:52px;height:52px;display:block}
+.segic{width:22px;height:22px;vertical-align:-5px;margin-right:6px}
+.badge .bi img{width:64px;height:auto;display:block;margin:0 auto 4px}
+.badge .bi{font-size:0}
+.fb .pulse{float:right;width:96px;height:auto;margin:-8px -4px 6px 12px}
+@media(max-width:560px){.fb .pulse{width:70px}.logo{width:60px;height:60px}}
 .tag.cp{background:var(--blue);color:var(--blue-d)}
 .tag.bb{background:var(--mint);color:var(--mint-d)}
 .tag.cars{background:var(--peach);color:var(--peach-d)}
@@ -130,7 +144,7 @@ table.data th{background:var(--lav)}
 .catbar .track i{display:block;height:100%;background:var(--blue-d)}
 .catbar.b .track i{background:var(--mint-d)}
 .toast{position:fixed;left:50%;bottom:20px;transform:translateX(-50%) translateY(120px);background:var(--ink);color:#fff;padding:12px 18px;border-radius:14px;font-weight:700;transition:transform .3s;z-index:20;max-width:90vw}
-.toast.show{transform:translateX(-50%) translateY(0)}
+.toast{opacity:0}.toast.show{transform:translateX(-50%) translateY(0);opacity:1}
 .eqsheet{columns:2 300px;column-gap:24px;font-size:15px}
 .eqsheet div{break-inside:avoid;margin:0 0 10px}
 .eqsheet h4{font-family:Fredoka,sans-serif;font-weight:600;margin:0 0 4px;color:var(--lav-d)}
@@ -148,11 +162,7 @@ footer{font-size:13px;color:var(--muted);text-align:center;padding:10px 16px 30p
 
 <div class="card">
   <header class="top">
-    <svg width="64" height="64" viewBox="0 0 64 64" aria-hidden="true">
-      <defs><linearGradient id="hg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffb3cf"/><stop offset="1" stop-color="#b9a4f5"/></linearGradient></defs>
-      <path d="M32 56 C10 40 4 28 8 18 C12 8 26 6 32 17 C38 6 52 8 56 18 C60 28 54 40 32 56Z" fill="url(#hg)"/>
-      <polyline points="10,32 22,32 26,24 31,40 36,20 40,32 54,32" fill="none" stroke="#fff" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
-    </svg>
+    <img class="logo" src="https://itsdrdan.github.io/MCAT/assets/logo_pulse.webp" width="76" height="76" alt="Pre-Med Pulse logo">
     <div>
       <h1>Pre-Med Pulse</h1>
       <div class="labels"><span class="tag">MCAT</span><span class="tag cp">Chem/Phys</span><span class="tag cars">CARS</span><span class="tag bb">Bio/Biochem</span><span class="tag ps">Psych/Soc</span></div>
@@ -165,30 +175,30 @@ footer{font-size:13px;color:var(--muted);text-align:center;padding:10px 16px 30p
 <div class="card">
   <div class="row seg" id="secSeg">
     <button data-sec="all" class="on">All 4 sections</button>
-    <button data-sec="cp">Chem/Phys</button>
-    <button data-sec="cars">CARS</button>
-    <button data-sec="bb">Bio/Biochem</button>
-    <button data-sec="ps">Psych/Soc</button>
+    <button data-sec="cp"><img class="segic" src="https://itsdrdan.github.io/MCAT/assets/sec_cp.webp" alt="" width="22" height="22">Chem/Phys</button>
+    <button data-sec="cars"><img class="segic" src="https://itsdrdan.github.io/MCAT/assets/sec_cars.webp" alt="" width="22" height="22">CARS</button>
+    <button data-sec="bb"><img class="segic" src="https://itsdrdan.github.io/MCAT/assets/sec_bb.webp" alt="" width="22" height="22">Bio/Biochem</button>
+    <button data-sec="ps"><img class="segic" src="https://itsdrdan.github.io/MCAT/assets/sec_ps.webp" alt="" width="22" height="22">Psych/Soc</button>
   </div>
   <div class="modes" id="modes">
     <button class="mode on" data-mode="drill">
-      <div class="ic" style="background:var(--pink)"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#e0577f" stroke-width="2.4" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4"/></svg></div>
+      <div class="ic"><img src="https://itsdrdan.github.io/MCAT/assets/m_quick_drill.webp" alt="" width="52" height="52"></div>
       <b>Quick Drill</b><span>One question at a time, explained step by step.</span>
     </button>
     <button class="mode" data-mode="passage">
-      <div class="ic" style="background:var(--peach)"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#c46a12" stroke-width="2.4" stroke-linecap="round"><path d="M5 4h10l4 4v12H5z"/><path d="M8 11h8M8 15h8"/></svg></div>
+      <div class="ic"><img src="https://itsdrdan.github.io/MCAT/assets/m_passage_sets.webp" alt="" width="52" height="52"></div>
       <b>Passage Sets</b><span>Read a passage, answer 4–5 questions. CARS lives here.</span>
     </button>
     <button class="mode" data-mode="timed">
-      <div class="ic" style="background:var(--blue)"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#3a7fc4" stroke-width="2.4" stroke-linecap="round"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l3 2M9 2h6"/></svg></div>
+      <div class="ic"><img src="https://itsdrdan.github.io/MCAT/assets/m_timed.webp" alt="" width="52" height="52"></div>
       <b>Timed Mini-Section</b><span>10 questions at real MCAT pace for one section.</span>
     </button>
     <button class="mode" data-mode="eqs">
-      <div class="ic" style="background:var(--mint)"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#1f9a63" stroke-width="2.4" stroke-linecap="round"><path d="M4 6h16M4 12h10M4 18h7"/></svg></div>
+      <div class="ic"><img src="https://itsdrdan.github.io/MCAT/assets/m_must_know.webp" alt="" width="52" height="52"></div>
       <b>Must-Know Sheet</b><span>Equations, Psych/Soc look-alikes, CARS game plan.</span>
     </button>
     <button class="mode" data-mode="full">
-      <div class="ic" style="background:var(--lav)"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#6b4fc9" stroke-width="2.4" stroke-linecap="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg></div>
+      <div class="ic"><img src="https://itsdrdan.github.io/MCAT/assets/m_full_length.webp" alt="" width="52" height="52"></div>
       <b>Mini Full-Length</b><span>All 4 sections in real test order, timed, with breaks.</span>
     </button>
   </div>
@@ -307,6 +317,7 @@ const PAIRS=[["Stereotype / prejudice / discrimination","Think / feel / act"],["
 const CARSPLAN=["Budget about 10 minutes per passage (90 min ÷ 9 passages).","Read for the author's main point and attitude, not for every detail.","Jot a few words on what each paragraph does (\"gives example\", \"rejects view\").","Answer from the passage, not from outside knowledge.","Watch extreme words (always, never, all). The right answer usually matches the author's careful tone.","Weaken/strengthen questions: find the argument's key assumption and attack or support it.","Science sections: about 95 seconds per question. CARS: about 100 seconds."];
 
 /* ---------- Achievements ---------- */
+const ART="https://itsdrdan.github.io/MCAT/assets/";
 const BADGES = [
  {id:"first",i:"💓",n:"First Pulse",d:"Get your first question right"},
  {id:"s5",i:"🔥",n:"On a Roll",d:"5 correct in a row"},
@@ -370,7 +381,7 @@ function renderProgress(){
   $("#xpText").textContent="Level "+(Math.floor(S.xp/150)+1)+" · "+S.xp+" XP · "+(150-into)+" XP to next level";
   $("#sAns").textContent=S.ans; $("#sPct").textContent=S.ans?Math.round(S.cor/S.ans*100)+"%":"–";
   $("#sStreak").textContent=S.streak; $("#sBest").textContent=S.best;
-  $("#badges").innerHTML=BADGES.map(b=>`<div class="badge ${S.badges[b.id]?"got":""}"><div class="bi">${b.i}</div><b>${b.n}</b>${b.d}</div>`).join("");
+  $("#badges").innerHTML=BADGES.map(b=>`<div class="badge ${S.badges[b.id]?"got":""}"><div class="bi"><img src="${ART}b_${b.id}.webp" alt="" loading="lazy"></div><b>${b.n}</b>${b.d}</div>`).join("");
   const rows=Object.keys(S.units).sort((a,b)=>(S.units[a].c/S.units[a].a)-(S.units[b].c/S.units[b].a));
   const cls={cp:"",bb:"b",ps:"p",cars:"c"};
   $("#catbars").innerHTML=rows.length?'<p class="mini">Weakest units first.</p>'+rows.map(k=>{const [s,u]=k.split(":"),c=S.units[k],p=Math.round(c.c/c.a*100);return `<div class="catbar ${cls[SEC_OF[s]]}"><span>${SUBJ[s].n}: ${SUBJ[s].u[u-1]}</span><span class="track"><i style="width:${p}%"></i></span><span>${p}%</span></div>`;}).join(""):'<p class="mini">Answer some questions to see your strong and weak units.</p>';
@@ -404,7 +415,7 @@ function optionsHTML(q,order){
 }
 function feedbackHTML(q,ok,order){
   const right=LET[order.indexOf(q.a)];
-  return `<div class="fb ${ok?"ok":"bad"}"><h3>${ok?"Correct!":"Not quite. The answer is "+right+"."}</h3><ol>${q.e.map(s=>`<li>${s}</li>`).join("")}</ol>${q.t?`<div class="tip"><b>Professor Tip:</b> ${q.t}</div>`:""}</div>`;
+  return `<div class="fb ${ok?"ok":"bad"}"><img class="pulse" src="${ART}pulse_${ok?"correct":"oops"}.webp" alt=""><h3>${ok?"Correct!":"Not quite. The answer is "+right+"."}</h3><ol>${q.e.map(s=>`<li>${s}</li>`).join("")}</ol>${q.t?`<div class="tip"><b>Professor Tip:</b> ${q.t}</div>`:""}</div>`;
 }
 function wireOptions(root,onPick){
   root.querySelectorAll(".opt").forEach(o=>{
@@ -455,7 +466,7 @@ function showPQ(){
   const p=curP;
   if(pI>=p.qs.length){
     if(pScore===p.qs.length)award("pass"); save(); renderProgress();
-    stage.innerHTML=`<h2 style="font-size:24px">${p.title}: ${pScore} / ${p.qs.length}</h2><p>${pScore===p.qs.length?"Perfect passage! 🎉":pScore>=p.qs.length-1?"Strong work. Review the one you missed.":"Reread the passage, then try another one."}</p><div class="actions"><button class="btn main" id="again">Another passage</button></div>`;
+    stage.innerHTML=`<img class="pulse" style="float:right;width:120px;height:auto;margin-left:10px" src="${ART}pulse_${pScore===p.qs.length?"victory":pScore>=p.qs.length-1?"correct":"reading"}.webp" alt=""><h2 style="font-size:24px">${p.title}: ${pScore} / ${p.qs.length}</h2><p>${pScore===p.qs.length?"Perfect passage! 🎉":pScore>=p.qs.length-1?"Strong work. Review the one you missed.":"Reread the passage, then try another one."}</p><div class="actions"><button class="btn main" id="again">Another passage</button></div>`;
     $("#again").onclick=startPassage; return;
   }
   const q=p.qs[pOrder[pI]], order=shuffle([0,1,2,3]); let chosen=null;
