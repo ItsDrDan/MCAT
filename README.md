@@ -1,12 +1,12 @@
-# Pre-Med Pulse: MCAT practice by ItsDrDan
+# MCAT Study Hub + Pre-Med Pulse, by ItsDrDan
 
-Free MCAT practice covering all four sections: Chem/Phys, CARS, Bio/Biochem and Psych/Soc.
+Free MCAT prep covering all four sections: Chem/Phys, CARS, Bio/Biochem and Psych/Soc.
 
-- Quick Drill, Passage Sets, Timed Mini-Section and a Mini Full-Length in real test order
-- Filter by subject, unit and difficulty level
-- Step-by-step explanations and Professor Tips
+- **index.html: MCAT Study Hub.** Section pages with every unit, a Daily 5, a week-by-week study plan builder, topic search and progress tracking.
+- **practice.html: Pre-Med Pulse.** Quick Drill, Passage Sets, Timed Mini-Section and a Mini Full-Length in real test order. Deep links: `practice.html?subj=gc&unit=5`, `?section=cars&mode=passage`, `?mode=eqs`.
+- **data/:** the Daily 5 question pool and the search index used by the hub.
 
 Every question is original and written from the public AAMC content outline, with background from free OpenStax textbooks.
-Not affiliated with or endorsed by the AAMC.
+MCAT® is a registered trademark of the AAMC. This project is not affiliated with or endorsed by the AAMC.
 
 © ItsDrDan. All rights reserved.
