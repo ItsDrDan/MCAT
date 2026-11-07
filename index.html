@@ -44,6 +44,14 @@ nav.links{margin-left:auto;display:flex;gap:4px}
 nav.links a{text-decoration:none;font-weight:700;padding:8px 12px;border-radius:10px;font-size:15px}
 nav.links a.on{background:var(--accent-soft);color:var(--accent-d)}
 nav.links a:hover{background:#f1f0f8}
+nav.links a.navcta{display:inline-flex;align-items:center;gap:6px;background:var(--accent);color:#fff;box-shadow:0 3px 0 #3f2d8f;border-radius:999px;padding:6px 14px 6px 6px;margin-left:4px}
+nav.links a.navcta:hover{background:var(--accent-d)}
+nav.links a.navcta img{width:26px;height:26px}
+.ctarow{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-top:22px}
+.btn.big{font-size:20px;padding:8px 22px 8px 8px;gap:10px}
+.btn.big img{width:44px;height:44px}
+.ctarow span{color:var(--muted);font-weight:700;font-size:15.5px}
+@media(max-width:520px){nav.links a.navcta{padding:5px 10px 5px 5px}nav.links a.navcta img{width:22px;height:22px}.btn.big{font-size:18px}}
 @media(max-width:860px){.tsearch{display:none}.brand small{display:none}nav.links a{padding:8px 8px;font-size:14px}}
 @media(max-width:520px){.top .wrap{gap:8px;padding:0 12px}.brand span.nm{display:none}nav.links{gap:0}nav.links a{padding:7px 6px;font-size:13.5px}}
 /* hero */
@@ -221,7 +229,7 @@ footer p{margin:4px 0}
       <a href="#/" data-nav="home">Sections</a>
       <a href="#/daily" data-nav="daily">Daily 5</a>
       <a href="#/plan" data-nav="plan">Study plan</a>
-      <a href="practice.html">Practice ↗</a>
+      <a href="practice.html" class="navcta"><img src="assets/logo_pulse.webp" alt="">Practice</a>
     </nav>
   </div>
 </header>
@@ -299,6 +307,7 @@ function home(){
       <button class="btn" type="submit">Search</button>
     </form>
     <div class="chips"><span class="mini" style="font-weight:700">Try:</span>${["buffers","Michaelis–Menten","Hardy–Weinberg","operant conditioning","lens"].map(t=>`<a class="chip" href="#/search?q=${encodeURIComponent(t)}">${t}</a>`).join("")}</div>
+    <div class="ctarow"><a class="btn big" href="practice.html"><img src="assets/logo_pulse.webp" alt="">Start practicing →</a><span>Pre-Med Pulse: drills, passages, timed sets and a mini full-length</span></div>
   </div></div>
   <div class="wrap">
     <section class="blk" style="padding-top:24px">
