@@ -211,6 +211,7 @@ footer p{margin:4px 0}
 @media(max-width:560px){.mascot{width:76px}.cardart{width:64px;height:64px}}
 .hidden{display:none!important}
 @media print{.top,footer,.noprint{display:none!important}body{background:#fff}.week{break-inside:avoid}}
+.srsbox{display:flex;flex-wrap:wrap;gap:8px;align-items:center;background:#eef8f2;border:1px solid #cfe9da;border-radius:14px;padding:8px 12px;margin:8px 0}.srsbox .btn{margin-left:auto}
 </style>
 <link rel="stylesheet" href="https://itsdrdan.github.io/games/brand/itsdrdan.css">
 </head>
@@ -236,7 +237,7 @@ footer p{margin:4px 0}
 <main id="app"></main>
 <footer>
   <div class="wrap">
-    <p><b>MCAT Study Hub · Pre-Med Pulse</b> by ItsDrDan. All practice questions and passages are original. © ItsDrDan. All rights reserved.</p>
+    <p><b>MCAT Study Hub · Pre-Med Pulse</b> by ItsDrDan. All practice questions and passages are original. Practice collects anonymous stats (no names or student IDs) to help plan new lessons. © ItsDrDan. All rights reserved.</p>
     <p>Game design and content by ItsDrDan. I used AI (Claude by Anthropic) to help write the code and draft questions, the way I hope you'll use it: as a tool, while checking every answer and understanding the science behind it.</p>
     <p class="mini">MCAT® is a registered trademark of the Association of American Medical Colleges (AAMC). This hub is not affiliated with or endorsed by the AAMC. Your progress is saved only in this browser.</p>
   </div>
@@ -387,6 +388,7 @@ function progressHTML(st){
   const rows=Object.entries(st.units).filter(([k,v])=>v.a>=3).map(([k,v])=>{const [s,u]=k.split(":");return {s,u:+u,p:v.c/v.a,a:v.a};}).filter(r=>HUB.units[r.s]).sort((a,b)=>a.p-b.p).slice(0,5);
   return `<img class="cardart" src="assets/m_progress.webp" alt=""><div class="kicker">Your progress</div>
   <div class="statrow"><div><b>${fmt(st.ans)}</b><span>answered</span></div><div><b>${Math.round(st.cor/st.ans*100)}%</b><span>correct</span></div><div><b>${fmt(st.xp||0)}</b><span>XP</span></div><div><b>${Object.keys(st.units).length}</b><span>units tried</span></div></div>
+  ${(()=>{const sr=st.srs||{},n=Object.keys(sr).length,d=Object.values(sr).filter(r=>r.due<=Date.now()).length;return n?`<div class="srsbox"><b>${d}</b> missed question${d===1?"":"s"} due for review${d?"":" today"} · ${n} in your queue <a class="btn sm" href="practice.html?mode=review">Review My Misses →</a></div>`:"";})()}
   ${rows.length?`<div style="font-weight:800;margin:6px 0 2px">Study these next (weakest first)</div>`+rows.map(r=>`<div class="weak s-${SEC_OF[r.s]}"><span class="tag">${HUB.sn[r.s]}</span><span class="nm">${esc(HUB.units[r.s][r.u-1])}</span><span class="bar"><i style="width:${Math.round(r.p*100)}%"></i></span><b style="width:42px;text-align:right">${Math.round(r.p*100)}%</b><a class="btn sm ghost" href="${practice({subj:r.s,unit:r.u})}">Practice</a></div>`).join(""):`<p class="mini">Answer at least 3 questions in a unit to see it ranked here.</p>`}`;
 }
 
@@ -458,7 +460,10 @@ function logAnswer(q,ok){
   S.subj=S.subj||{}; S.units=S.units||{};
   const c=S.subj[q.subj]||(S.subj[q.subj]={a:0,c:0}); c.a++; if(ok)c.c++;
   const k=q.subj+":"+q.unit; const u=S.units[k]||(S.units[k]={a:0,c:0}); u.a++; if(ok)u.c++;
+  if(q.k){S.skills=S.skills||{};const sk=S.skills[q.k]||(S.skills[q.k]={a:0,c:0});sk.a++;if(ok)sk.c++;}
+  if(!ok&&q.id){S.srs=S.srs||{};S.srs[q.id]={b:0,due:Date.now()+864e5};}
   LS.set(GKEY,S);
+  try{ if(window.ddTrack) window.ddTrack({game:"mcat",course:HUB.sn[q.subj]||q.subj,mode:"daily5",topic:(HUB.sn[q.subj]||q.subj)+": "+(HUB.units[q.subj]?HUB.units[q.subj][q.unit-1]:q.unit),correct:!!ok}); }catch(e){}
 }
 async function daily(){
   setNav("daily");
@@ -622,5 +627,6 @@ window.addEventListener("hashchange",route);
 route();
 </script>
 <script src="https://itsdrdan.github.io/games/brand/embed.js" defer></script>
+<script src="https://itsdrdan.github.io/games/track.js" defer></script>
 </body>
 </html>
