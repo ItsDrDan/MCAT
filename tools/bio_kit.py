@@ -110,3 +110,43 @@ def punnett(title, top, side, cells=None, note=""):
             if cells and cells[i][j]:
                 b.append(_txt(x0 + c * j + c / 2, y0 + c * i + c / 2 + 5, cells[i][j], 13))
     return _frame(title, note, "".join(b), w, h)
+
+
+def ecg(title, qrs_times, p_times=None, pr=0.16, seconds=4.0, note="", labels=None, pxs=120):
+    """ECG strip on standard paper (small box 0.04 s, large box 0.20 s; 0.1 mV per small box).
+    qrs_times = times (s) of each R peak; p_times = times of P-wave peaks (default: R − pr).
+    labels = {letter: (t, mV)} to place letters on waves."""
+    import math
+    w = int(seconds * pxs) + 30; h = 200
+    x0, base = 15, 120
+    X = lambda t: x0 + t * pxs
+    Ym = lambda mv: base - mv * 60
+    b = []
+    # paper grid
+    t = 0.0
+    k = 0
+    while t <= seconds + 1e-9:
+        major = k % 5 == 0
+        b.append(f'<line x1="{X(t):.1f}" y1="10" x2="{X(t):.1f}" y2="{h - 26}" stroke="{"#f2a7b8" if major else "#fbe0e6"}" stroke-width="{1.2 if major else .6}"/>')
+        t += 0.04; k += 1
+    for j in range(0, 40):
+        y = 10 + j * 0.1 * 60
+        if y > h - 26: break
+        b.append(f'<line x1="{x0}" y1="{y:.1f}" x2="{X(seconds):.1f}" y2="{y:.1f}" stroke="{"#f2a7b8" if j % 5 == 0 else "#fbe0e6"}" stroke-width="{1.2 if j % 5 == 0 else .6}"/>')
+    p_times = p_times if p_times is not None else [r - pr for r in qrs_times]
+    g = lambda t, c, s, a: a * math.exp(-((t - c) / s) ** 2)
+    pts = []
+    for i in range(int(seconds * 500) + 1):
+        tt = i / 500
+        v = 0
+        for r in qrs_times:
+            v += g(tt, r - 0.025, 0.008, -0.12) + g(tt, r, 0.011, 1.4) + g(tt, r + 0.03, 0.01, -0.3) + g(tt, r + 0.28, 0.045, 0.3)
+        for p in p_times:
+            v += g(tt, p, 0.025, 0.16)
+        pts.append((X(tt), Ym(v)))
+    b.append('<path d="M' + " L".join(f"{x:.1f},{y:.1f}" for x, y in pts) + f'" fill="none" stroke="{INK}" stroke-width="1.8"/>')
+    for s in range(int(seconds) + 1):
+        b.append(_txt(X(s), h - 10, f"{s} s", 10, fill=MUTED, weight=600))
+    for lab, (tt, mv) in (labels or {}).items():
+        b.append(_txt(X(tt), Ym(mv) - 6, lab, 13, fill=COL["purple"]))
+    return _frame(title, note or "paper speed 25 mm s⁻¹: small box = 0.04 s, large box = 0.20 s", "".join(b), w, h)
