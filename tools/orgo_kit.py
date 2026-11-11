@@ -147,14 +147,20 @@ def scheme(title, parts, note="", bl=26, labels=None, maxw=450):
         elif p == "\n":
             items.append(("br", 0, None))
         else:
-            inner, w, h = mol_svg(p, bl); items.append(("mol", w, (inner, h)))
+            inner, w, h = mol_svg(p, bl)
+            k = sum(1 for it in items if it[0] == "mol")
+            lab = labels[k] if labels and k < len(labels) else ""
+            need = int(6.9 * len(re.sub("<[^>]+>", "", lab))) + 8
+            if need > w:  # keep the caption inside the cell
+                inner = f'<g transform="translate({(need - w) / 2:.1f},0)">{inner}</g>'; w = need
+            items.append(("mol", w, (inner, h)))
     rows, cur, cw = [], [], 0
     for it in items:
         if it[0] == "br":
             rows.append(cur); cur, cw = [], 0; continue
         if cur and cw + it[1] + 8 > maxw - 20 and it[0] != "plus":
             # never end a row on an arrow: carry a trailing arrow to the next row
-            carry = [cur.pop()] if cur[-1][0] == "arr" else []
+            carry = [cur.pop()] if cur[-1][0] in ("arr", "plus") else []
             rows.append(cur); cur = carry; cw = sum(c[1] + 8 for c in cur)
         cur.append(it); cw += it[1] + 8
     rows.append(cur)
