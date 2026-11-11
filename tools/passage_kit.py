@@ -182,8 +182,13 @@ def line(title, xlab, ylab, series, xmax, ymax, xstep=None, ystep=None, xmin=0, 
         out.append(_l(X(vx), y1, X(vx), y0, MUTED, 1.2, "4 4"))
         right_room = x1 - X(vx) > 7 * len(re.sub("<[^>]+>", "", lab)) + 8
         out.append(_t(X(vx) + 4 if right_room else X(vx) - 4, y1 + 12, lab, 10, anchor="start" if right_room else "end"))
-    for si, (name, pts) in enumerate(series):
+    for si, ser in enumerate(series):
+        name, pts = ser[0], ser[1]
         c = COLORS[si]
+        if len(ser) > 2 and ser[2] == "scatter":  # points only, e.g. individual participants
+            for (x, y) in pts:
+                out.append(f'<circle cx="{X(x):.1f}" cy="{Y(y):.1f}" r="3" fill="{c}" fill-opacity="0.55"/>')
+            continue
         d = " ".join(f"{'M' if k == 0 else 'L'}{X(x):.1f},{Y(y):.1f}" for k, (x, y) in enumerate(pts))
         dash = f' stroke-dasharray="{DASH[si]}"' if DASH[si] else ""
         out.append(f'<path d="{d}" fill="none" stroke="{c}" stroke-width="2.5" stroke-linejoin="round"{dash}/>')
