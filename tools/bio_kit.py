@@ -67,3 +67,46 @@ def pedigree(title, people, couples=(), families=(), note="", w=460, slot=52, ge
             b.append(_txt(x + 12, ly + 4, text, 10, "start", MUTED, 600))
             x += 30 + 6.2 * len(text)
     return _frame(title, note, "".join(b), w, h)
+
+
+def gel(title, lanes, ladder=None, note="", w=None, h=300, top_label="wells", unit="bp"):
+    """Agarose/SDS gel. lanes = [(label, [sizes])]; ladder = [sizes] drawn as lane 'M'. Bands are placed on a log scale."""
+    import math
+    allv = [s for _, ss in lanes for s in ss] + (ladder or [])
+    lo, hi = min(allv) * 0.7, max(allv) * 1.3
+    L = ([("M", ladder)] if ladder else []) + lanes
+    lw = 64; w = w or (60 + lw * len(L) + 70)
+    y0, y1 = 46, h - 24
+    Y = lambda s: y0 + (math.log10(hi) - math.log10(s)) / (math.log10(hi) - math.log10(lo)) * (y1 - y0)
+    b = [f'<rect x="40" y="30" width="{lw * len(L) + 20}" height="{h - 44}" rx="8" fill="#eef1f8" stroke="#c9cfe0"/>']
+    for i, (lab, sizes) in enumerate(L):
+        x = 50 + i * lw
+        b.append(f'<rect x="{x + 8}" y="34" width="{lw - 16}" height="7" fill="#9aa3bb"/>')
+        b.append(_txt(x + lw / 2, 22, lab, 12))
+        for s in sizes:
+            col = "#7a5cc4" if lab != "M" else "#9aa3bb"
+            b.append(f'<rect x="{x + 8}" y="{Y(s) - 3:.1f}" width="{lw - 16}" height="6" rx="2" fill="{col}"/>')
+    if ladder:
+        for s in ladder:
+            b.append(_txt(50 + lw * len(L) + 16, Y(s) + 4, f"{s:,}", 10, "start", MUTED, 600))
+        b.append(_txt(50 + lw * len(L) + 16, y0 - 14, unit, 10, "start", MUTED, 600))
+    b.append(_txt(26, y0 + 4, "−", 14, fill=COL["blue"]) + _txt(26, y1, "+", 14, fill=COL["pink"]))
+    return _frame(title, note, "".join(b), w, h)
+
+
+def punnett(title, top, side, cells=None, note=""):
+    """Punnett square grid with gametes on the top and side. cells = 2-D list of strings (or None to leave blank)."""
+    n, m = len(top), len(side)
+    c = 62; x0, y0 = 70, 40
+    w, h = x0 + c * n + 20, y0 + c * m + 20
+    b = []
+    for j, g in enumerate(top):
+        b.append(_txt(x0 + c * j + c / 2, y0 - 12, g, 14, fill=COL["blue"]))
+    for i, g in enumerate(side):
+        b.append(_txt(x0 - 12, y0 + c * i + c / 2 + 5, g, 14, "end", COL["pink"]))
+    for i in range(m):
+        for j in range(n):
+            b.append(f'<rect x="{x0 + c * j}" y="{y0 + c * i}" width="{c}" height="{c}" fill="#fff" stroke="{INK}" stroke-width="1.5"/>')
+            if cells and cells[i][j]:
+                b.append(_txt(x0 + c * j + c / 2, y0 + c * i + c / 2 + 5, cells[i][j], 13))
+    return _frame(title, note, "".join(b), w, h)

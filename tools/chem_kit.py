@@ -217,3 +217,46 @@ def levels_spectrum(title, levels, transitions, lines, note="energy levels not t
         b.append(f'<rect x="{X(nm) - 2:.1f}" y="{sy + 2}" width="4" height="30" fill="{COL.get(c, c)}"/>')
         b.append(_txt(X(nm), sy - 6, lab, 10, fill=INK))
     return _frame(title, note, "".join(b), w, h)
+
+
+def ir_spectrum(title, peaks, note="", w=480, h=270):
+    """Schematic IR spectrum (% transmittance vs wavenumber, 4000 → 500 cm⁻¹).
+    peaks = [(center_cm1, depth 0-1, half-width_cm1)]; broad O–H bands use a large half-width."""
+    x0, x1, y0, y1 = 56, w - 16, h - 40, 20
+    X = lambda k: x0 + (4000 - k) / 3500 * (x1 - x0)
+    pts = []
+    for k in range(4000, 499, -10):
+        t = 1.0
+        for c, d, hw in peaks:
+            t *= 1 - d * math.exp(-((k - c) / hw) ** 2)
+        pts.append((X(k), y1 + (1 - t) * (y0 - y1) * .92 + 4))
+    b = [_line(x0, y0, x1, y0, INK, 1.4), _line(x0, y1, x0, y0, INK, 1.4)]
+    for k in (4000, 3000, 2000, 1500, 1000, 500):
+        b.append(_line(X(k), y0, X(k), y0 + 4, INK, 1.2) + _txt(X(k), y0 + 16, f"{k}", 10, fill=MUTED, weight=600))
+    b.append(_txt((x0 + x1) / 2, h - 8, "Wavenumber (cm⁻¹)", 11))
+    b.append(f'<text x="16" y="{(y0 + y1) / 2:.1f}" font-size="11" text-anchor="middle" fill="{INK}" font-weight="700" font-family="Nunito,Arial,sans-serif" transform="rotate(-90 16 {(y0 + y1) / 2:.1f})">% Transmittance</text>')
+    d = "M" + " L".join(f"{x:.1f},{y:.1f}" for x, y in pts)
+    b.append(f'<path d="{d}" fill="none" stroke="{COL["purple"]}" stroke-width="1.8"/>')
+    return _frame(title, note, "".join(b), w, h)
+
+
+def nmr_spectrum(title, signals, note="", w=480, h=250, xmax=12):
+    """Stick ¹H NMR spectrum. signals = [(ppm, n_peaks, integration_H, label)]; peaks use Pascal-triangle heights."""
+    x0, x1, y0, y1 = 30, w - 20, h - 42, 34
+    X = lambda p: x1 - p / xmax * (x1 - x0)
+    b = [_line(x0, y0, x1, y0, INK, 1.4)]
+    for p in range(0, xmax + 1):
+        b.append(_line(X(p), y0, X(p), y0 + 4, INK, 1.1))
+        if p % 2 == 0 or xmax <= 8:
+            b.append(_txt(X(p), y0 + 16, str(p), 10, fill=MUTED, weight=600))
+    b.append(_txt((x0 + x1) / 2, h - 8, "Chemical shift δ (ppm)", 11))
+    for ppm, n, H, lab in signals:
+        coeffs = [math.comb(n - 1, i) for i in range(n)]
+        top = max(coeffs)
+        tall = (y0 - y1 - 18) * min(1, .35 + .13 * H)
+        sp = 4.5
+        for i, cf in enumerate(coeffs):
+            xx = X(ppm) + (i - (n - 1) / 2) * sp
+            b.append(_line(xx, y0, xx, y0 - tall * cf / top, COL["blue"], 1.8))
+        b.append(_txt(X(ppm), y0 - tall - 8, lab or f"{H}H", 10, fill=INK))
+    return _frame(title, note, "".join(b), w, h)
