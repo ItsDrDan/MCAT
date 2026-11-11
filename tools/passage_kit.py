@@ -63,20 +63,40 @@ def _legend(names, x, y, colors, dashes=None, kind="line"):
     return "".join(out)
 
 
+def _legend_rows(names, avail):
+    rows, cur, w = [], [], 0
+    for i, n in enumerate(names):
+        wid = 34 + 6.6 * len(re.sub("<[^>]+>", "", n))
+        if cur and w + wid > avail:
+            rows.append(cur); cur, w = [], 0
+        cur.append((i, n, wid)); w += wid
+    if cur:
+        rows.append(cur)
+    return rows
+
+
+def _top(series, x0, x1):
+    """Top of the plot area: leaves room for one or more legend rows."""
+    if len(series) < 2:
+        return 16
+    return 16 + 20 * len(_legend_rows([s[0] for s in series], x1 - x0))
+
+
 def _hlegend(names, x0, x1, kind="line"):
-    """One row of legend items centered above the plot area (never overlaps data)."""
+    """Legend rows centered above the plot area (never overlaps data)."""
     if not names or len(names) < 2:
         return ""
-    widths = [34 + 6.6 * len(re.sub("<[^>]+>", "", n)) for n in names]
-    x = (x0 + x1) / 2 - sum(widths) / 2
     out = []
-    for i, n in enumerate(names):
-        if kind == "bar":
-            out.append(f'<rect x="{x:.1f}" y="9" width="14" height="10" fill="{COLORS[i]}" rx="2"/>')
-        else:
-            out.append(_l(x, 14, x + 18, 14, COLORS[i], 3, DASH[i]))
-        out.append(_t(x + 22, 18, n, anchor="start", fill=INK))
-        x += widths[i]
+    for r, row in enumerate(_legend_rows(names, x1 - x0)):
+        x = (x0 + x1) / 2 - sum(w for _, _, w in row) / 2
+        y = 14 + 20 * r
+        for i, n, wid in row:
+            if kind == "bar":
+                out.append(f'<rect x="{x:.1f}" y="{y - 5}" width="14" height="10" fill="{COLORS[i]}" rx="2"/>')
+            else:
+                out.append(_l(x, y, x + 18, y, COLORS[i], 3, DASH[i]))
+            out.append(_t(x + 22, y + 4, n, anchor="start", fill=INK))
+            x += wid
     return "".join(out)
 
 
@@ -98,7 +118,7 @@ def _yaxis(x0, x1, y0, y1, ymin, ymax, ticks, ylab, log=False, fmt=_fmt):
 def bar(title, ylab, groups, series, ymax, step=None, note="", ymin=0, stars=None, w=460, h=300):
     """Grouped bar chart. series = [(name, [values], [errors or None])].
     stars = {group_index: "*"} puts a mark above the tallest bar of that group."""
-    x0, x1, y0, y1 = 64, w - 14, h - 52, (36 if len(series) > 1 else 16)
+    x0, x1, y0, y1 = 64, w - 14, h - 52, _top(series, 64, w - 14)
     step = step or (ymax - ymin) / 5
     ticks = [ymin + i * step for i in range(int(round((ymax - ymin) / step)) + 1)]
     out = _yaxis(x0, x1, y0, y1, ymin, ymax, ticks, ylab)
@@ -132,7 +152,7 @@ def bar(title, ylab, groups, series, ymax, step=None, note="", ymin=0, stars=Non
 def line(title, xlab, ylab, series, xmax, ymax, xstep=None, ystep=None, xmin=0, ymin=0, note="",
          logy=False, points=True, w=460, h=300, legend_at="right", vlines=None, xfmt=_fmt, yfmt=_fmt):
     """Line chart. series = [(name, [(x, y), ...])]. vlines = [(x, label)]."""
-    x0, x1, y0, y1 = 64, w - 14, h - 52, (36 if len(series) > 1 else 16)
+    x0, x1, y0, y1 = 64, w - 14, h - 52, _top(series, 64, w - 14)
     if logy:
         ticks = [10 ** k for k in range(int(round(math.log10(ymin))), int(round(math.log10(ymax))) + 1)]
     else:
