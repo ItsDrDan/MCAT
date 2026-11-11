@@ -851,6 +851,24 @@ function sectionDone(s){ return B=>{
     } else if(FL.real) voidScreen(); else finishFull();
   };
 }
+/* ---------- Optional, anonymous score calibration (improves the estimate over time) ---------- */
+function calibCard(rows){
+  const box=document.createElement("div"); box.className="tip"; box.style.marginTop="14px";
+  box.innerHTML=`<b>Help make these estimates more accurate (optional).</b> If you've taken an official AAMC practice exam or the real MCAT, enter those section scores. Your raw scores from this exam and the scores you type are sent with no name, email or ID, and Dr. Dan uses them to tune the score estimate for everyone.
+  <div class="row" style="flex-wrap:wrap;gap:8px;margin-top:8px">${["cp","cars","bb","ps"].map(k=>`<label class="mini">${SECN[k]} <input type="number" min="118" max="132" step="1" data-cs="${k}" style="width:70px"></label>`).join("")}
+  <label class="mini">From <select id="csrc"><option>AAMC practice exam</option><option>Real MCAT</option><option>Another company's full-length</option></select></label>
+  <label class="mini">Taken <select id="cwhen"><option>within a week of this one</option><option>within a month</option><option>more than a month apart</option></select></label></div>
+  <div class="actions" style="margin-top:8px"><button class="btn alt" id="csend">Send anonymously</button></div>`;
+  $("#rvm").before(box);
+  box.querySelector("#csend").onclick=()=>{
+    const real={}; box.querySelectorAll("[data-cs]").forEach(i=>{const v=+i.value; if(v>=118&&v<=132) real[i.dataset.cs]=v;});
+    if(!Object.keys(real).length){toast("Type at least one section score from 118 to 132.");return;}
+    const live=/\.github\.io$/.test(location.hostname);
+    if(live){ try{ fetch(REPORT_URL,{method:"POST",mode:"no-cors",headers:{"Content-Type":"text/plain;charset=utf-8"},
+      body:JSON.stringify({type:"report",game:"mcat",qid:"score-calibration",reason:"Score calibration",note:JSON.stringify({here:rows,real,src:box.querySelector("#csrc").value,when:box.querySelector("#cwhen").value})})}); }catch(e){} }
+    box.innerHTML=live?"<b>Thank you!</b> Your scores were sent anonymously.":"<b>Thanks!</b> Calibration data is only sent from the live site.";
+  };
+}
 function voidScreen(){
   stage.innerHTML=`<h2 style="font-size:22px">Exam complete: score or void?</h2>
   <p>On test day, after Psych/Soc, you get about 5 minutes to make one final choice: have this exam scored, or void it. Voided exams aren't scored, schools never see them, and they still count toward your testing limits. The choice can't be undone.</p>
@@ -874,6 +892,7 @@ function finishFull(){
   const showSec=i=>{ $("#rvm").innerHTML=""; const rp=document.createElement("div"); rp.innerHTML=reportHTML(FL.results[i].B); const lst=document.createElement("div"); $("#rvm").append(rp,lst); reviewList(FL.results[i].B,lst); };
   tabs.forEach(b=>b.onclick=()=>{tabs.forEach(x=>x.classList.toggle("on",x===b));showSec(+b.dataset.i);});
   showSec(0); $("#again").onclick=FL.real?startReal:startFull;
+  if(FL.real&&!FL.voided) calibCard(FL.results.map(r=>({s:r.sec,c:r.B.score,n:r.B.items.length,e:estScore(r.B.score,r.B.items.length).mid})));
 }
 
 /* ---------- Full-Length Exam (real length, real timing) ---------- */
