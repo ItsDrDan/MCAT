@@ -152,7 +152,8 @@ def line(title, xlab, ylab, series, xmax, ymax, xstep=None, ystep=None, xmin=0, 
     out.append(_t((x0 + x1) / 2, h - 10, xlab, 12, fill=INK))
     for vx, lab in (vlines or []):
         out.append(_l(X(vx), y1, X(vx), y0, MUTED, 1.2, "4 4"))
-        out.append(_t(X(vx) + 4, y1 + 12, lab, 10, anchor="start"))
+        right_room = x1 - X(vx) > 7 * len(re.sub("<[^>]+>", "", lab)) + 8
+        out.append(_t(X(vx) + 4 if right_room else X(vx) - 4, y1 + 12, lab, 10, anchor="start" if right_room else "end"))
     for si, (name, pts) in enumerate(series):
         c = COLORS[si]
         d = " ".join(f"{'M' if k == 0 else 'L'}{X(x):.1f},{Y(y):.1f}" for k, (x, y) in enumerate(pts))
