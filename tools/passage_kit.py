@@ -139,6 +139,14 @@ def line(title, xlab, ylab, series, xmax, ymax, xstep=None, ystep=None, xmin=0, 
         ystep = ystep or (ymax - ymin) / 5
         ticks = [ymin + i * ystep for i in range(int(round((ymax - ymin) / ystep)) + 1)]
     out = _yaxis(x0, x1, y0, y1, ymin, ymax, ticks, ylab, logy, yfmt)
+    if logy and len(ticks) <= 4:  # few decades: add labeled minor gridlines at 2x and 5x so values can be read
+        for d in ticks:
+            for m in (2, 5):
+                v = d * m
+                if ymin < v < ymax:
+                    yy = y0 - (math.log10(v) - math.log10(ymin)) / (math.log10(ymax) - math.log10(ymin)) * (y0 - y1)
+                    out.append(_l(x0, yy, x1, yy, "#f4f1fa", 1))
+                    out.append(_t(x0 - 6, yy + 3, f"{v:,.0f}" if v >= 1 else f"{v:g}", 8, anchor="end", fill="#9a96b0"))
     X = lambda x: x0 + (x - xmin) / (xmax - xmin) * (x1 - x0)
     Y = (lambda v: y0 - (math.log10(v) - math.log10(ymin)) / (math.log10(ymax) - math.log10(ymin)) * (y0 - y1)) if logy \
         else (lambda v: y0 - (v - ymin) / (ymax - ymin) * (y0 - y1))
