@@ -188,3 +188,32 @@ def etc_diagram(title, note="", blocked=None, w=520, h=300):
     b.append(_arrow(92, top + 40, 120, top + 40, COL["purple"], 1.6, 7) + _arrow(160, top + 40, 198, top + 40, COL["purple"], 1.6, 7))
     b.append(_arrow(262, top + 6, 298, top + 6, COL["purple"], 1.6, 7))
     return _frame(title, note, "".join(b), w, h)
+
+
+def levels_spectrum(title, levels, transitions, lines, note="energy levels not to scale", w=480, h=380, emin=-13.6, emax=0):
+    """Energy-level diagram (top) with emission arrows, plus a visible line spectrum strip (bottom).
+    levels = [(n, E_eV)]; transitions = [(n_hi, n_lo, color_key)]; lines = [(wavelength_nm, color_key, label)]."""
+    x0, x1, top, bot = 70, w - 56, 16, h - 120
+    def Y(e):  # schematic spacing so the upper levels don't pile up (not to scale)
+        fr = 1.0 if e >= 0 else 1 - (-e / -emin) ** 0.4
+        return bot - fr * (bot - top)
+    b = [_txt(x0, h - 6 - 100 + 100, "", 1)]
+    for n, e in levels:
+        b.append(_line(x0, Y(e), x1, Y(e), INK, 1.6))
+        b.append(_txt(x0 - 8, Y(e) + 4, f"n = {n}" if n != "∞" else "n = ∞", 11, "end"))
+        b.append(_txt(x1 + 4, Y(e) + 4, f"{e:g} eV", 10, "start", MUTED, 600))
+    lev = dict(levels)
+    for k, (hi, lo, c) in enumerate(transitions):
+        xx = x0 + 40 + k * 46
+        b.append(_arrow(xx, Y(lev[hi]), xx, Y(lev[lo]), COL.get(c, c), 2.6, 9))
+    # spectrum strip 400-700 nm
+    sx0, sx1, sy = x0, x1, h - 70
+    b.append(f'<rect x="{sx0}" y="{sy}" width="{sx1 - sx0}" height="34" fill="#1d1b2b" rx="4"/>')
+    X = lambda nm: sx0 + (nm - 400) / 300 * (sx1 - sx0)
+    for nm in (400, 500, 600, 700):
+        b.append(_txt(X(nm), sy + 50, f"{nm}", 10, fill=MUTED, weight=600))
+    b.append(_txt((sx0 + sx1) / 2, sy + 64, "Wavelength (nm)", 11))
+    for nm, c, lab in lines:
+        b.append(f'<rect x="{X(nm) - 2:.1f}" y="{sy + 2}" width="4" height="30" fill="{COL.get(c, c)}"/>')
+        b.append(_txt(X(nm), sy - 6, lab, 10, fill=INK))
+    return _frame(title, note, "".join(b), w, h)

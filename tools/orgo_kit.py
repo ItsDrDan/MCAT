@@ -30,7 +30,7 @@ def _mol(smi, explicit_h=None):
     m = Chem.MolFromSmiles(smi)
     assert m is not None, smi
     heavy = m.GetNumAtoms()
-    if explicit_h or (explicit_h is None and heavy <= 2 and all(a.GetSymbol() == "C" for a in m.GetAtoms())):
+    if explicit_h or (explicit_h is None and heavy <= 2):
         m = Chem.AddHs(m)
     best, bc = None, -1
     for cg in (True, False):  # try both RDKit layout engines, keep the less crowded one
