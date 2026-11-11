@@ -122,6 +122,8 @@ def bar(title, ylab, groups, series, ymax, step=None, note="", ymin=0, stars=Non
     step = step or (ymax - ymin) / 5
     ticks = [ymin + i * step for i in range(int(round((ymax - ymin) / step)) + 1)]
     out = _yaxis(x0, x1, y0, y1, ymin, ymax, ticks, ylab)
+    if ymin < 0:
+        out.append(_l(x0, Y0 := y0 - (0 - ymin) / (ymax - ymin) * (y0 - y1), x1, Y0, INK, 1.2))
     gw = (x1 - x0) / len(groups)
     bw = min(54, (gw - 24) / len(series))
     Y = lambda v: y0 - (v - ymin) / (ymax - ymin) * (y0 - y1)
@@ -136,7 +138,8 @@ def bar(title, ylab, groups, series, ymax, step=None, note="", ymin=0, stars=Non
             if v is None:
                 continue
             bx = cx - bw * len(series) / 2 + bw * si + 1
-            out.append(f'<rect x="{bx:.1f}" y="{Y(v):.1f}" width="{bw - 2:.1f}" height="{y0 - Y(v):.1f}" fill="{COLORS[si]}" rx="3"/>')
+            base = Y(max(ymin, 0))
+            out.append(f'<rect x="{bx:.1f}" y="{min(Y(v), base):.1f}" width="{bw - 2:.1f}" height="{abs(base - Y(v)):.1f}" fill="{COLORS[si]}" rx="3"/>')
             top = min(top, Y(v))
             if errs and errs[gi]:
                 e = errs[gi]; mx = bx + (bw - 2) / 2
