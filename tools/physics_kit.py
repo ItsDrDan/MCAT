@@ -68,10 +68,13 @@ def fbd(title, forces, note="", incline=None, obj="block", w=420, h=300, obj_lab
     if obj_label:
         body.append(_txt(cx, cy + 4, obj_label, 12))
     unit = min(w, h) * .36
-    for lab, ang, rel, c in forces:
+    for fo in forces:
+        lab, ang, rel, c = fo[:4]
+        ox, oy = fo[4] if len(fo) > 4 else (0, 0)  # optional start offset (px) so parallel forces don't overlap
         a = math.radians(ang)
-        x2, y2 = cx + rel * unit * math.cos(a), cy - rel * unit * math.sin(a)
-        body.append(_arrow(cx, cy, x2, y2, COL.get(c, c), 3, 12))
+        sx, sy = cx + ox, cy + oy
+        x2, y2 = sx + rel * unit * math.cos(a), sy - rel * unit * math.sin(a)
+        body.append(_arrow(sx, sy, x2, y2, COL.get(c, c), 3, 12))
         lx, ly = x2 + 16 * math.cos(a), y2 - 16 * math.sin(a) + 4
         anchor = "start" if math.cos(a) > .3 else "end" if math.cos(a) < -.3 else "middle"
         body.append(_txt(lx, ly, lab, 13, anchor, COL.get(c, c)))
