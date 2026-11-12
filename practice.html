@@ -326,7 +326,7 @@ details.why li.mine{background:#fff3f3;border-radius:8px;padding:2px 6px;margin-
 <div id="srlive" class="sr-only" aria-live="assertive"></div>
 <footer>
   Questions are original practice written from the AAMC's public “What's on the MCAT Exam?” content outline, with background from free OpenStax textbooks (Chemistry, Organic Chemistry, Biology, Physics, Psychology and Sociology). CARS passages are original essays written for this game or adapted from public-domain works (credited under each passage); all questions are original. Not affiliated with or endorsed by the AAMC. MCAT® is a registered trademark of the AAMC.<br><br>
-  Game design and chemistry by ItsDrDan. I used AI (Claude by Anthropic) to help write the code, the way I hope you'll use it: as a tool, while checking every answer and understanding the chemistry and math behind it.<br>This game collects anonymous practice stats (no names or student IDs) to help plan new lessons. Problem reports send only the question ID and what you type.<br>© ItsDrDan. All rights reserved.
+  Game design and chemistry by ItsDrDan. I used AI (Claude by Anthropic) to help write the code, the way I hope you'll use it: as a tool, while checking every answer and understanding the chemistry and math behind it.<br>This game collects anonymous practice stats (which question was answered and which choice was picked; no names or student IDs) to find confusing questions and plan new lessons. Problem reports send only the question ID and what you type.<br>© ItsDrDan. All rights reserved.
 </footer>
 
 <script src="https://itsdrdan.github.io/games/brand/icons.js" defer></script>
@@ -473,9 +473,11 @@ function srsUpdate(q,ok){
 }
 const srsDue=()=>{const now=Date.now();return Object.keys(S.srs).filter(id=>S.srs[id].due<=now);};
 let curQ=null;
-function record(subj,unit,ok,q){
+/* Short fingerprint of a question's wording, so stats from before an edit aren't mixed with the new version. */
+function qver(q){ let h=2166136261>>>0; const s=String(q.q)+"|"+q.o.join("|"); for(const ch of s){ h^=ch.charCodeAt(0); h=Math.imul(h,16777619)>>>0; } return h.toString(36); }
+function record(subj,unit,ok,q,pick){
   if(q){ const skk=q.c&&CATS[q.c]&&CATS[q.c].s==="cars"?q.c:q.k; if(skk){const sk=S.skills[skk]||(S.skills[skk]={a:0,c:0}); sk.a++; if(ok)sk.c++;} srsUpdate(q,ok);
-    try{ if(window.ddTrack) window.ddTrack({game:"mcat",course:"MCAT",mode:mode+" · "+SECN[SEC_OF[subj]],topic:SUBJ[subj].n+": "+SUBJ[subj].u[unit-1],correct:!!ok}); }catch(e){} }
+    try{ if(window.ddTrack) window.ddTrack({game:"mcat",course:"MCAT",mode:mode+" · "+SECN[SEC_OF[subj]],topic:SUBJ[subj].n+": "+SUBJ[subj].u[unit-1],correct:!!ok,item:qid(q),pick:(pick==null?"":pick),key:q.a,ver:qver(q)}); }catch(e){} }
   S.ans++; if(ok){S.cor++;S.streak++;S.xp+=10+Math.min(S.streak,10);S.best=Math.max(S.best,S.streak);}else{S.streak=0;S.xp+=2;}
   const c=S.subj[subj]||(S.subj[subj]={a:0,c:0}); c.a++; if(ok)c.c++;
   const k=UNITKEY(subj,unit); const u=S.units[k]||(S.units[k]={a:0,c:0}); u.a++; if(ok)u.c++;
@@ -597,7 +599,7 @@ function showDrill(){
   $("#skip").onclick=()=>{drillI++;showDrill();};
   $("#chk").onclick=()=>{
     if(root.dataset.locked){drillI++;showDrill();return;}
-    if(chosen===null)return; const ok=chosen===q.a; reveal(root,q,chosen); record(q.subj,q.unit,ok,q);
+    if(chosen===null)return; const ok=chosen===q.a; reveal(root,q,chosen); record(q.subj,q.unit,ok,q,chosen);
     $("#fb").innerHTML=feedbackHTML(q,ok,order,chosen); $("#chk").textContent="Next question →"; $("#skip").classList.add("hidden");
   };
 }
@@ -650,7 +652,7 @@ function showPQ(){
   wireOptions(root,oi=>{chosen=oi;$("#chk").disabled=false;});
   $("#chk").onclick=()=>{
     if(root.dataset.locked){pI++;showPQ();return;}
-    const ok=chosen===q.a; if(ok)pScore++; reveal(root,q,chosen); record(p.subj,p.unit,ok,q);
+    const ok=chosen===q.a; if(ok)pScore++; reveal(root,q,chosen); record(p.subj,p.unit,ok,q,chosen);
     $("#fb").innerHTML=feedbackHTML(q,ok,order,chosen); $("#chk").textContent=pI+1<p.qs.length?"Next question →":"See results →";
   };
 }
@@ -727,7 +729,7 @@ function showReview(){
 }
 function finishBlock(){
   if(!T||T.done)return; T.done=true; clearInterval(T.iv);
-  let score=0; T.items.forEach((it,k)=>{const ok=T.ans[k]===it.q.a; if(ok)score++; if(T.ans[k]!==null)record(it.subj,it.unit,ok,it.q);});
+  let score=0; T.items.forEach((it,k)=>{const ok=T.ans[k]===it.q.a; if(ok)score++; if(T.ans[k]!==null)record(it.subj,it.unit,ok,it.q,T.ans[k]);});
   T.score=score; T.used=T.secs-Math.max(T.left,0);
   const xs=xSeen(); T.items.forEach(it=>{xs[it.p?it.p.id:qid(it.q)]=1;}); save();
   T.onDone(T);

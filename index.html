@@ -277,7 +277,7 @@ details.faq p{margin:8px 0 2px;color:var(--muted)}
 <main id="app" tabindex="-1"></main>
 <footer>
   <div class="wrap">
-    <p><b>MCAT Study Hub · Pre-Med Pulse</b> by ItsDrDan. All practice questions and passages are original. Practice collects anonymous stats (no names or student IDs) to help plan new lessons. © ItsDrDan. All rights reserved.</p>
+    <p><b>MCAT Study Hub · Pre-Med Pulse</b> by ItsDrDan. All practice questions and passages are original. Practice collects anonymous stats (which question was answered and which choice was picked; no names or student IDs) to find confusing questions and plan new lessons. © ItsDrDan. All rights reserved.</p>
     <p>Game design and content by ItsDrDan. I used AI (Claude by Anthropic) to help write the code and draft questions, the way I hope you'll use it: as a tool, while checking every answer and understanding the science behind it.</p>
     <p class="mini">MCAT® is a registered trademark of the Association of American Medical Colleges (AAMC). This hub is not affiliated with or endorsed by the AAMC. Your progress is saved only in this browser.</p>
   </div>
@@ -515,7 +515,8 @@ function pickDaily(pool,day){
   return set;
 }
 function shuffle(a,rnd=Math.random){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(rnd()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
-function logAnswer(q,ok){
+function qver(q){ let h=2166136261>>>0; const s=String(q.q)+"|"+q.o.join("|"); for(const ch of s){ h^=ch.charCodeAt(0); h=Math.imul(h,16777619)>>>0; } return h.toString(36); }
+function logAnswer(q,ok,pick){
   const S=stats();
   S.ans=(S.ans||0)+1; if(ok){S.cor=(S.cor||0)+1;S.xp=(S.xp||0)+10;S.streak=(S.streak||0)+1;S.best=Math.max(S.best||0,S.streak);} else S.streak=0;
   S.subj=S.subj||{}; S.units=S.units||{};
@@ -524,7 +525,7 @@ function logAnswer(q,ok){
   if(q.k){S.skills=S.skills||{};const sk=S.skills[q.k]||(S.skills[q.k]={a:0,c:0});sk.a++;if(ok)sk.c++;}
   if(!ok&&q.id){S.srs=S.srs||{};S.srs[q.id]={b:0,due:Date.now()+864e5};}
   LS.set(GKEY,S);
-  try{ if(window.ddTrack) window.ddTrack({game:"mcat",course:"MCAT",mode:"daily5 · "+(HUB.sn[q.subj]||q.subj),topic:(HUB.sn[q.subj]||q.subj)+": "+(HUB.units[q.subj]?HUB.units[q.subj][q.unit-1]:q.unit),correct:!!ok}); }catch(e){}
+  try{ if(window.ddTrack) window.ddTrack({game:"mcat",course:"MCAT",mode:"daily5 · "+(HUB.sn[q.subj]||q.subj),topic:(HUB.sn[q.subj]||q.subj)+": "+(HUB.units[q.subj]?HUB.units[q.subj][q.unit-1]:q.unit),correct:!!ok,item:q.id||"",pick:(pick==null?"":pick),key:q.a,ver:qver(q)}); }catch(e){}
 }
 function fbBody(q,o,chosen){return `<ol>${q.e.map(x=>`<li>${x}</li>`).join("")}</ol>${q.w&&q.w.some(Boolean)?`<details class="why" open><summary>Why the other choices are wrong</summary><ul>${o.map((oi,pos)=>oi===q.a||!q.w[oi]?"":`<li class="${oi===chosen?"mine":""}"><b>${"ABCD"[pos]}.</b> ${q.w[oi]}${oi===chosen?' <span class="yp">your pick</span>':""}</li>`).join("")}</ul></details>`:""}${q.t?`<div class="tip"><b>Professor Tip:</b> ${q.t}</div>`:""}`;}
 async function daily(){
@@ -574,7 +575,7 @@ async function daily(){
     btns.forEach(b=>b.onclick=()=>{if(chosen!==null&&$("#chk").dataset.done)return;btns.forEach(x=>x.classList.remove("sel"));b.classList.add("sel");chosen=+b.dataset.k;$("#chk").disabled=false;});
     $("#chk").onclick=()=>{
       if($("#chk").dataset.done){i++;show();window.scrollTo(0,0);return;}
-      const ok=chosen===q.a; res[i]=ok; picks[i]=chosen; logAnswer(q,ok);
+      const ok=chosen===q.a; res[i]=ok; picks[i]=chosen; logAnswer(q,ok,chosen);
       btns.forEach(b=>{b.disabled=true;const k=+b.dataset.k;if(k===q.a)b.classList.add("right");else if(k===chosen)b.classList.add("wrong");});
       const m=$("#masc"); m.src="assets/pulse_"+(ok?"correct":"oops")+".webp"; m.classList.remove("pop"); void m.offsetWidth; m.classList.add("pop");
       $("#fb").innerHTML=`<div class="fb"><h4>${ok?"Correct! +10 XP":"Not quite."}</h4>${ok?"":`<div>Answer: <b>${q.o[q.a]}</b></div>`}${fbBody(q,o,chosen)}</div>`;
