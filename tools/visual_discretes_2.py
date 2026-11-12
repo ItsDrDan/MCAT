@@ -43,7 +43,8 @@ for Vm, Km, kind in [(50, 2, "competitive"), (40, 2, "noncompetitive"), (50, 4, 
     else: Vm2, Km2 = Vm / 2, Km / 2
     s1, s2 = lb_line(Vm, Km, xs), lb_line(Vm2, Km2, xs)
     lo_, hi_ = min(p[1] for p in s1 + s2), max(p[1] for p in s1 + s2)
-    ystep = 0.02 if hi_ - lo_ < 0.15 else 0.04
+    # pick the smallest "nice" step that keeps the y-axis to about 8 labels (0.04 alone gave 29 crowded labels)
+    ystep = next(s for s in (0.02, 0.04, 0.05, 0.1, 0.2, 0.25, 0.5, 1.0) if (hi_ * 1.05 - lo_) / s <= 8)
     ymin, ymax = ystep * math.floor(lo_ / ystep), ystep * math.ceil(hi_ * 1.05 / ystep)
     fig = line("Lineweaver–Burk plot", "1/[S] (mM⁻¹)", "1/<i>V</i><sub>0</sub> (min µM⁻¹)",
                [("No inhibitor", s1), ("+ Inhibitor", s2)], 1.0, round(ymax, 3), xmin=-1.25, xstep=0.25, ymin=round(ymin, 3), ystep=ystep, w=440, h=290, points=False, yfmt=lambda y: f"{y:.2f}")
