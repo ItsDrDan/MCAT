@@ -43,7 +43,7 @@ header.top h1{font-size:30px;line-height:1.1}
 .badge .bi img{width:64px;height:auto;display:block;margin:0 auto 4px}
 .badge .bi{font-size:0}
 .fb .pulse{float:right;width:96px;height:auto;margin:-8px -4px 6px 12px}
-@media(max-width:560px){.fb .pulse{width:70px}.logo{width:60px;height:60px}}
+@media(max-width:560px){.fb .pulse{width:70px}.logo{width:60px;height:60px}header.top .labels{display:none}}
 .tag.cp{background:var(--blue);color:var(--blue-d)}
 .tag.bb{background:var(--mint);color:var(--mint-d)}
 .tag.cars{background:var(--peach);color:var(--peach-d)}
@@ -66,6 +66,14 @@ table.data.left td{text-align:left}
 .mode .ic{width:42px;height:42px;border-radius:12px;display:grid;place-items:center;margin-bottom:8px}
 .mode b{display:block;font-family:Fredoka,sans-serif;font-size:19px;font-weight:600}
 .mode span{color:var(--muted);font-size:15px}
+.mgroup{grid-column:1/-1;font-size:17px;margin:6px 0 -4px;font-family:Fredoka,sans-serif;font-weight:600}
+.mgroup span{font-family:inherit;font-size:13.5px;font-weight:700;color:var(--muted);margin-left:6px}
+.nowbar{display:none;align-items:center;gap:12px;flex-wrap:wrap}
+.nowbar div{flex:1;min-width:200px}.nowbar .mini{display:block}.nowbar b{font-size:17px}
+.nowbar .chg{font-size:14.5px;padding:8px 14px}
+#pickCard.picked .nowbar{display:flex}
+#pickCard.picked #pickBody{display:none}
+@media(max-width:560px){.modes{grid-template-columns:1fr;gap:8px}.mode{display:grid;grid-template-columns:42px 1fr;column-gap:12px;min-height:0;padding:10px 12px}.mode .ic,.mode .ic img{width:42px;height:42px;margin:0;grid-row:span 2}.mode b{font-size:17px}.mode span{font-size:13.5px}.mgroup span{display:block;margin:0}.seg button{padding:8px 12px;min-height:44px}}
 details.topics{margin-top:14px}
 details.topics summary{cursor:pointer;font-weight:800;color:var(--lav-d);padding:6px 0}
 .chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
@@ -232,8 +240,10 @@ details.why li.mine{background:#fff3f3;border-radius:8px;padding:2px 6px;margin-
   <p class="howto">1) Pick a section. 2) Pick a mode. 3) Answer, then read the steps.</p>
 </div>
 
-<div class="card">
-  <div class="row seg" id="secSeg">
+<div class="card" id="pickCard">
+  <div class="nowbar" id="nowBar"><div><span class="mini">You're practicing</span><b id="nowText"></b></div><button class="toolbtn chg" id="changeBtn" aria-expanded="true" aria-controls="pickBody">Change mode or topic</button></div>
+  <div id="pickBody">
+  <div class="row seg" id="secSeg" role="group" aria-label="Section">
     <button data-sec="all" class="on">All 4 sections</button>
     <button data-sec="cp"><img class="segic" src="https://itsdrdan.github.io/MCAT/assets/sec_cp.webp" alt="" width="22" height="22">Chem/Phys</button>
     <button data-sec="cars"><img class="segic" src="https://itsdrdan.github.io/MCAT/assets/sec_cars.webp" alt="" width="22" height="22">CARS</button>
@@ -241,6 +251,7 @@ details.why li.mine{background:#fff3f3;border-radius:8px;padding:2px 6px;margin-
     <button data-sec="ps"><img class="segic" src="https://itsdrdan.github.io/MCAT/assets/sec_ps.webp" alt="" width="22" height="22">Psych/Soc</button>
   </div>
   <div class="modes" id="modes">
+    <h3 class="mgroup">Learn and review <span>untimed, with explanations after each question</span></h3>
     <button class="mode on" data-mode="drill">
       <div class="ic"><img src="https://itsdrdan.github.io/MCAT/assets/m_quick_drill.webp" alt="" width="52" height="52"></div>
       <b>Quick Drill</b><span>One question at a time, explained step by step. Science drills mix in a data set (passage with a graph or table) every 5 questions.</span>
@@ -249,6 +260,15 @@ details.why li.mine{background:#fff3f3;border-radius:8px;padding:2px 6px;margin-
       <div class="ic"><img src="https://itsdrdan.github.io/MCAT/assets/m_progress.webp" alt="" width="52" height="52"></div>
       <b>Review My Misses</b><span>Missed questions come back after 1, 3 and 7 days until they stick.</span>
     </button>
+    <button class="mode" data-mode="eqs">
+      <div class="ic"><img src="https://itsdrdan.github.io/MCAT/assets/m_must_know.webp" alt="" width="52" height="52"></div>
+      <b>Must-Know Sheet</b><span>Equations, Psych/Soc look-alikes, CARS game plan.</span>
+    </button>
+    <button class="mode" data-mode="gym">
+      <div class="ic"><img src="https://itsdrdan.github.io/MCAT/assets/m_skill_gym.webp" alt="" width="52" height="52"></div>
+      <b>Skill Gym</b><span>No-calculator math and Psych/Soc look-alikes, 10 at a time.</span>
+    </button>
+    <h3 class="mgroup">Test yourself <span>passages and timed sets, like test day</span></h3>
     <button class="mode" data-mode="passage">
       <div class="ic"><img src="https://itsdrdan.github.io/MCAT/assets/m_passage_sets.webp" alt="" width="52" height="52"></div>
       <b>Passage Sets</b><span>Pick a passage with graphs, tables or figures and answer all its questions (CARS: 5–7 per passage).</span>
@@ -257,10 +277,6 @@ details.why li.mine{background:#fff3f3;border-radius:8px;padding:2px 6px;margin-
       <div class="ic"><img src="https://itsdrdan.github.io/MCAT/assets/m_timed.webp" alt="" width="52" height="52"></div>
       <b>Timed Mini-Section</b><span>About 10 questions at real MCAT pace (CARS: 3 full passages).</span>
     </button>
-    <button class="mode" data-mode="eqs">
-      <div class="ic"><img src="https://itsdrdan.github.io/MCAT/assets/m_must_know.webp" alt="" width="52" height="52"></div>
-      <b>Must-Know Sheet</b><span>Equations, Psych/Soc look-alikes, CARS game plan.</span>
-    </button>
     <button class="mode" data-mode="full">
       <div class="ic"><img src="https://itsdrdan.github.io/MCAT/assets/m_full_length.webp" alt="" width="52" height="52"></div>
       <b>Mini Full-Length</b><span>All 4 sections in real test order, timed, with breaks.</span>
@@ -268,10 +284,6 @@ details.why li.mine{background:#fff3f3;border-radius:8px;padding:2px 6px;margin-
     <button class="mode" data-mode="real">
       <div class="ic"><img src="https://itsdrdan.github.io/MCAT/assets/m_real_exam.webp" alt="" width="52" height="52"></div>
       <b>Full-Length Exam</b><span>The real thing: 230 questions, real timing, real breaks.</span>
-    </button>
-    <button class="mode" data-mode="gym">
-      <div class="ic"><img src="https://itsdrdan.github.io/MCAT/assets/m_skill_gym.webp" alt="" width="52" height="52"></div>
-      <b>Skill Gym</b><span>No-calculator math and Psych/Soc look-alikes, 10 at a time.</span>
     </button>
   </div>
   <details class="topics" id="topicBox">
@@ -283,6 +295,7 @@ details.why li.mine{background:#fff3f3;border-radius:8px;padding:2px 6px;margin-
     <div class="mini" style="margin-top:10px">Levels:</div>
     <div class="chips" id="lvChips"></div>
   </details>
+  </div>
 </div>
 
 <div class="card" id="stage"></div>
@@ -446,7 +459,7 @@ const SKILLD={1:"Recall and understand science concepts",2:"Use concepts to solv
 P.forEach(p=>p.qs.forEach((q,i)=>{q.pid=p.id+"-q"+(i+1);}));
 const qid=q=>q.id||q.pid||"";
 const carsTag=q=>q&&q.c&&CATS[q.c]?` <span class="tag cars">${CATS[q.c].n.replace("CARS: ","")}</span>`:"";
-const skillTag=q=>q&&q.c&&CATS[q.c]&&CATS[q.c].s==="cars"?carsTag(q):q&&q.k&&SKILLS[q.k]?` <span class="tag sk" title="${SKILLD[q.k]} (tag is approximate)">${SKILLS[q.k].split(" · ")[0]}</span>`:"";
+const skillTag=q=>q&&q.c&&CATS[q.c]&&CATS[q.c].s==="cars"?carsTag(q):q&&q.k&&SKILLS[q.k]?` <span class="tag sk" title="${SKILLD[q.k]} (tag is approximate)">${SKILLS[q.k]}</span>`:"";
 const DAY=864e5, SRS_GAP=[1,3,7];
 function srsUpdate(q,ok){
   if(!q||!q.id) return; const now=Date.now(), r=S.srs[q.id];
@@ -503,12 +516,17 @@ function renderFilters(){
   $("#lvChips").innerHTML=Object.keys(LV).map(k=>`<button class="chip ${levelsOn.has(k)?"on":""}" data-lv="${k}">${LV[k]}</button>`).join("");
 }
 $("#fSubj").onchange=e=>{fSubj=e.target.value;fUnit="any";renderFilters();start();};
-$("#fUnit").onchange=e=>{fUnit=e.target.value;start();};
+$("#fUnit").onchange=e=>{fUnit=e.target.value;start();setPicked($("#pickCard").classList.contains("picked"));};
 $("#lvChips").addEventListener("click",e=>{const b=e.target.closest(".chip");if(!b)return;const k=b.dataset.lv;levelsOn.has(k)?levelsOn.delete(k):levelsOn.add(k);renderFilters();start();});
 document.querySelectorAll("#secSeg button").forEach(b=>{
   b.classList.toggle("on",b.dataset.sec===sec);
-  b.onclick=()=>{sec=b.dataset.sec;document.querySelectorAll("#secSeg button").forEach(x=>x.classList.toggle("on",x===b));renderFilters();start();};});
-document.querySelectorAll("#modes .mode").forEach(b=>b.onclick=()=>{mode=b.dataset.mode;document.querySelectorAll("#modes .mode").forEach(x=>x.classList.toggle("on",x===b));$("#topicBox").classList.toggle("hidden",["eqs","full","review","gym","real"].includes(mode));start();});
+  b.onclick=()=>{sec=b.dataset.sec;document.querySelectorAll("#secSeg button").forEach(x=>x.classList.toggle("on",x===b));renderFilters();start();syncPressed();};});
+document.querySelectorAll("#modes .mode").forEach(b=>b.onclick=()=>{mode=b.dataset.mode;document.querySelectorAll("#modes .mode").forEach(x=>x.classList.toggle("on",x===b));$("#topicBox").classList.toggle("hidden",["eqs","full","review","gym","real"].includes(mode));start();setPicked(true,true);});
+const MODEN={drill:"Quick Drill",review:"Review My Misses",passage:"Passage Sets",timed:"Timed Mini-Section",eqs:"Must-Know Sheet",full:"Mini Full-Length",real:"Full-Length Exam",gym:"Skill Gym"};
+function nowLabel(){ const noTopic=["eqs","full","real","gym","review"].includes(mode); let t=MODEN[mode]; if(!noTopic){ t+=" · "+(sec==="all"?"All 4 sections":SECN[sec]); if(fSubj!=="any") t+=" › "+SUBJ[fSubj].n; if(fSubj!=="any"&&fUnit!=="any") t+=" › "+SUBJ[fSubj].u[+fUnit-1]; } return t; }
+function syncPressed(){ document.querySelectorAll("#secSeg button").forEach(x=>x.setAttribute("aria-pressed",x.classList.contains("on"))); document.querySelectorAll("#modes .mode").forEach(x=>x.setAttribute("aria-pressed",x.classList.contains("on"))); }
+function setPicked(on,scroll){ const c=$("#pickCard"); c.classList.toggle("picked",on); $("#changeBtn").setAttribute("aria-expanded",String(!on)); $("#nowText").textContent=nowLabel(); syncPressed(); if(scroll){ const y=c.getBoundingClientRect().top+scrollY-8; if(Math.abs(scrollY-y)>40) scrollTo({top:y,behavior:"smooth"}); } }
+$("#changeBtn").onclick=()=>{ const open=$("#pickCard").classList.contains("picked"); setPicked(!open,false); if(open) $("#modes .mode.on").focus(); };
 let resetArmed=false;
 $("#resetBtn").onclick=()=>{ if(!resetArmed){resetArmed=true;$("#resetBtn").textContent="Tap again to confirm reset";setTimeout(()=>{resetArmed=false;$("#resetBtn").textContent="Reset my progress";},4000);return;} resetArmed=false;$("#resetBtn").textContent="Reset my progress";S=fresh();save();renderProgress();toast("Progress reset.");};
 
@@ -1110,6 +1128,7 @@ document.querySelectorAll("#modes .mode").forEach(x=>x.classList.toggle("on",x.d
 if(["eqs","full","review","gym","real"].includes(mode)) $("#topicBox").classList.add("hidden");
 if(fSubj!=="any") $("#topicBox").open=true;
 renderFilters(); renderProgress(); start();
+setPicked(["subj","unit","mode","section"].some(k=>params.has(k)),false);
 
 /* ---------- Test-day tools: highlight / strikethrough ---------- */
 const HL={};
