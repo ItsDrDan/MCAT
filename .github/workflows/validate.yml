@@ -1,0 +1,16 @@
+name: Validate question bank
+on:
+  push:
+  pull_request:
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Bank quality checks
+        run: python3 tools/validate_bank.py
+      - name: Answer-length cue check
+        run: python3 tools/check_answer_lengths.py
