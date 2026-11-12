@@ -116,6 +116,14 @@ if m:
     total = len(Q) + sum(len(p["qs"]) for p in P)
     if json.loads(m.group(1)).get("total") != total: err("index.html", f"hub total is out of date (bank has {total}); run python3 tools/build_hub_data.py")
 
+# the Daily 5 pool must serve the bank's current version of each question
+daily_path = ROOT / "data" / "daily.json"
+if daily_path.exists():
+    QB = {q["id"]: q for q in Q}
+    stale = [d["id"] for d in json.loads(daily_path.read_text(encoding="utf-8"))
+             if d["id"] not in QB or any(d.get(k) != QB[d["id"]].get(k) for k in ("q", "o", "a", "e", "w", "t", "lv", "k", "fig"))]
+    if stale: err("data/daily.json", f"{len(stale)} Daily 5 question(s) differ from the bank (e.g. {stale[:3]}); run python3 tools/build_hub_data.py")
+
 strict = "--strict" in sys.argv
 kinds = C.Counter(w.split(": ", 1)[1].split(":")[0].split("(")[0].strip() for w in warns)
 print(f"{len(Q):,} single questions, {len(P)} passages, {sum(len(p['qs']) for p in P):,} passage questions")

@@ -4,6 +4,7 @@
 Run after adding questions:  python3 tools/build_hub_data.py
 - Rewrites the `const HUB=...;` line in index.html (unit counts, passage
   counts, subject/section totals) so the hub never shows stale numbers.
+- Refreshes data/daily.json (the Daily 5 pool) so each question matches the bank.
 - Rewrites data/search.json (one entry per unit; each string is a lowercased
   stem + options, or a passage title or one of its questions, for topic search).
 """
@@ -61,5 +62,23 @@ rounded = f"{HUB['total'] // 100 * 100:,}+"
 idx = re.sub(r'(<meta property="og:description" content=")[\d,]+\+', r"\g<1>" + rounded, idx)
 idx_path.write_text(idx, encoding="utf-8")
 (ROOT / "data" / "search.json").write_text(json.dumps(search, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
+
+# Daily 5 pool: keep the same question IDs, but always serve the bank's current version of each
+# (otherwise fixes made in practice.html never reach the Daily 5, and per-question stats from the
+# Daily 5 carry an out-of-date wording fingerprint).
+daily_path = ROOT / "data" / "daily.json"
+DAILY_FIELDS = ["id", "subj", "unit", "lv", "q", "o", "a", "e", "w", "k", "t", "fig"]
+QB = {q["id"]: q for q in Q}
+daily_old = json.loads(daily_path.read_text(encoding="utf-8"))
+daily_new, dropped, refreshed = [], [], 0
+for d in daily_old:
+    q = QB.get(d["id"])
+    if not q: dropped.append(d["id"]); continue
+    fresh = {k: q[k] for k in DAILY_FIELDS if k in q}
+    if fresh != d: refreshed += 1
+    daily_new.append(fresh)
+daily_path.write_text(json.dumps(daily_new, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
+
 print(f"HUB updated: {HUB['total']:,} questions ({len(Q):,} single + {HUB['total'] - len(Q):,} in {len(P)} passages)")
 print("Sections:", HUB["secCount"])
+print(f"Daily 5 pool: {len(daily_new)} questions, {refreshed} refreshed from the bank" + (f", {len(dropped)} dropped (no longer in the bank): {dropped[:5]}" if dropped else ""))
