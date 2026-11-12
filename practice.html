@@ -89,6 +89,8 @@ details.topics summary{cursor:pointer;font-weight:800;color:var(--lav-d);padding
 .stem{font-size:18px;font-weight:600;margin:6px 0 14px}
 .opts{display:flex;flex-direction:column;gap:10px}
 .opt{display:flex;align-items:stretch;gap:8px}
+button:focus-visible,a:focus-visible,select:focus-visible,summary:focus-visible,input:focus-visible{outline:3px solid #6b4fc9!important;outline-offset:2px}
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
 .opt .pick{flex:1;display:flex;gap:12px;align-items:flex-start;text-align:left;border:2px solid var(--line);background:#fff;border-radius:14px;padding:12px 14px;min-height:52px;font-weight:600}
 .opt .pick .let{flex:0 0 30px;height:30px;border-radius:50%;background:var(--lav);color:var(--lav-d);display:grid;place-items:center;font-weight:800}
 .opt .pick.sel{border-color:var(--lav-d);background:#f6f2ff}
@@ -289,8 +291,8 @@ details.why li.mine{background:#fff3f3;border-radius:8px;padding:2px 6px;margin-
   <details class="topics" id="topicBox">
     <summary>Choose subject, unit and level</summary>
     <div class="row" style="margin-top:8px">
-      <select id="fSubj" class="sel"></select>
-      <select id="fUnit" class="sel"></select>
+      <select id="fSubj" class="sel" aria-label="Subject"></select>
+      <select id="fUnit" class="sel" aria-label="Unit"></select>
     </div>
     <div class="mini" style="margin-top:10px">Levels:</div>
     <div class="chips" id="lvChips"></div>
@@ -320,7 +322,8 @@ details.why li.mine{background:#fff3f3;border-radius:8px;padding:2px 6px;margin-
 </div>
 
 </div>
-<div class="toast" id="toast"></div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<div id="srlive" class="sr-only" aria-live="assertive"></div>
 <footer>
   Questions are original practice written from the AAMC's public “What's on the MCAT Exam?” content outline, with background from free OpenStax textbooks (Chemistry, Organic Chemistry, Biology, Physics, Psychology and Sociology). CARS passages are original essays written for this game or adapted from public-domain works (credited under each passage); all questions are original. Not affiliated with or endorsed by the AAMC. MCAT® is a registered trademark of the AAMC.<br><br>
   Game design and chemistry by ItsDrDan. I used AI (Claude by Anthropic) to help write the code, the way I hope you'll use it: as a tool, while checking every answer and understanding the chemistry and math behind it.<br>This game collects anonymous practice stats (no names or student IDs) to help plan new lessons. Problem reports send only the question ID and what you type.<br>© ItsDrDan. All rights reserved.
@@ -538,14 +541,16 @@ function whyHTML(q,order,chosen){
   if(!q.w||!q.w.some(Boolean)) return "";
   return `<details class="why" open><summary>Why the other choices are wrong</summary><ul>${order.map((oi,pos)=>oi===q.a||!q.w[oi]?"":`<li class="${oi===chosen?"mine":""}"><b>${LET[pos]}.</b> ${q.w[oi]}${oi===chosen?' <span class="yp">your pick</span>':""}</li>`).join("")}</ul></details>`;
 }
+function srSay(t){ const n=document.getElementById("srlive"); if(!n) return; n.textContent=""; setTimeout(()=>{n.textContent=t;},60); }
 function feedbackHTML(q,ok,order,chosen){
+  srSay(ok?"Correct.":"Not quite. The answer is "+LET[order.indexOf(q.a)]+": "+String(q.o[q.a]).replace(/<[^>]+>/g," ")+".");
   const right=LET[order.indexOf(q.a)];
   return `<div class="fb ${ok?"ok":"bad"}"><button class="toolbtn fbrep" data-report="${qid(q)}">⚑ Report a problem</button><img class="pulse" src="${ART}pulse_${ok?"correct":"oops"}.webp" alt=""><h3>${ok?"Correct!":"Not quite. The answer is "+right+"."}</h3><ol>${q.e.map(s=>`<li>${s}</li>`).join("")}</ol>${whyHTML(q,order,chosen)}${q.t?`<div class="tip"><b>Professor Tip:</b> ${q.t}</div>`:""}</div>`;
 }
 function wireOptions(root,onPick){
   root.querySelectorAll(".opt").forEach(o=>{
     o.querySelector(".strike").onclick=()=>{ if(root.dataset.locked)return; o.classList.toggle("struck"); };
-    o.querySelector(".pick").onclick=()=>{ if(root.dataset.locked||o.classList.contains("struck"))return; root.querySelectorAll(".pick").forEach(p=>p.classList.remove("sel")); o.querySelector(".pick").classList.add("sel"); onPick(+o.querySelector(".pick").dataset.oi); };
+    o.querySelector(".pick").onclick=()=>{ if(root.dataset.locked||o.classList.contains("struck"))return; root.querySelectorAll(".pick").forEach(p=>{p.classList.remove("sel");p.setAttribute("aria-pressed","false");}); o.querySelector(".pick").classList.add("sel"); o.querySelector(".pick").setAttribute("aria-pressed","true"); onPick(+o.querySelector(".pick").dataset.oi); };
   });
 }
 function reveal(root,q,chosen){
