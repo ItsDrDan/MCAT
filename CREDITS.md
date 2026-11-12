@@ -1,18 +1,18 @@
 # Image credits
 
-Some discrete questions show diagrams from OpenStax *Anatomy & Physiology* (OpenStax College / Rice University), hosted on Wikimedia Commons.
+Some discrete questions show diagrams from OpenStax *Anatomy & Physiology* (OpenStax College / Rice University), taken from Wikimedia Commons.
 Each one is used under the Creative Commons Attribution license shown, and is credited in the caption under the figure.
-The images are linked from Wikimedia Commons, not changed or copied into this repository.
+Unchanged copies are stored in `assets/dg/` (the file names begin with `ox_`) so the questions keep working if a Commons address changes.
 
 Only CC BY material is used. Newer OpenStax editions released under CC BY-NC-SA are **not** used, because they bar commercial use and require derivatives to be shared under the same license.
 
-| Figure | Wikimedia Commons file | License | Questions (linked from Commons) |
-|---|---|---|---|
-| Blood Flow in the Nephron | [2611_Blood_Flow_in_the_Nephron.jpg](https://commons.wikimedia.org/wiki/File:2611_Blood_Flow_in_the_Nephron.jpg) | CC BY 3.0 | ox-01, ox-02 |
-| Juxtaglomerular Apparatus and Glomerulus | [Juxtaglomerular_Apparatus_and_Glomerulus.jpg](https://commons.wikimedia.org/wiki/File:Juxtaglomerular_Apparatus_and_Glomerulus.jpg) | CC BY 3.0 | ox-03 |
-| Structure of the Eye | [1413_Structure_of_the_Eye.jpg](https://commons.wikimedia.org/wiki/File:1413_Structure_of_the_Eye.jpg) | CC BY 3.0 | ox-04, ox-05 |
-| Thick and Thin Filaments | [1003_Thick_and_Thin_Filaments.jpg](https://commons.wikimedia.org/wiki/File:1003_Thick_and_Thin_Filaments.jpg) | CC BY 4.0 | ox-08 |
-| Muscle Fiber | [1022_Muscle_Fibers_(small).jpg](https://commons.wikimedia.org/wiki/File:1022_Muscle_Fibers_(small).jpg) | CC BY 4.0 | ox-10 |
+| Figure | Wikimedia Commons source | Local copy | License | Questions |
+|---|---|---|---|---|
+| Blood Flow in the Nephron | [2611_Blood_Flow_in_the_Nephron.jpg](https://commons.wikimedia.org/wiki/File:2611_Blood_Flow_in_the_Nephron.jpg) | `assets/dg/ox_nephron_blood_flow.jpg` | CC BY 3.0 | ox-01, ox-02 |
+| Juxtaglomerular Apparatus and Glomerulus | [Juxtaglomerular_Apparatus_and_Glomerulus.jpg](https://commons.wikimedia.org/wiki/File:Juxtaglomerular_Apparatus_and_Glomerulus.jpg) | `assets/dg/ox_juxtaglomerular.jpg` | CC BY 3.0 | ox-03 |
+| Structure of the Eye | [1413_Structure_of_the_Eye.jpg](https://commons.wikimedia.org/wiki/File:1413_Structure_of_the_Eye.jpg) | `assets/dg/ox_eye.jpg` | CC BY 3.0 | ox-04, ox-05 |
+| Thick and Thin Filaments | [1003_Thick_and_Thin_Filaments.jpg](https://commons.wikimedia.org/wiki/File:1003_Thick_and_Thin_Filaments.jpg) | `assets/dg/ox_thick_thin_filaments.jpg` | CC BY 4.0 | ox-08 |
+| Muscle Fiber | [1022_Muscle_Fibers_(small).jpg](https://commons.wikimedia.org/wiki/File:1022_Muscle_Fibers_(small).jpg) | `assets/dg/ox_muscle_fibers.jpg` | CC BY 4.0 | ox-10 |
 
 ## Diagrams shared with the TEAS Study Hub
 
