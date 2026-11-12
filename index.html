@@ -8,7 +8,7 @@
 <link rel="icon" href="assets/icon_hub_32.png">
 <link rel="apple-touch-icon" href="assets/icon_hub_180.png">
 <meta property="og:title" content="MCAT Study Hub by ItsDrDan">
-<meta property="og:description" content="6,200+ free, original MCAT practice questions for all four sections, a Daily 5, and a week-by-week study plan.">
+<meta property="og:description" content="9,100+ free, original MCAT practice questions for all four sections, a Daily 5, and a week-by-week study plan.">
 <meta property="og:image" content="https://itsdrdan.github.io/MCAT/assets/og.png">
 <meta property="og:url" content="https://itsdrdan.github.io/MCAT/">
 <meta name="twitter:card" content="summary_large_image">
@@ -41,7 +41,7 @@ button{font:inherit}
 .tsearch input{width:100%;border:1px solid var(--line2);border-radius:999px;padding:10px 14px 10px 38px;font:inherit;font-size:15px;background:#fff}
 .tsearch svg{position:absolute;left:13px;top:50%;transform:translateY(-50%);width:16px;height:16px;color:var(--faint)}
 nav.links{margin-left:auto;display:flex;gap:4px}
-nav.links a{text-decoration:none;font-weight:700;padding:8px 12px;border-radius:10px;font-size:15px}
+nav.links a{text-decoration:none;font-weight:700;padding:8px 12px;border-radius:10px;font-size:15px;white-space:nowrap}
 nav.links a.on{background:var(--accent-soft);color:var(--accent-d)}
 nav.links a:hover{background:#f1f0f8}
 nav.links a.navcta{display:inline-flex;align-items:center;gap:6px;background:var(--accent);color:#fff;box-shadow:0 3px 0 #3f2d8f;border-radius:999px;padding:6px 14px 6px 6px;margin-left:4px}
@@ -53,7 +53,7 @@ nav.links a.navcta img{width:26px;height:26px}
 .ctarow span{color:var(--muted);font-weight:700;font-size:15.5px}
 @media(max-width:520px){nav.links a.navcta{padding:5px 10px 5px 5px}nav.links a.navcta img{width:22px;height:22px}.btn.big{font-size:18px}}
 @media(max-width:860px){.tsearch{display:none}.brand small{display:none}nav.links a{padding:8px 8px;font-size:14px}}
-@media(max-width:520px){.top .wrap{gap:8px;padding:0 12px}.brand span.nm{display:none}nav.links{gap:0}nav.links a{padding:7px 6px;font-size:13.5px}}
+@media(max-width:520px){.top .wrap{gap:6px;padding:0 10px}.brand img{width:36px;height:36px}.brand span.nm{display:none}nav.links{gap:0}nav.links a{padding:7px 5px;font-size:13.5px}nav.links a.navcta img{display:none}nav.links a.navcta{padding:6px 11px}}
 /* hero */
 .hero{background:radial-gradient(circle at 85% 30%,#e3f0ff 0,transparent 40%),radial-gradient(circle at 10% 10%,#ffe5ee 0,transparent 45%),radial-gradient(circle at 60% 100%,#fff0e0 0,transparent 45%),linear-gradient(180deg,#fbf8ff,#f5f6fb);border-bottom:1px solid var(--line);position:relative;overflow:hidden}
 .hero .wrap{padding-top:54px;padding-bottom:46px;position:relative}
@@ -219,10 +219,42 @@ footer p{margin:4px 0}
 .hidden{display:none!important}
 @media print{.top,footer,.noprint{display:none!important}body{background:#fff}.week{break-inside:avoid}}
 .srsbox{display:flex;flex-wrap:wrap;gap:8px;align-items:center;background:#eef8f2;border:1px solid #cfe9da;border-radius:14px;padding:8px 12px;margin:8px 0}.srsbox .btn{margin-left:auto}
+/* navigation helpers */
+.skip{position:absolute;left:-999px;top:8px;z-index:50;background:#fff;border:2px solid var(--accent);border-radius:10px;padding:8px 14px;font-weight:800}
+.skip:focus{left:12px}
+a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,summary:focus-visible{outline:3px solid #6b4fc9;outline-offset:2px}
+#app:focus{outline:none}
+nav.links a.sicon{display:none}
+@media(max-width:860px){nav.links a.sicon{display:inline-flex;align-items:center}nav.links a.sicon svg{width:18px;height:18px}}
+/* start-here steps */
+.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;counter-reset:st}
+@media(max-width:800px){.steps{grid-template-columns:1fr}}
+.step{position:relative;display:flex;flex-direction:column;gap:6px;background:#fff;border:2px solid var(--line2);border-radius:18px;padding:16px 18px 16px 62px;text-decoration:none;box-shadow:0 4px 0 var(--line2);transition:transform .12s}
+.step:hover{transform:translateY(-2px);border-color:#a99be0;box-shadow:0 4px 0 #a99be0}
+.step::before{counter-increment:st;content:counter(st);position:absolute;left:16px;top:16px;width:32px;height:32px;border-radius:50%;background:var(--accent);color:#fff;display:grid;place-items:center;font-weight:800;font-family:var(--font-display);font-size:17px}
+.step b{font-family:var(--font-display);font-size:19px;font-weight:600}
+.step span{color:var(--muted);font-size:15px}
+.step .go{color:var(--accent-d);font-weight:800;margin-top:auto;font-size:15px}
+.step.done::before{content:"✓";background:#1f9a63}
+/* section switcher */
+.sectabs{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 14px}
+.sectabs a{text-decoration:none;font-weight:800;font-size:14.5px;padding:6px 14px;border-radius:999px;border:2px solid var(--sc);color:var(--sc);background:#fff}
+.sectabs a[aria-current="page"]{background:var(--sc);color:#fff}
+.jump{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:14px}
+.jump a{font-weight:800;font-size:14.5px;color:var(--sc);background:#fff;border:1px solid var(--line2);border-radius:999px;padding:5px 12px;text-decoration:none}
+.howto{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:22px}
+@media(max-width:760px){.howto{grid-template-columns:1fr}}
+.howto div{background:#fff;border:1px solid var(--line);border-radius:14px;padding:12px 14px;font-size:15px;color:var(--muted)}
+.howto b{display:block;color:var(--ink);font-size:16px;margin-bottom:2px}
+.subj{scroll-margin-top:80px}
+details.faq{background:#fff;border:1px solid var(--line);border-radius:14px;padding:10px 16px;margin:8px 0}
+details.faq summary{cursor:pointer;font-weight:800}
+details.faq p{margin:8px 0 2px;color:var(--muted)}
 </style>
 <link rel="stylesheet" href="https://itsdrdan.github.io/games/brand/itsdrdan.css">
 </head>
 <body>
+<a class="skip" href="#app">Skip to main content</a>
 <header class="top">
   <div class="wrap">
     <a class="brand" href="#/" aria-label="MCAT Study Hub home">
@@ -233,15 +265,16 @@ footer p{margin:4px 0}
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
       <input name="q" type="search" placeholder="Search a topic…" aria-label="Search a topic">
     </form>
-    <nav class="links">
-      <a href="#/" data-nav="home">Sections</a>
+    <nav class="links" aria-label="Main">
+      <a href="#/" data-nav="home">Home</a>
       <a href="#/daily" data-nav="daily">Daily 5</a>
       <a href="#/plan" data-nav="plan">Study plan</a>
-      <a href="practice.html" class="navcta"><img src="assets/logo_pulse.webp" alt="">Practice</a>
+      <a href="#/search" data-nav="search" class="sicon" aria-label="Search topics"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg></a>
+      <a href="practice.html" class="navcta" title="Open Pre-Med Pulse, the practice app"><img src="assets/logo_pulse.webp" alt="">Practice</a>
     </nav>
   </div>
 </header>
-<main id="app"></main>
+<main id="app" tabindex="-1"></main>
 <footer>
   <div class="wrap">
     <p><b>MCAT Study Hub · Pre-Med Pulse</b> by ItsDrDan. All practice questions and passages are original. Practice collects anonymous stats (no names or student IDs) to help plan new lessons. © ItsDrDan. All rights reserved.</p>
@@ -252,7 +285,7 @@ footer p{margin:4px 0}
 
 <script>
 "use strict";
-const HUB={"units":{"gc":["Atomic structure","Periodic trends","Bonding & intermolecular forces","Moles & stoichiometry","Kinetics","Equilibrium","Thermochemistry","Gases","Solutions","Acids & bases","Redox","Electrochemistry"],"oc":["Naming","Isomers & stereochemistry","Bonding & hybridization","How organic reactions work","Alcohols","Aldehydes & ketones","Enols & enolates","Carboxylic acids","Acid derivatives","Nitrogen & phosphorus compounds","Spectroscopy","Separations & purification"],"pm":["Motion & forces","Work & energy","Thermodynamics","Fluids","Electrostatics & magnetism","Circuits","Waves & sound","Light & optics","Atomic & nuclear","Math & estimation","Research design","Data & statistics"],"bc":["Amino acids & proteins","Enzymes","Protein function & analysis","Carbohydrates","Lipids","DNA & biotechnology","RNA & the genetic code","Membranes","Glycolysis & gluconeogenesis","Citric acid cycle & ETC","Lipid & amino acid metabolism","Bioenergetics & regulation"],"bio":["Cells & microbes","Cell division & reproduction","Development","Nervous system","Endocrine system","Respiratory system","Cardiovascular system","Immune system","Digestive system","Kidney & homeostasis","Muscles, bones & skin","Genetics & evolution"],"beh":["Biology & behavior","Sensation & perception","Learning & memory","Cognition, consciousness & language","Motivation, emotion & stress","Identity & personality","Psychological disorders","Social processes & attitudes","Social interaction","Social thinking","Social structure & demographics","Stratification & health disparities"],"cars":["Humanities passages","Social science passages","Quick reasoning drills"]},"sn":{"gc":"General Chemistry","oc":"Organic Chemistry","pm":"Physics & Math","bc":"Biochemistry","bio":"Biology","beh":"Behavioral Sciences","cars":"CARS"},"counts":{"gc":[75,75,75,75,86,86,80,75,80,92,75,81],"oc":[75,85,75,75,75,75,75,75,75,75,85,80],"pm":[75,80,80,86,75,80,76,81,80,75,75,75],"bc":[78,96,97,77,75,85,80,85,80,76,90,82],"bio":[82,88,87,87,87,89,92,92,82,87,87,96],"beh":[102,112,112,97,107,96,107,98,92,102,94,106],"cars":[301,280,75]},"pcount":{"gc":[0,0,0,0,2,2,1,0,1,4,0,1],"oc":[0,2,0,0,0,0,0,0,0,0,2,1],"pm":[0,1,1,3,0,1,0,2,1,0,0,0],"bc":[1,5,4,0,0,2,1,2,1,0,3,2],"bio":[1,2,2,2,2,2,3,3,1,2,2,4],"beh":[2,4,4,2,3,1,3,4,3,3,3,5],"cars":[43,40,0]},"subjCount":{"gc":955,"oc":925,"pm":938,"bc":1001,"bio":1056,"beh":1225,"cars":656},"secCount":{"cp":3819,"cars":656,"bb":2057,"ps":1225},"total":6756};
+const HUB={"units":{"gc":["Atomic structure","Periodic trends","Bonding & intermolecular forces","Moles & stoichiometry","Kinetics","Equilibrium","Thermochemistry","Gases","Solutions","Acids & bases","Redox","Electrochemistry"],"oc":["Naming","Isomers & stereochemistry","Bonding & hybridization","How organic reactions work","Alcohols","Aldehydes & ketones","Enols & enolates","Carboxylic acids","Acid derivatives","Nitrogen & phosphorus compounds","Spectroscopy","Separations & purification"],"pm":["Motion & forces","Work & energy","Thermodynamics","Fluids","Electrostatics & magnetism","Circuits","Waves & sound","Light & optics","Atomic & nuclear","Math & estimation","Research design","Data & statistics"],"bc":["Amino acids & proteins","Enzymes","Protein function & analysis","Carbohydrates","Lipids","DNA & biotechnology","RNA & the genetic code","Membranes","Glycolysis & gluconeogenesis","Citric acid cycle & ETC","Lipid & amino acid metabolism","Bioenergetics & regulation"],"bio":["Cells & microbes","Cell division & reproduction","Development","Nervous system","Endocrine system","Respiratory system","Cardiovascular system","Immune system","Digestive system","Kidney & homeostasis","Muscles, bones & skin","Genetics & evolution"],"beh":["Biology & behavior","Sensation & perception","Learning & memory","Cognition, consciousness & language","Motivation, emotion & stress","Identity & personality","Psychological disorders","Social processes & attitudes","Social interaction","Social thinking","Social structure & demographics","Stratification & health disparities"],"cars":["Humanities passages","Social science passages","Quick reasoning drills"]},"sn":{"gc":"General Chemistry","oc":"Organic Chemistry","pm":"Physics & Math","bc":"Biochemistry","bio":"Biology","beh":"Behavioral Sciences","cars":"CARS"},"counts":{"gc":[95,100,95,95,121,106,97,108,105,124,95,106],"oc":[96,104,90,100,100,100,100,90,90,90,112,95],"pm":[105,100,95,111,105,111,91,114,95,80,80,85],"bc":[109,135,134,102,90,128,101,105,110,101,120,97],"bio":[117,128,117,134,119,126,143,137,118,127,129,164],"beh":[159,160,182,164,163,156,163,145,138,147,140,151],"cars":[399,371,75]},"pcount":{"gc":[4,4,4,4,7,6,4,5,6,9,4,6],"oc":[3,4,3,5,5,5,5,3,3,3,5,4],"pm":[4,5,4,8,6,6,3,7,4,1,1,2],"bc":[7,9,10,5,3,10,5,6,7,5,9,5],"bio":[7,9,8,10,8,9,11,12,8,9,9,15],"beh":[13,13,17,15,14,13,14,13,12,12,12,14],"cars":[57,53,0]},"subjCount":{"gc":1247,"oc":1167,"pm":1172,"bc":1332,"bio":1559,"beh":1868,"cars":845},"secCount":{"cp":4918,"cars":845,"bb":2891,"ps":1868},"total":9190,"passages":630};
 const $=s=>document.querySelector(s);
 const app=$("#app");
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
@@ -301,39 +334,52 @@ function unitAcc(s,u){const st=stats().units[s+":"+u];return st&&st.a?{p:Math.ro
 /* ---------------- Home ---------------- */
 function home(){
   setNav("home");
-  const st=stats(), str=streakNow(), dd=dailyState().days[today()];
-  const totalQ=HUB.total;
+  const st=stats(), str=streakNow(), dd=dailyState().days[today()], P=LS.get(PKEY,null);
+  const returning=!!(st.ans||P||dd);
   app.innerHTML=`
   <div class="hero"><div class="wrap">
     <img class="heroart" src="assets/pulse_idle.webp" alt="Pulse, the Pre-Med Pulse mascot, waving">
     <div class="eyebrow">Dr. Dan's MCAT Study Hub</div>
     <h1>Plan your MCAT prep, <span class="grad">then practice it.</span></h1>
-    <p class="lead">${fmt(totalQ)} original practice questions across all four sections. Pick a section, follow a week-by-week plan, or do five questions a day.</p>
-    <form class="bigsearch" onsubmit="event.preventDefault();doSearch(this.q.value)">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
-      <input name="q" type="search" placeholder="Try “buffers”, “lens”, or “operant conditioning”" aria-label="Search a topic">
+    <p class="lead">${fmt(HUB.total)} free, original practice questions for all four sections, including ${fmt(HUB.passages)} MCAT-style passages. ${returning?"Welcome back. Your next steps are below.":"New here? Follow the three steps below."}</p>
+    <form class="bigsearch" role="search" onsubmit="event.preventDefault();doSearch(this.q.value)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+      <input name="q" type="search" placeholder="Search a topic, like “buffers” or “operant conditioning”" aria-label="Search a topic">
       <button class="btn" type="submit">Search</button>
     </form>
     <div class="chips"><span class="mini" style="font-weight:700">Try:</span>${["buffers","Michaelis–Menten","Hardy–Weinberg","operant conditioning","lens"].map(t=>`<a class="chip" href="#/search?q=${encodeURIComponent(t)}">${t}</a>`).join("")}</div>
-    <div class="ctarow"><a class="btn big" href="practice.html"><img src="assets/logo_pulse.webp" alt="">Start practicing →</a><span>Pre-Med Pulse: drills, passages, timed sets and a mini full-length</span></div>
   </div></div>
   <div class="wrap">
-    <section class="blk" style="padding-top:24px">
-      <div class="banner">
-        <div class="ic"><img src="assets/m_daily5.webp" alt=""></div>
-        <div><b>Daily 5</b>${str?`<span class="streak">🔥 ${str}-day streak</span>`:""}<p>${dd?`Done for today: ${dd.score}/5. Come back tomorrow to keep your streak.`:"One question from each section plus one from your weakest unit. About 8 minutes."}</p></div>
-        <a class="btn" href="#/daily">${dd?"Review":"Start"} →</a>
+    <section class="blk" style="padding-top:26px" aria-labelledby="start-h">
+      <div class="kicker">${returning?"Your next steps":"Start here"}</div>
+      <h2 class="big" id="start-h">${returning?"Pick up where you left off":"Three steps to get going"}</h2>
+      <div class="steps">
+        <a class="step${dd?" done":""}" href="#/daily">
+          <b>Do today's Daily 5${str?`<span class="streak">🔥 ${str}-day streak</span>`:""}</b>
+          <span>${dd?`Done today: ${dd.score}/5. Tap to review the explanations. New questions tomorrow.`:"One question from each section plus one from your weakest unit. About 8 minutes, and it shows where you stand."}</span>
+          <span class="go">${dd?"Review today's 5":"Start the Daily 5"} →</span>
+        </a>
+        <a class="step${P?" done":""}" href="#/plan">
+          <b>Build your study plan</b>
+          <span>${P?`Your plan runs to ${pd(P.date).toLocaleDateString("en-US",{month:"short",day:"numeric"})}. Open it to see this week's checklist.`:"Enter your test date and weekly hours. You get a week-by-week checklist of units, CARS passages and practice tests."}</span>
+          <span class="go">${P?"Open my plan":"Build my plan"} →</span>
+        </a>
+        <a class="step" href="${st.ans?"practice.html":"#/sec/cp"}">
+          <b>Practice by section</b>
+          <span>${st.ans?`You've answered ${fmt(st.ans)} questions. Keep going in Pre-Med Pulse, the practice app.`:"Open a section below, pick a unit, and practice it in Pre-Med Pulse. Start with single questions, then passages, then timed sets."}</span>
+          <span class="go">${st.ans?"Open Pre-Med Pulse":"See the sections"} →</span>
+        </a>
       </div>
     </section>
-    <section class="blk">
-      <div class="kicker">Real test order</div>
-      <h2 class="big">Pick a section</h2>
+    <section class="blk" aria-labelledby="sec-h">
+      <div class="kicker">The four sections, in test-day order</div>
+      <h2 class="big" id="sec-h">Pick a section</h2>
       <div class="grid4">${SECS.map(s=>`
         <a class="scard s-${s.id}" href="#/sec/${s.id}">
           <div class="srow"><span class="pill">${s.n}</span><img src="assets/sec_${s.id}.webp" alt=""></div>
           <h3>${s.full}</h3>
           <p>${s.blurb}</p>
-          <div class="meta"><span>${s.q} questions</span><span>${s.min} min</span></div>
+          <div class="meta"><span>Test day: ${s.q} questions, ${s.min} min</span></div>
           <div class="meta" style="margin-top:6px;color:var(--muted)"><span>${fmt(HUB.secCount[s.id])} practice questions here</span></div>
           <div class="go">Open section →</div>
         </a>`).join("")}</div>
@@ -342,11 +388,16 @@ function home(){
       <div class="two">
         <div class="card">${progressHTML(st)}</div>
         <div class="card">
-          <img class="cardart" src="assets/m_study_plan.webp" alt=""><div class="kicker">Test date coming up?</div>
-          <h2 style="font-size:24px;margin-bottom:6px">Build a week-by-week study plan</h2>
-          <p style="color:var(--muted);margin:0 0 14px">Enter your test date and weekly hours. You get every unit spread across the weeks, CARS practice each week, and a final practice phase, with a checkbox and a practice link for each task.</p>
-          <a class="btn" href="#/plan">${LS.get(PKEY,null)?"Open my plan":"Build my plan"} →</a>
-          <div class="tip"><b>Professor Tip:</b> Most students study 3–6 months. Content review first, then mostly timed practice and full-length exams in the last month.</div>
+          <div class="kicker">Ways to practice</div>
+          <h2 style="font-size:24px;margin-bottom:4px">Inside Pre-Med Pulse</h2>
+          <p class="mini" style="margin:0 0 6px">Pre-Med Pulse is the practice app. Listed from easiest to most test-like.</p>
+          <ul class="reslist">
+            <li class="mi"><img src="assets/m_quick_drill.webp" alt=""><div><a href="${practice({mode:"drill"})}">Quick Drill</a><span>One question at a time, with step-by-step explanations. Best while you are learning a unit.</span></div></li>
+            <li class="mi"><img src="assets/m_passage_sets.webp" alt=""><div><a href="${practice({mode:"passage"})}">Passage Sets</a><span>MCAT-style passages with 4–7 questions each.</span></div></li>
+            <li class="mi"><img src="assets/m_timed.webp" alt=""><div><a href="${practice({mode:"timed"})}">Timed Mini-Section</a><span>Practice at test pace (about 95 seconds a question).</span></div></li>
+            <li class="mi"><img src="assets/m_full_length.webp" alt=""><div><a href="${practice({mode:"full"})}">Mini Full-Length</a><span>All four sections in real test order, with breaks.</span></div></li>
+            <li class="mi"><img src="assets/m_must_know.webp" alt=""><div><a href="${practice({mode:"eqs"})}">Must-Know Sheet</a><span>The equations and facts to memorize. There is no equation sheet on test day.</span></div></li>
+          </ul>
         </div>
       </div>
     </section>
@@ -373,18 +424,17 @@ function home(){
             <li><a href="https://students-residents.aamc.org/fee-assistance-program/fee-assistance-program-fap" target="_blank" rel="noopener">AAMC Fee Assistance Program ↗</a><span>Lower MCAT fees and free official prep products if you qualify. Check this before you register.</span></li>
             <li><a href="https://www.khanacademy.org/test-prep/mcat" target="_blank" rel="noopener">Khan Academy MCAT collection ↗</a><span>Free videos covering the content outline.</span></li>
             <li><a href="https://openstax.org/subjects" target="_blank" rel="noopener">OpenStax textbooks ↗</a><span>Free chemistry, physics, biology, psychology and sociology books. Each section page links the right one.</span></li>
+            <li><a href="https://itsdrdan.github.io/games/" target="_blank" rel="noopener">Dr. Dan's Chemistry Study Hub ↗</a><span>Shore up general and organic chemistry with my course games and videos.</span></li>
           </ul>
         </div>
         <div class="card">
-          <div class="kicker">More practice modes</div>
-          <h2 style="font-size:24px;margin-bottom:8px">Inside Pre-Med Pulse</h2>
-          <ul class="reslist">
-            <li class="mi"><img src="assets/m_quick_drill.webp" alt=""><div><a href="${practice({mode:"drill"})}">Quick Drill</a><span>One question at a time, with step-by-step explanations.</span></div></li>
-            <li class="mi"><img src="assets/m_passage_sets.webp" alt=""><div><a href="${practice({mode:"passage"})}">Passage Sets</a><span>Real MCAT-style passages with 4–5 questions each.</span></div></li>
-            <li class="mi"><img src="assets/m_timed.webp" alt=""><div><a href="${practice({mode:"timed"})}">Timed Mini-Section</a><span>Beat the clock at test pace (about 95 seconds a question).</span></div></li>
-            <li class="mi"><img src="assets/m_full_length.webp" alt=""><div><a href="${practice({mode:"full"})}">Mini Full-Length</a><span>All four sections in real test order, with breaks.</span></div></li>
-            <li><a href="https://itsdrdan.github.io/games/" target="_blank" rel="noopener">Dr. Dan's Chemistry Study Hub ↗</a><span>Shore up general and organic chemistry with my course games and videos.</span></li>
-          </ul>
+          <div class="kicker">Questions students ask</div>
+          <h2 style="font-size:24px;margin-bottom:8px">How this hub works</h2>
+          <details class="faq"><summary>What's the difference between the Study Hub and Pre-Med Pulse?</summary><p>This Study Hub is where you plan: sections, units, your study plan and the Daily 5. Pre-Med Pulse is where you practice: every "Practice" button opens it on the right unit or mode.</p></details>
+          <details class="faq"><summary>Where is my progress saved?</summary><p>Only in this browser on this device. If you clear your browser data or switch devices, your plan, streak and scores start over. Nothing is tied to your name.</p></details>
+          <details class="faq"><summary>Where should I start?</summary><p>Do the Daily 5, then build a study plan. The plan spreads every unit across your weeks. If you already know your weak subject, open that section and start with its first unit.</p></details>
+          <details class="faq"><summary>Can these questions replace the official AAMC exams?</summary><p>No. These are original practice questions written from the public AAMC content outline. The official AAMC practice exams are the closest thing to the real test, so save them for your final weeks, as your plan suggests.</p></details>
+          <details class="faq"><summary>I found a mistake. How do I report it?</summary><p>Use the Feedback button at the bottom of the page and include the question's topic and what looks wrong. Every report gets checked.</p></details>
         </div>
       </div>
     </section>
@@ -402,13 +452,13 @@ function progressHTML(st){
 /* ---------------- Section page ---------------- */
 function section(id){
   const s=SEC[id]; if(!s) return home();
-  setNav("home");
+  setNav("sec");
   const isCars=id==="cars";
   const subs=s.subs;
   app.innerHTML=`
   <div class="shead s-${id}"><div class="wrap">
-    <img class="secart" src="assets/sec_${id}.webp" alt=""><div class="crumb"><a href="#/">Sections</a> › ${s.n}</div>
-    <span class="pill">${s.n}</span>
+    <img class="secart" src="assets/sec_${id}.webp" alt=""><div class="crumb"><a href="#/">Home</a> › ${s.n}</div>
+    <nav class="sectabs" aria-label="MCAT sections">${SECS.map(x=>`<a class="s-${x.id}" href="#/sec/${x.id}"${x.id===id?' aria-current="page"':""}>${x.n}</a>`).join("")}</nav>
     <h1>${s.full}</h1>
     <p>${s.blurb} On test day: <b>${s.q} questions in ${s.min} minutes</b>, scored 118–132.</p>
     <div class="weights">${s.w.map(([n,p,k])=>`<div class="wt"><b>${n}</b><span>${p}%</span><div class="bar"><i style="width:${p}%"></i></div></div>`).join("")}</div>
@@ -417,8 +467,12 @@ function section(id){
       ${isCars?`<a class="btn" href="${practice({section:id,mode:"passage"})}">Passage Sets →</a><a class="btn ghost" href="${practice({section:id,mode:"drill"})}">Passage Drill</a><a class="btn ghost" href="${practice({subj:"cars",unit:3,mode:"drill"})}">1-question warm-ups</a><a class="btn ghost" href="${practice({section:id,mode:"timed"})}">Timed set</a>`
       :`<a class="btn" href="${practice({section:id,mode:"drill"})}">Drill the whole section →</a><a class="btn ghost" href="${practice({section:id,mode:"passage"})}">Passage Sets</a><a class="btn ghost" href="${practice({section:id,mode:"timed"})}">Timed Mini-Section</a>${id!=="ps"?`<a class="btn ghost" href="${practice({mode:"eqs"})}">Must-Know Sheet</a>`:""}`}
     </div>
+    ${subs.length>1?`<div class="jump"><span class="mini" style="font-weight:800">Jump to:</span>${subs.map(sb=>`<a href="#/sec/${id}/${sb}">${HUB.sn[sb]}</a>`).join("")}</div>`:""}
   </div></div>
   <div class="wrap">
+    <div class="howto">${isCars
+      ?`<div><b>1. Read daily</b>One passage a day builds reading stamina better than cramming.</div><div><b>2. Review every answer</b>Reread the explanation for each question, even the ones you got right.</div><div><b>3. Time yourself</b>Aim for about 10 minutes per passage, the real test pace.</div>`
+      :`<div><b>1. Learn a unit</b>Read the free textbook section linked below for the unit.</div><div><b>2. Drill it</b>Tap Practice on the unit card. Aim for 20+ questions and read every explanation.</div><div><b>3. Apply it</b>Once units feel solid, switch to Passage Sets and the Timed Mini-Section above.</div>`}</div>
     ${isCars?`<div class="tip" style="margin-top:22px"><b>Professor Tip:</b> CARS rewards daily reading more than cramming. Do one passage a day, then reread the explanation for every question, including the ones you got right.</div>`:""}
     ${id==="bb"?`<div class="note">Biochemistry is tested in both science sections, so its units appear here and on Chem/Phys.</div>`:""}
     ${subs.map(sb=>subjBlock(sb,id)).join("")}
@@ -427,7 +481,7 @@ function section(id){
 function subjBlock(sb,secId){
   const us=HUB.units[sb];
   const books=[BOOK[sb],BOOK2[sb]].filter(Boolean);
-  return `<div class="subj s-${secId}">
+  return `<div class="subj s-${secId}" id="subj-${sb}">
     <div class="sh"><h2>${HUB.sn[sb]}</h2><span class="mini" style="font-weight:800">${fmt(HUB.subjCount[sb])} questions</span>
       ${books.map(b=>`<a href="${b[1]}" target="_blank" rel="noopener">${b[0]} ↗</a>`).join("")}</div>
     <div class="ugrid">${us.map((u,i)=>{const acc=unitAcc(sb,i+1);const c=HUB.counts[sb][i];return `
@@ -498,7 +552,7 @@ async function daily(){
       <p style="font-size:18px">${score===5?"Perfect day! 🎉":score>=3?"Solid work. Review the misses below.":"Every miss is a lesson. Read the steps below, then practice that unit."}</p>
       <p><span class="streak">🔥 ${d.streak}-day streak</span> <span class="mini">Best: ${d.best}</span></p>
       <div style="text-align:left;margin-top:16px">${set.map((q,k)=>`<details class="rev"><summary class="weak s-${SEC_OF[q.subj]}"><span class="tag">${HUB.sn[q.subj]}</span><span class="nm">${res[k]?"✅":"❌"} ${esc(HUB.units[q.subj][q.unit-1])}</span><span class="rv">Review</span><a class="btn sm ghost" href="${practice({subj:q.subj,unit:q.unit})}">Practice unit</a></summary>${revBody(q,k)}</details>`).join("")}</div>
-      <div class="actions" style="justify-content:center"><a class="btn" href="practice.html">Keep practicing →</a><a class="btn ghost" href="#/">Back to sections</a></div>
+      <div class="actions" style="justify-content:center"><a class="btn" href="practice.html">Keep practicing →</a><a class="btn ghost" href="#/">Back to home</a></div>
       <p class="mini" style="margin-top:14px">Tap any question above to see the explanation again. New questions appear tomorrow.</p>
     </div></div>`;
   }
@@ -605,7 +659,7 @@ let SIDX=null;
 function doSearch(q){q=(q||"").trim();if(!q)return;location.hash="#/search?q="+encodeURIComponent(q);}
 const norm=s=>String(s).toLowerCase().normalize("NFKD").replace(/[̀-ͯ]/g,"").replace(/[–—−-]/g," ").replace(/\s+/g," ");
 async function search(q){
-  setNav("");
+  setNav("search");
   app.innerHTML=`<div class="wrap" style="padding-top:28px"><img class="cardart" src="assets/m_search.webp" alt=""><div class="kicker">Search</div><h1 style="font-size:36px">Results for “${esc(q)}”</h1><div id="sres" class="sres"><p>Searching…</p></div></div>`;
   try{ if(!SIDX){const r=await fetch("data/search.json");SIDX=await r.json();} }catch(e){$("#sres").innerHTML="<p>Search couldn't load. Check your connection.</p>";return;}
   const terms=norm(q).split(" ").filter(t=>t.length>1);
@@ -623,14 +677,37 @@ async function search(q){
 }
 
 /* ---------------- Router ---------------- */
+function searchPage(){
+  setNav("search");
+  app.innerHTML=`<div class="wrap" style="padding-top:28px"><img class="cardart" src="assets/m_search.webp" alt=""><div class="kicker">Search</div><h1 style="font-size:36px;margin-bottom:14px">Find a topic</h1>
+    <form class="bigsearch" role="search" onsubmit="event.preventDefault();doSearch(this.q.value)">
+      <input name="q" type="search" placeholder="Try “buffers” or “lens”" aria-label="Search a topic" style="padding-left:14px">
+      <button class="btn" type="submit">Search</button>
+    </form>
+    <div class="chips"><span class="mini" style="font-weight:700">Try:</span>${["buffers","Michaelis–Menten","Hardy–Weinberg","operant conditioning","lens","Doppler","schizophrenia"].map(t=>`<a class="chip" href="#/search?q=${encodeURIComponent(t)}">${t}</a>`).join("")}</div></div>`;
+}
+const TITLES={home:"MCAT Study Hub · ItsDrDan",daily:"Daily 5 · MCAT Study Hub",plan:"Study plan · MCAT Study Hub",search:"Search · MCAT Study Hub"};
+let firstRoute=true;
 function route(){
   const h=location.hash||"#/";
-  window.scrollTo(0,0);
-  if(h.startsWith("#/sec/")) return section(h.slice(6));
-  if(h.startsWith("#/daily")) return daily();
-  if(h.startsWith("#/plan")) return plan();
-  if(h.startsWith("#/search")){const q=new URLSearchParams(h.split("?")[1]||"").get("q")||"";return q?search(q):home();}
-  home();
+  window.scrollTo({top:0,behavior:"instant"});
+  let view="home";
+  if(h.startsWith("#/sec/")){
+    const [id,sb]=h.slice(6).split("/");
+    section(id); view=null;
+    document.title=(SEC[id]?SEC[id].n+" · ":"")+"MCAT Study Hub";
+    if(sb){const el=document.getElementById("subj-"+sb);if(el)el.scrollIntoView({behavior:"instant"});}
+  }
+  else if(h.startsWith("#/daily")){daily();view="daily";}
+  else if(h.startsWith("#/plan")){plan();view="plan";}
+  else if(h.startsWith("#/search")){const q=new URLSearchParams(h.split("?")[1]||"").get("q")||"";q?search(q):searchPage();view="search";}
+  else home();
+  if(view) document.title=TITLES[view];
+  document.querySelectorAll("nav.links a[data-nav]").forEach(a=>a.classList.contains("on")?a.setAttribute("aria-current","page"):a.removeAttribute("aria-current"));
+  // move keyboard and screen-reader focus to the new view (not on first load)
+  if(!firstRoute) app.focus({preventScroll:true});
+  firstRoute=false;
+  if(h.startsWith("#/search")&&!h.includes("q=")){const i=app.querySelector("input[name=q]");if(i)i.focus();}
 }
 window.addEventListener("hashchange",route);
 route();
