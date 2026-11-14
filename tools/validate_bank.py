@@ -147,6 +147,14 @@ else:
     added = len(set(now_ids["q"]) - set(man["q"])) + sum(1 for pid in now_ids["p"] if pid not in man["p"])
     if added: warn("id_manifest", f"new IDs not in the manifest yet ({added}); run python3 tools/validate_bank.py --accept-ids")
 
+# ---- guided CARS review maps: one line per body paragraph ----
+for p in P:
+    m = p.get("map")
+    if m is None: continue
+    n_body = len([x for x in re.findall(r"<p([^>]*)>", p["text"]) if 'class="mini"' not in x])
+    if not isinstance(m, dict) or not all(isinstance(m.get(k), str) and m.get(k).strip() for k in ("main", "turn", "tip")): err(p["id"], "guided-review map needs main, turn and tip text")
+    elif not isinstance(m.get("paras"), list) or len(m["paras"]) != n_body: err(p["id"], f"guided-review map lists {len(m.get('paras') or [])} paragraphs but the passage has {n_body}")
+
 # ---- tags the app reads: AAMC skill (k), CARS skill (c) ----
 for q in Q + [x for p in P for x in p["qs"]]:
     iid = q.get("id") or q.get("q", "")[:40]

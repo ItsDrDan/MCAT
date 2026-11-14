@@ -244,6 +244,9 @@ details.why li.mine{background:#fff3f3;border-radius:8px;padding:2px 6px;margin-
 .logm .mbox{max-width:820px}
 .bkrow{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:8px}
 .psum{cursor:pointer;font-weight:800;color:var(--lav-d)}
+.gmap{margin:12px 0;background:#fffdf8;border:1px solid #f1e6cf;border-radius:14px;padding:10px 14px;text-align:left;clear:both}
+.gmap h4{font-family:Fredoka,sans-serif;font-weight:600;margin:10px 0 2px;color:var(--lav-d);font-size:16px}
+.gmap ol{margin:4px 0;padding-left:22px}.gmap li{margin:3px 0}.gmap p{margin:4px 0}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important;scroll-behavior:auto!important}}
 </style>
 </head>
@@ -294,7 +297,7 @@ details.why li.mine{background:#fff3f3;border-radius:8px;padding:2px 6px;margin-
     <h3 class="mgroup">Test yourself <span>passages and timed sets, like test day</span></h3>
     <button class="mode" data-mode="passage">
       <div class="ic"><img src="https://itsdrdan.github.io/MCAT/assets/m_passage_sets.webp" alt="" width="52" height="52"></div>
-      <b>Passage Sets</b><span>Pick a passage with graphs, tables or figures and answer all its questions (CARS: 5–7 per passage).</span>
+      <b>Passage Sets</b><span>Pick a passage with graphs, tables or figures and answer all its questions (CARS: 6–9 per passage, with a guided review at the end).</span>
     </button>
     <button class="mode" data-mode="timed">
       <div class="ic"><img src="https://itsdrdan.github.io/MCAT/assets/m_timed.webp" alt="" width="52" height="52"></div>
@@ -359,8 +362,8 @@ details.why li.mine{background:#fff3f3;border-radius:8px;padding:2px 6px;margin-
 <script src="https://itsdrdan.github.io/games/brand/icons.js" defer></script>
 <script src="https://itsdrdan.github.io/games/brand/embed.js" defer></script>
 <script src="https://itsdrdan.github.io/games/track.js" defer></script>
-<script src="data/bank-q.js?v=7453dec1a1"></script>
-<script src="data/bank-p.js?v=7453dec1a1"></script>
+<script src="data/bank-q.js?v=8b0f2a31b6"></script>
+<script src="data/bank-p.js?v=8b0f2a31b6"></script>
 <script>
 "use strict";
 if(typeof Q==="undefined"||typeof P==="undefined"){ document.getElementById("stage").innerHTML='<h2 style="font-size:22px">The questions didn\'t load</h2><p>Check your connection, then reload this page. If it keeps happening, tell Dr. Dan with the Feedback button.</p><div class="actions"><button class="btn main" onclick="location.reload()">Reload</button></div>'; throw new Error("question bank failed to load"); }
@@ -714,6 +717,15 @@ function startReview(){
 
 /* ---------- Passages ---------- */
 let curP=null,pI=0,pScore=0,pOrder=[];
+/* Guided CARS review: an authored map of the passage's argument. Shown only after the passage is finished, never during a timed section. */
+function mapHTML(p){ const m=p&&p.map; if(!m||!m.main) return "";
+  return `<details class="gmap"><summary class="psum">Guided review: how this passage is built</summary>
+  <p class="mini">Before you read on, say the author's main point to yourself in one sentence. Then compare.</p>
+  <h4>Central argument</h4><p>${m.main}</p>
+  ${m.paras&&m.paras.length?`<h4>What each paragraph does</h4><ol>${m.paras.map(x=>`<li>${x}</li>`).join("")}</ol>`:""}
+  ${m.turn?`<h4>Where the reasoning turns</h4><p>${m.turn}</p>`:""}
+  ${m.tip?`<div class="tip"><b>Reading habit to keep:</b> ${m.tip}</div>`:""}
+  <details style="margin-top:8px"><summary class="psum">Show the passage again</summary><div class="passage full">${p.text}</div></details></details>`; }
 /* Keep the reader's place in the passage from one question to the next, and let phones expand or shrink it. */
 let passFull=false;
 const pfullBtn=()=>`<button class="linkbtn pfull" data-pfull>${passFull?"Shrink the passage":"Show the full passage"}</button>`;
@@ -731,7 +743,7 @@ function showPQ(){
   const p=curP;
   if(pI>=p.qs.length){
     if(pScore===p.qs.length)award("pass"); (S.pdone||(S.pdone={}))[p.id]=pScore; save(); renderProgress();
-    stage.innerHTML=`<img class="pulse" style="float:right;width:120px;height:auto;margin-left:10px" src="${ART}pulse_${pScore===p.qs.length?"victory":pScore>=p.qs.length-1?"correct":"reading"}.webp" alt=""><h2 style="font-size:24px">${p.title}: ${pScore} / ${p.qs.length}</h2><p>${pScore===p.qs.length?"Perfect passage! 🎉":pScore>=p.qs.length-1?"Strong work. Review the one you missed.":"Reread the passage, then try another one."}</p><div class="actions"><button class="btn main" id="again">${rotP?"Back to single questions →":carsDrill?"Next passage →":"Another passage"}</button>${carsDrill?'<button class="btn ghost" id="pickP">Pick a passage</button>':""}</div>`;
+    stage.innerHTML=`<img class="pulse" style="float:right;width:120px;height:auto;margin-left:10px" src="${ART}pulse_${pScore===p.qs.length?"victory":pScore>=p.qs.length-1?"correct":"reading"}.webp" alt=""><h2 style="font-size:24px">${p.title}: ${pScore} / ${p.qs.length}</h2><p>${pScore===p.qs.length?"Perfect passage! 🎉":pScore>=p.qs.length-1?"Strong work. Review the one you missed.":"Reread the passage, then try another one."}</p>${mapHTML(p)}<div class="actions"><button class="btn main" id="again">${rotP?"Back to single questions →":carsDrill?"Next passage →":"Another passage"}</button>${carsDrill?'<button class="btn ghost" id="pickP">Pick a passage</button>':""}</div>`;
     if(rotP){ $("#again").onclick=()=>{rotP=false;showDrill();}; return; }
     $("#again").onclick=carsDrill?startCarsDrill:startPassage; if(carsDrill)$("#pickP").onclick=startPassage; return;
   }
@@ -838,7 +850,7 @@ function reviewList(B,mount){
   mount.innerHTML=`<div class="dots">${B.items.map((it,k)=>`<button class="dot ${B.ans[k]===it.q.a?"ok":"bad"}" data-k="${k}">${k+1}</button>`).join("")}</div><div class="rv"></div>`;
   const rv=mount.querySelector(".rv");
   const show=k=>{const it=B.items[k],q=it.q,order=B.orders[k];
-    rv.innerHTML=`${it.p?`<details style="margin-top:10px"><summary style="cursor:pointer;font-weight:800;color:var(--lav-d)">Show passage: ${it.p.title}</summary>${passageHTML(it.p)}</details>`:""}${figHTML(q)}<div class="stem" style="margin-top:12px">${k+1}. ${fmtStem(q.q)}</div>${optionsHTML(q,order)}${B.ans[k]===null?'<p class="mini">You left this one blank.</p>':""}${feedbackHTML(q,B.ans[k]===q.a,order,B.ans[k])}`;
+    rv.innerHTML=`${it.p?`<details style="margin-top:10px"><summary style="cursor:pointer;font-weight:800;color:var(--lav-d)">Show passage: ${it.p.title}</summary>${passageHTML(it.p)}</details>${mapHTML(it.p)}`:""}${figHTML(q)}<div class="stem" style="margin-top:12px">${k+1}. ${fmtStem(q.q)}</div>${optionsHTML(q,order)}${B.ans[k]===null?'<p class="mini">You left this one blank.</p>':""}${feedbackHTML(q,B.ans[k]===q.a,order,B.ans[k])}`;
     if(B.tq&&B.tq[k]!=null){ const tg=paceOf(B), f=B.first&&B.first[k], ch=f!=null&&f!==B.ans[k]?(f===q.a?" · <span style=\"color:#c0392b\">you changed a right answer to a wrong one</span>":B.ans[k]===q.a?" · you changed to the right answer":" · you changed answers"):"";
       rv.insertAdjacentHTML("afterbegin",`<p class="qtime">⏱ Question ${k+1}: ${fmt(B.tq[k])} on this question (test-day pace ≈ ${fmt(tg)})${B.flag&&B.flag[k]?" · ⚑ flagged":""}${ch}</p>`); }
     const r=rv.querySelector(".opts");reveal(r,q,B.ans[k]);r.querySelectorAll(".strike").forEach(b=>b.disabled=true);};
@@ -952,7 +964,7 @@ function startTimed(){
 /* ---------- Mini Full-Length ---------- */
 let FL=null;
 function buildBlock(s){
-  if(s==="cars"){const p=carsPick(1)[0]; const items=passageItems(p); return {sec:s,items,secs:items.length*102};}
+  if(s==="cars"){const p=carsPick(1)[0]; const items=passageSample(p,6); return {sec:s,items,secs:items.length*102};}
   const p=weightedPassages(s,1)[0];
   const pItems=p?passageItems(p,5):[];
   const disc=discreteItems(weightedDiscretes(s,10-pItems.length,q=>q.lv!=="F"));
