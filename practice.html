@@ -225,6 +225,26 @@ details.why li.mine{background:#fff3f3;border-radius:8px;padding:2px 6px;margin-
 .cov .track i{display:block;height:100%;background:var(--blue-d)}
 .cov.b .track i{background:var(--mint-d)} .cov.p .track i{background:var(--pink-d)}
 .cov.none{background:#faf9fc;color:var(--muted)}
+/* beacon: evidence-aware progress, next steps, miss reasons, mobile passages */
+@media (max-width:760px){.passage{max-height:46vh}.passage.full{max-height:none}}
+.pfull{display:none;margin:0 0 6px}
+@media (max-width:760px){.pfull{display:inline-block}}
+.catbar small{display:block;color:var(--muted);font-size:12px;font-weight:600}
+.nextbox{background:#f6f3ff;border:1.5px solid var(--line);border-radius:14px;padding:10px 12px;margin:0 0 12px}
+.nextbox h3{font-size:17px;margin:0 0 4px}
+.nx{display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap;padding:7px 0;border-top:1px solid var(--line)}
+.nx.first{border-top:none}
+.nx div{flex:1;min-width:200px}.nx b{display:block}.nx span{font-size:13.5px;color:var(--muted)}
+.nx .btn{min-height:42px;padding:8px 16px}
+.whymiss{margin-top:10px;font-size:14px}
+.whymiss .chip{min-height:36px;padding:4px 10px;font-size:13px;margin:5px 5px 0 0;cursor:pointer}
+.loglist{list-style:none;padding:0;margin:8px 0}.loglist li{margin:4px 0}
+.loglist button{width:100%;text-align:left;background:#fff;border:1.5px solid var(--line);border-radius:10px;padding:7px 10px;font:inherit;font-size:14px;cursor:pointer;min-height:40px}
+.loglist .ok{color:#1f8a5b;font-weight:800}.loglist .no{color:var(--red-d);font-weight:800}
+.logm .mbox{max-width:820px}
+.bkrow{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:8px}
+.psum{cursor:pointer;font-weight:800;color:var(--lav-d)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important;scroll-behavior:auto!important}}
 </style>
 </head>
 <body>
@@ -245,6 +265,7 @@ details.why li.mine{background:#fff3f3;border-radius:8px;padding:2px 6px;margin-
 <div class="card" id="pickCard">
   <div class="nowbar" id="nowBar"><div><span class="mini">You're practicing</span><b id="nowText"></b></div><button class="toolbtn chg" id="changeBtn" aria-expanded="true" aria-controls="pickBody">Change mode or topic</button></div>
   <div id="pickBody">
+  <div id="nextBox"></div>
   <div class="row seg" id="secSeg" role="group" aria-label="Section">
     <button data-sec="all" class="on">All 4 sections</button>
     <button data-sec="cp"><img class="segic" src="https://itsdrdan.github.io/MCAT/assets/sec_cp.webp" alt="" width="22" height="22">Chem/Phys</button>
@@ -260,7 +281,7 @@ details.why li.mine{background:#fff3f3;border-radius:8px;padding:2px 6px;margin-
     </button>
     <button class="mode" data-mode="review">
       <div class="ic"><img src="https://itsdrdan.github.io/MCAT/assets/m_progress.webp" alt="" width="52" height="52"></div>
-      <b>Review My Misses</b><span>Missed questions come back after 1, 3 and 7 days until they stick.</span>
+      <b>Review My Misses</b><span>Missed questions, including passage questions, come back after 1, 3 and 7 days until they stick.</span>
     </button>
     <button class="mode" data-mode="eqs">
       <div class="ic"><img src="https://itsdrdan.github.io/MCAT/assets/m_must_know.webp" alt="" width="52" height="52"></div>
@@ -316,8 +337,14 @@ details.why li.mine{background:#fff3f3;border-radius:8px;padding:2px 6px;margin-
   <details style="margin-top:12px"><summary style="cursor:pointer;font-weight:800;color:var(--lav-d)">Accuracy by AAMC skill</summary><div class="catbars" id="skillbars"></div></details>
   <details style="margin-top:8px"><summary style="cursor:pointer;font-weight:800;color:var(--lav-d)">AAMC content coverage map</summary><div id="coverage"></div></details>
   <details style="margin-top:8px"><summary style="cursor:pointer;font-weight:800;color:var(--lav-d)">Accuracy by topic</summary><div class="catbars" id="catbars"></div></details>
+  <details style="margin-top:8px"><summary class="psum">Why I miss questions</summary><div class="catbars" id="whybars"></div></details>
+  <details style="margin-top:8px"><summary class="psum">My recent answers</summary><label class="mini" style="display:block;margin-top:8px"><input type="checkbox" id="logMiss"> Show misses only</label><ul class="loglist" id="loglist"></ul></details>
   <h3 style="margin-top:16px;font-size:19px">Achievements</h3>
   <div class="badges" id="badges"></div>
+  <details style="margin-top:12px"><summary class="psum">Back up or move my progress</summary>
+    <p class="mini" id="bkNote" style="margin:8px 0 0">Your progress lives only in this browser. Save a backup file to keep it safe, or to move it to another device or browser. The file stays on your device; nothing is uploaded.</p>
+    <div class="bkrow"><button class="btn alt" id="bkSave">Save a backup file</button><label class="btn ghost" style="display:inline-flex;align-items:center;cursor:pointer">Restore from a backup<input type="file" id="bkFile" accept="application/json,.json" class="sr-only"></label></div>
+  </details>
   <div style="margin-top:12px"><button class="linkbtn" id="resetBtn">Reset my progress</button></div>
 </div>
 
@@ -465,22 +492,29 @@ const carsTag=q=>q&&q.c&&CATS[q.c]?` <span class="tag cars">${CATS[q.c].n.replac
 const skillTag=q=>q&&q.c&&CATS[q.c]&&CATS[q.c].s==="cars"?carsTag(q):q&&q.k&&SKILLS[q.k]?` <span class="tag sk" title="${SKILLD[q.k]} (tag is approximate)">${SKILLS[q.k]}</span>`:"";
 const DAY=864e5, SRS_GAP=[1,3,7];
 function srsUpdate(q,ok){
-  if(!q||!q.id) return; const now=Date.now(), r=S.srs[q.id];
-  if(!ok){ S.srs[q.id]={b:0,due:now+DAY}; return; }
+  const id=q&&qid(q); if(!id) return; const now=Date.now(), r=S.srs[id];   // single questions and passage questions
+  if(!ok){ S.srs[id]={b:0,due:now+DAY}; return; }
   if(!r||r.due>now) return;              // only a due review moves it forward
-  r.b++; if(r.b>=SRS_GAP.length){ delete S.srs[q.id]; toast("Cleared from Review My Misses ✔"); return; }
+  r.b++; if(r.b>=SRS_GAP.length){ delete S.srs[id]; toast("Cleared from Review My Misses ✔"); return; }
   r.due=now+SRS_GAP[r.b]*DAY;
 }
 const srsDue=()=>{const now=Date.now();return Object.keys(S.srs).filter(id=>S.srs[id].due<=now);};
 let curQ=null;
 /* Short fingerprint of a question's wording, so stats from before an edit aren't mixed with the new version. */
 function qver(q){ let h=2166136261>>>0; const s=String(q.q)+"|"+q.o.join("|"); for(const ch of s){ h^=ch.charCodeAt(0); h=Math.imul(h,16777619)>>>0; } return h.toString(36); }
+/* Recent-answer log (last 300) for "My recent answers". Saved only in this browser. */
+function logAns(q,ok,pick){ const id=qid(q); if(!id) return; const L=S.log||(S.log=[]); L.push([id,ok?1:0,pick==null?-1:pick]); if(L.length>300) L.splice(0,L.length-300); }
+/* What the evidence for one unit supports. c = {a answered, c correct, r recent results as "1011…"} */
+function evid(c){ const r=c.r||"", n=r.length, rc=n?r.split("1").length-1:0;
+  if(c.a<5) return {t:"limited evidence so far",lvl:0,n,rc};
+  if(n>=5){ const p=rc/n; return p>=.8?{t:`strong recent performance (${rc} of last ${n})`,lvl:3,n,rc}:p<.6?{t:`more practice recommended (${rc} of last ${n})`,lvl:1,n,rc}:{t:`getting there (${rc} of last ${n})`,lvl:2,n,rc}; }
+  const p=c.c/c.a; return p>=.8?{t:"strong so far",lvl:3,n:c.a,rc:c.c}:p<.6?{t:"more practice recommended",lvl:1,n:c.a,rc:c.c}:{t:"getting there",lvl:2,n:c.a,rc:c.c}; }
 function record(subj,unit,ok,q,pick){
-  if(q){ const skk=q.c&&CATS[q.c]&&CATS[q.c].s==="cars"?q.c:q.k; if(skk){const sk=S.skills[skk]||(S.skills[skk]={a:0,c:0}); sk.a++; if(ok)sk.c++;} srsUpdate(q,ok);
+  if(q){ logAns(q,ok,pick); const skk=q.c&&CATS[q.c]&&CATS[q.c].s==="cars"?q.c:q.k; if(skk){const sk=S.skills[skk]||(S.skills[skk]={a:0,c:0}); sk.a++; if(ok)sk.c++;} srsUpdate(q,ok);
     try{ if(window.ddTrack) window.ddTrack({game:"mcat",course:"MCAT",mode:mode+" · "+SECN[SEC_OF[subj]],topic:SUBJ[subj].n+": "+SUBJ[subj].u[unit-1],correct:!!ok,item:qid(q),pick:(pick==null?"":pick),key:q.a,ver:qver(q)}); }catch(e){} }
   S.ans++; if(ok){S.cor++;S.streak++;S.xp+=10+Math.min(S.streak,10);S.best=Math.max(S.best,S.streak);}else{S.streak=0;S.xp+=2;}
   const c=S.subj[subj]||(S.subj[subj]={a:0,c:0}); c.a++; if(ok)c.c++;
-  const k=UNITKEY(subj,unit); const u=S.units[k]||(S.units[k]={a:0,c:0}); u.a++; if(ok)u.c++;
+  const k=UNITKEY(subj,unit); const u=S.units[k]||(S.units[k]={a:0,c:0}); u.a++; if(ok)u.c++; u.r=((u.r||"")+(ok?1:0)).slice(-12);
   checkBadges(); save(); renderProgress();
 }
 function award(id){ if(S.badges[id]) return; S.badges[id]=Date.now(); const b=BADGES.find(x=>x.id===id); toast(b.i+" Achievement: "+b.n+"!"); }
@@ -496,17 +530,63 @@ function renderProgress(){
   $("#sAns").textContent=S.ans; $("#sPct").textContent=S.ans?Math.round(S.cor/S.ans*100)+"%":"–";
   $("#sStreak").textContent=S.streak; $("#sBest").textContent=S.best;
   $("#badges").innerHTML=BADGES.map(b=>`<div class="badge ${S.badges[b.id]?"got":""}"><div class="bi"><img src="${ART}b_${b.id}.webp" alt="" loading="lazy"></div><b>${b.n}</b>${b.d}</div>`).join("");
-  const rows=Object.keys(S.units).sort((a,b)=>(S.units[a].c/S.units[a].a)-(S.units[b].c/S.units[b].a));
+  const rows=Object.keys(S.units).filter(k=>SUBJ[k.split(":")[0]]).sort((a,b)=>(S.units[a].a<5)-(S.units[b].a<5)||(S.units[a].c/S.units[a].a)-(S.units[b].c/S.units[b].a));
   const cls={cp:"",bb:"b",ps:"p",cars:"c"};
   const sk=[1,2,3,4].filter(k=>S.skills[k]), ck=["R1","R2","R3"].filter(k=>S.skills[k]);
-  const bar=(lab,tip,c,cl)=>{const p=Math.round(c.c/c.a*100);return `<div class="catbar ${cl}"><span title="${tip}">${lab}</span><span class="track"><i style="width:${p}%"></i></span><span>${p}%</span></div>`;};
+  const bar=(lab,tip,c,cl)=>{const p=Math.round(c.c/c.a*100);return `<div class="catbar ${cl}"><span title="${tip}">${lab}<small>${c.a} answered${c.a<5?" · limited evidence so far":""}</small></span><span class="track"><i style="width:${p}%"></i></span><span>${p}%</span></div>`;};
   $("#skillbars").innerHTML=(sk.length||ck.length?'<p class="mini">Science questions are tagged by the AAMC\'s four Scientific Inquiry &amp; Reasoning Skills; CARS questions by its three CARS skills. Tags are approximate.</p>'+sk.map(k=>bar(SKILLS[k],SKILLD[k],S.skills[k],"sk")).join("")+ck.map(k=>bar(CATS[k].n,CARSD[k],S.skills[k],"c")).join(""):'<p class="mini">Answer some questions to see your accuracy on each AAMC reasoning skill.</p>');
-  renderCoverage();
+  renderCoverage(); renderNext(); renderWhy(); renderLog();
   const nd=srsDue().length, nq=Object.keys(S.srs).length;
   $("#srsline").innerHTML=nq?`<b>${nd}</b> missed question${nd===1?"":"s"} due for review now · ${nq} in your review queue. <button class="linkbtn" id="srsGo">Review My Misses</button>`:"";
   const sg=$("#srsGo"); if(sg) sg.onclick=()=>{mode="review";document.querySelectorAll("#modes .mode").forEach(x=>x.classList.toggle("on",x.dataset.mode===mode));start();window.scrollTo({top:$("#stage").offsetTop-10,behavior:"smooth"});};
-  $("#catbars").innerHTML=rows.length?'<p class="mini">Weakest units first.</p>'+rows.map(k=>{const [s,u]=k.split(":"),c=S.units[k],p=Math.round(c.c/c.a*100);return `<div class="catbar ${cls[SEC_OF[s]]}"><span>${SUBJ[s].n}: ${SUBJ[s].u[u-1]}</span><span class="track"><i style="width:${p}%"></i></span><span>${p}%</span></div>`;}).join(""):'<p class="mini">Answer some questions to see your strong and weak units.</p>';
+  $("#catbars").innerHTML=rows.length?'<p class="mini">Weakest units first. Units with fewer than 5 answers come last, because a few questions can\'t show much yet. The percent is all-time; the note under each unit uses your most recent answers.</p>'+rows.map(k=>{const [s,u]=k.split(":"),c=S.units[k],p=Math.round(c.c/c.a*100);return `<div class="catbar ${cls[SEC_OF[s]]}"><span>${SUBJ[s].n}: ${SUBJ[s].u[u-1]}<small>${c.a} answered · ${evid(c).t}</small></span><span class="track"><i style="width:${p}%"></i></span><span>${p}%</span></div>`;}).join(""):'<p class="mini">Answer some questions to see your strong and weak units.</p>';
 }
+
+/* ---------- Suggested next steps: plain rules on the student's own answers ---------- */
+function goMode(m,o){ o=o||{}; if(o.sec) sec=o.sec; if(o.subj!==undefined){ fSubj=o.subj; fUnit=o.unit||"any"; }
+  mode=m;
+  document.querySelectorAll("#secSeg button").forEach(x=>x.classList.toggle("on",x.dataset.sec===sec));
+  document.querySelectorAll("#modes .mode").forEach(x=>x.classList.toggle("on",x.dataset.mode===mode));
+  $("#topicBox").classList.toggle("hidden",["eqs","full","review","gym","real"].includes(mode));
+  renderFilters(); start(); setPicked(true,true); }
+function nextSteps(){
+  const out=[], nd=srsDue().length;
+  if(nd) out.push({t:`Review ${nd} missed question${nd===1?"":"s"}`,w:"Due now on the 1, 3 and 7 day review schedule.",go:()=>goMode("review")});
+  const weak=Object.keys(S.units).filter(k=>SUBJ[k.split(":")[0]]).map(k=>({k,c:S.units[k],e:evid(S.units[k])})).filter(x=>x.e.lvl===1).sort((a,b)=>a.e.rc/a.e.n-b.e.rc/b.e.n)[0];
+  if(weak){ const [s,u]=weak.k.split(":"); out.push({t:`Practice ${SUBJ[s].u[u-1]}`,w:`${SUBJ[s].n}: you got ${weak.e.rc} of your last ${weak.e.n} right in this unit.`,go:()=>goMode("drill",{sec:SEC_OF[s],subj:s,unit:String(u)})}); }
+  const bySec={cp:0,cars:0,bb:0,ps:0}; for(const s in S.subj) if(SEC_OF[s]) bySec[SEC_OF[s]]+=S.subj[s].a;
+  const low=Object.keys(bySec).sort((a,b)=>bySec[a]-bySec[b])[0];
+  if(S.ans>=10&&bySec[low]<5) out.push({t:`Try some ${SECN[low]}`,w:bySec[low]?`Only ${bySec[low]} answered there so far, so there is little evidence yet.`:"You haven't answered any questions in this section yet.",go:()=>goMode(low==="cars"?"passage":"drill",{sec:low,subj:"any"})});
+  const pdn=Object.keys(S.pdone||{}).length;
+  if(S.ans>=30&&pdn<3) out.push({t:"Work a passage set",w:`Most real MCAT questions come with a passage. You have finished ${pdn} here.`,go:()=>goMode("passage",{subj:"any"})});
+  const strong=Object.values(S.units).filter(c=>evid(c).lvl===3).length;
+  if(strong>=3&&!(S.tn>0)) out.push({t:"Try a Timed Mini-Section",w:`Recent accuracy is strong in ${strong} units. Pacing is the next skill to practice.`,go:()=>goMode("timed",{subj:"any"})});
+  return out.slice(0,3);
+}
+let NEXT=[];
+function renderNext(){ const el=$("#nextBox"); if(!el) return; NEXT=S.ans?nextSteps():[];
+  el.innerHTML=NEXT.length?`<div class="nextbox"><h3>Suggested next</h3>${NEXT.map((n,i)=>`<div class="nx ${i?"":"first"}"><div><b>${n.t}</b><span>${n.w}</span></div><button class="btn alt" data-nx="${i}">Go →</button></div>`).join("")}<p class="mini" style="margin:6px 0 0">These come from simple rules on your own answers, saved only on this device. They are suggestions; pick anything below instead if you prefer.</p></div>`:""; }
+/* ---------- Miss reasons: the student's own label, never guessed by the app ---------- */
+const WHY=[["content","Didn't know the content","Most of your tagged misses are content gaps. Drill one unit at a time in Quick Drill, and read that unit's free textbook section (linked on the Study Hub) first."],
+ ["concept","Mixed up two ideas","Many of your tagged misses are mix-ups. Read \"Why the other choices are wrong\" after each miss; it names the idea you confused. Skill Gym drills the Psych/Soc look-alikes."],
+ ["misread","Misread the question","You often tag misreading. Before you pick, reread the last sentence of the question and say what it asks in your own words."],
+ ["passage","Misread the passage or a figure","You often tag the passage or figure. Before answering, check each figure's axes, units and labels, and find the sentence that supports your choice."],
+ ["calc","Calculation slip","You often tag calculation slips. Skill Gym has no-calculator math rounds. Estimate the answer first, then write each step."],
+ ["infer","My inference went too far","You often tag inferences that go too far. Pick the answer you can point to in the passage. If it needs an extra assumption, it goes beyond the evidence."],
+ ["two","Down to two, picked the wrong one","You often get down to two. Compare the two choices word by word and find the word the passage or the science doesn't support."],
+ ["time","Rushed or ran out of time","You often tag time. Timed Mini-Sections build pacing. After about 2 minutes on one question, flag it, guess and move on."]];
+function whyMissHTML(q){ const id=qid(q); if(!id) return ""; const cur=(S.why||{})[id];
+  return `<div class="whymiss" data-wq="${id}"><b>Why did you miss it?</b> <span class="mini">Optional. Your own call, saved only on this device.</span><div>${WHY.map(([k,n])=>`<button class="chip ${cur===k?"on":""}" data-why="${k}" aria-pressed="${cur===k}">${n}</button>`).join("")}</div></div>`; }
+function renderWhy(){ const el=$("#whybars"); if(!el) return; const n={}; let tot=0; for(const id in (S.why||{})){ n[S.why[id]]=(n[S.why[id]]||0)+1; tot++; }
+  if(!tot){ el.innerHTML='<p class="mini">After a miss, tap a reason under the explanation. Once you have tagged a few, the pattern shows up here.</p>'; return; }
+  const rows=WHY.filter(w=>n[w[0]]).sort((a,b)=>n[b[0]]-n[a[0]]);
+  el.innerHTML=`<p class="mini">From ${tot} miss${tot===1?"":"es"} you tagged yourself.</p>`+rows.map(w=>`<div class="catbar sk"><span>${w[1]}</span><span class="track"><i style="width:${Math.round(n[w[0]]/tot*100)}%"></i></span><span>${n[w[0]]}</span></div>`).join("")+(tot>=5?`<div class="tip"><b>Professor Tip:</b> ${rows[0][2]}</div>`:'<p class="mini">Tag at least 5 misses to get a tip based on your most common reason.</p>'); }
+function renderLog(){ const el=$("#loglist"); if(!el) return; const only=$("#logMiss").checked;
+  const L=(S.log||[]).map((r,i)=>({r,i})).reverse().filter(x=>!only||!x.r[1]).slice(0,60);
+  el.innerHTML=L.map(({r,i})=>{ const it=itemFromId(r[0]); if(!it) return ""; return `<li><button data-log="${i}"><span class="${r[1]?"ok":"no"}">${r[1]?"✓":"✗"}<span class="sr-only">${r[1]?" Right":" Missed"}</span></span> <b>${SUBJ[it.subj].u[it.unit-1]}</b> · ${String(it.q.q).replace(/<[^>]+>/g," ").slice(0,90)}…</button></li>`; }).join("")||`<li class="mini">${only?"No misses in your recent answers.":"Your last 300 answers will be listed here. Tap one to see the question and its explanation again."}</li>`; }
+function logModal(i){ const r=(S.log||[])[i], it=r&&itemFromId(r[0]); if(!it) return; const q=it.q, order=[0,1,2,3], ch=r[2]>=0?r[2]:null;
+  const m=modal(`<h3>${SUBJ[it.subj].n} · ${SUBJ[it.subj].u[it.unit-1]}</h3>${it.p?`<details style="margin:8px 0"><summary class="psum">Show passage: ${it.p.title}</summary><div class="passage full">${it.p.text}</div></details>`:""}${figHTML(q)}<div class="stem">${fmtStem(q.q)}</div>${optionsHTML(q,order)}${feedbackHTML(q,!!r[1],order,ch)}`,"logm");
+  const root=m.querySelector(".opts"); reveal(root,q,ch); root.querySelectorAll(".strike").forEach(b=>b.remove()); }
 
 /* ---------- Filters ---------- */
 function countFor(subj,unit){return Q.filter(q=>q.subj===subj&&(unit==null||q.unit===unit)).length+P.filter(p=>p.subj===subj&&(unit==null||p.unit===unit)).reduce((n,p)=>n+p.qs.length,0);}
@@ -547,7 +627,7 @@ function srSay(t){ const n=document.getElementById("srlive"); if(!n) return; n.t
 function feedbackHTML(q,ok,order,chosen){
   srSay(ok?"Correct.":"Not quite. The answer is "+LET[order.indexOf(q.a)]+": "+String(q.o[q.a]).replace(/<[^>]+>/g," ")+".");
   const right=LET[order.indexOf(q.a)];
-  return `<div class="fb ${ok?"ok":"bad"}"><button class="toolbtn fbrep" data-report="${qid(q)}">⚑ Report a problem</button><img class="pulse" src="${ART}pulse_${ok?"correct":"oops"}.webp" alt=""><h3>${ok?"Correct!":"Not quite. The answer is "+right+"."}</h3><ol>${q.e.map(s=>`<li>${s}</li>`).join("")}</ol>${whyHTML(q,order,chosen)}${q.t?`<div class="tip"><b>Professor Tip:</b> ${q.t}</div>`:""}</div>`;
+  return `<div class="fb ${ok?"ok":"bad"}"><button class="toolbtn fbrep" data-report="${qid(q)}">⚑ Report a problem</button><img class="pulse" src="${ART}pulse_${ok?"correct":"oops"}.webp" alt=""><h3>${ok?"Correct!":"Not quite. The answer is "+right+"."}</h3><ol>${q.e.map(s=>`<li>${s}</li>`).join("")}</ol>${whyHTML(q,order,chosen)}${q.t?`<div class="tip"><b>Professor Tip:</b> ${q.t}</div>`:""}${ok?"":whyMissHTML(q)}</div>`;
 }
 function wireOptions(root,onPick){
   root.querySelectorAll(".opt").forEach(o=>{
@@ -589,30 +669,40 @@ let reviewing=false;
 function showDrill(){
   if(drillI>=drillQ.length){ if(reviewing){startReview();return;} drillQ=shuffle(pool());drillI=0;toast("You've seen every question here. Reshuffled!");}
   if(!reviewing&&drillP.length&&drillI>0&&drillI%ROT_EVERY===0&&rotDone!==drillI){ rotDone=drillI; rotP=true; carsDrill=false; curP=drillP.shift(); drillP.push(curP); pI=0; pScore=0; pOrder=shuffle(curP.qs.map((_,i)=>i)); showPQ(); return; }
-  const q=drillQ[drillI], order=shuffle([0,1,2,3]); let chosen=null; curQ=q;
-  stage.innerHTML=`<div class="qhead"><span>${tagFor(q.subj,q.unit,q.lv)}${skillTag(q)}</span><span class="qmeta">${reviewing?"Review My Misses · ":""}Question ${drillI+1} of ${drillQ.length}</span></div>
-  <div class="qhead sub">${tools(q,q.subj)}</div>
+  const it=reviewing?drillQ[drillI]:null, q=it?it.q:drillQ[drillI], rp=it?it.p:null, subj=it?it.subj:q.subj, unit=it?it.unit:q.unit, order=shuffle([0,1,2,3]); let chosen=null; curQ=q;
+  const main=`<div class="qhead"><span>${tagFor(subj,unit,q.lv)}${skillTag(q)}</span><span class="qmeta">${reviewing?"Review My Misses · ":""}Question ${drillI+1} of ${drillQ.length}</span></div>
+  <div class="qhead sub">${tools(q,subj)}</div>
   ${figHTML(q)}${stemHTML(q)}${optionsHTML(q,order)}
   <div class="actions"><button class="btn main" id="chk" disabled>Check answer</button><button class="btn ghost" id="skip">Skip</button></div><div id="fb"></div>`;
+  const ps=pScroll();
+  stage.innerHTML=rp?`<div class="pgrid">${passageHTML(rp)}<div>${pfullBtn()}${main}</div></div>`:main;
+  pRestore(ps);
   const root=stage.querySelector(".opts");
   wireOptions(root,oi=>{chosen=oi;$("#chk").disabled=false;});
   $("#skip").onclick=()=>{drillI++;showDrill();};
   $("#chk").onclick=()=>{
     if(root.dataset.locked){drillI++;showDrill();return;}
-    if(chosen===null)return; const ok=chosen===q.a; reveal(root,q,chosen); record(q.subj,q.unit,ok,q,chosen);
+    if(chosen===null)return; const ok=chosen===q.a; reveal(root,q,chosen); record(subj,unit,ok,q,chosen);
     $("#fb").innerHTML=feedbackHTML(q,ok,order,chosen); $("#chk").textContent="Next question →"; $("#skip").classList.add("hidden");
+    if(!ok&&!reviewing){   // a miss: offer one more question on the same unit right away
+      $("#fb").insertAdjacentHTML("beforeend",`<div class="actions"><button class="btn ghost" id="sim">Try another on ${SUBJ[subj].u[unit-1]} →</button></div>`);
+      $("#sim").onclick=()=>{ const j=drillQ.findIndex((x,k)=>k>drillI&&x.subj===q.subj&&x.unit===q.unit);
+        if(j>=0){ const [x]=drillQ.splice(j,1); drillQ.splice(drillI+1,0,x); }
+        else { const c=shuffle(Q.filter(x=>x.subj===q.subj&&x.unit===q.unit&&x!==q)); if(c.length) drillQ.splice(drillI+1,0,c[0]); }
+        rotDone=drillI+1; drillI++; showDrill(); };
+    }
   };
 }
 
 /* ---------- Review My Misses (spaced repetition) ---------- */
 function startReview(){
   reviewing=true;
-  const due=srsDue().map(id=>Q.find(q=>q.id===id)).filter(Boolean);
+  const due=srsDue().map(itemFromId).filter(Boolean);
   const nq=Object.keys(S.srs).length;
   if(!due.length){
     const next=Object.values(S.srs).map(r=>r.due).sort((a,b)=>a-b)[0];
     stage.innerHTML=`<img class="pulse" style="float:right;width:110px;height:auto;margin-left:10px" src="${ART}pulse_${nq?"reading":"victory"}.webp" alt=""><h2 style="font-size:22px">Review My Misses</h2>
-    <p>${nq?`Nothing is due right now. You have <b>${nq}</b> question${nq===1?"":"s"} waiting; the next one comes back <b>${new Date(next).toLocaleDateString(undefined,{weekday:"long",month:"short",day:"numeric"})}</b>.`:"No misses waiting. Any question you miss in Quick Drill, a timed set or the Mini Full-Length lands here."}</p>
+    <p>${nq?`Nothing is due right now. You have <b>${nq}</b> question${nq===1?"":"s"} waiting; the next one comes back <b>${new Date(next).toLocaleDateString(undefined,{weekday:"long",month:"short",day:"numeric"})}</b>.`:"No misses waiting. Any question you miss in Quick Drill, a passage, a timed set or a full-length lands here."}</p>
     <div class="tip"><b>Professor Tip:</b> A missed question comes back after 1 day. Get it right and it returns in 3 days, then 7 days. Clear the 7-day check and it graduates. Miss it again at any point and it restarts at 1 day. Spacing reviews out like this is one of the best-tested ways to make things stick.</div>
     <div class="actions"><button class="btn main" id="toDrill">Go to Quick Drill</button></div>`;
     $("#toDrill").onclick=()=>{mode="drill";document.querySelectorAll("#modes .mode").forEach(x=>x.classList.toggle("on",x.dataset.mode===mode));start();};
@@ -623,6 +713,11 @@ function startReview(){
 
 /* ---------- Passages ---------- */
 let curP=null,pI=0,pScore=0,pOrder=[];
+/* Keep the reader's place in the passage from one question to the next, and let phones expand or shrink it. */
+let passFull=false;
+const pfullBtn=()=>`<button class="linkbtn pfull" data-pfull>${passFull?"Shrink the passage":"Show the full passage"}</button>`;
+function pScroll(){ const o=stage.querySelector(".passage"); return o?{k:o.dataset.hl,y:o.scrollTop}:null; }
+function pRestore(s){ const n=stage.querySelector(".passage"); if(!n) return; n.classList.toggle("full",passFull); if(s&&s.k===n.dataset.hl){ n.scrollTop=s.y; requestAnimationFrame(()=>{n.scrollTop=s.y;}); } }
 function startPassage(){
   carsDrill=false; rotP=false;
   const pl=ppool().slice().sort((a,b)=>(!!a.warm-!!b.warm)||(a.s==="cars"&&b.s==="cars"?(pWords(b)>=500)-(pWords(a)>=500):0));
@@ -641,12 +736,14 @@ function showPQ(){
   }
   const q=p.qs[pOrder[pI]], order=shuffle([0,1,2,3]); let chosen=null; curQ=q;
   const skill=skillTag(q);
-  stage.innerHTML=`<div class="pgrid">${passageHTML(p)}<div>
+  const ps=pScroll();
+  stage.innerHTML=`<div class="pgrid">${passageHTML(p)}<div>${pfullBtn()}
   ${rotP&&pI===0?`<div class="tip" style="margin:0 0 10px"><b>Data set:</b> most real MCAT science questions come in groups like this. Skim the passage, study the figure or table (axes, units, labels), then answer all ${p.qs.length} questions.</div>`:""}${carsDrill&&pI===0?`<div class="tip" style="margin:0 0 10px"><b>Like test day:</b> read the whole passage first (about ${Math.max(3,Math.round(pWords(p)/170))} min), then answer all ${p.qs.length} questions. For 1-question warm-ups, pick the unit <b>Quick reasoning drills</b>.</div>`:""}
   <div class="qhead"><span><span class="tag ${p.s}">${carsDrill?"Quick Drill · ":rotP?"Data set · ":""}Question ${pI+1} of ${p.qs.length}</span>${skill}</span><button class="linkbtn" id="backP">${carsDrill?"Pick a passage":rotP?"Skip this data set →":"← Passages"}</button></div>
   <div class="qhead sub">${tools(q,p.subj)}</div>
   ${stemHTML(q)}${optionsHTML(q,order)}
   <div class="actions"><button class="btn main" id="chk" disabled>Check answer</button></div><div id="fb"></div></div></div>`;
+  pRestore(ps);
   $("#backP").onclick=rotP?()=>{rotP=false;showDrill();}:startPassage;
   const root=stage.querySelector(".opts");
   wireOptions(root,oi=>{chosen=oi;$("#chk").disabled=false;});
@@ -688,17 +785,19 @@ function runBlock(cfg,restore){
   if(restore){ ["orders","ans","flag","struck","tq","first","seen","i","left"].forEach(k=>{ if(restore[k]!=null) T[k]=restore[k]; }); }
   T.hdr=blockHeaders(T.items);
   saveExam();
-  T.iv=setInterval(()=>{T.left--; if(!T.onRev&&T.tq)T.tq[T.i]=(T.tq[T.i]||0)+1; if(T.left%10===0)saveExam();const el=$("#tclock");if(el){el.textContent=T.hide&&T.left>60?"Show time":fmt(T.left);el.classList.toggle("low",T.left<=60);} if(T.left<=0)finishBlock();},1000);
+  T.iv=setInterval(()=>{T.left--; if(!T.onRev&&T.tq)T.tq[T.i]=(T.tq[T.i]||0)+1; if(T.left%10===0)saveExam(); if(T.left===300)srSay("5 minutes remaining."); else if(T.left===60)srSay("1 minute remaining."); const el=$("#tclock");if(el){el.textContent=T.hide&&T.left>60?"Show time":fmt(T.left);el.classList.toggle("low",T.left<=60);} if(T.left<=0)finishBlock();},1000);
   showTQ();
 }
 function showTQ(){
   const i=T.i,it=T.items[i],q=it.q,order=T.orders[i]; curQ=q; T.onRev=false; if(T.seen)T.seen[i]=true;
   const body=`${it.p?"":`<div class="dhdr">${T.hdr[i]}</div>`}${figHTML(q)}${stemHTML(q)}${optionsHTML(q,order)}`;
+  const ps=pScroll();
   stage.innerHTML=`<div class="qhead"><span class="qmeta">${T.title} · Question ${i+1} of ${T.items.length}${T.rv?` · <b>reviewing ${T.rvName}</b>`:""}</span>${clockHTML()}</div>
   <div class="qhead sub"><span class="xbar"><button class="toolbtn" data-mk="hl" title="Select text, then Highlight (Alt+H)"><mark class="hl"><u>H</u>ighlight</mark></button><button class="toolbtn" data-mk="st" title="Select text, then Strikethrough (Alt+S)"><s><u>S</u>trikethrough</s></button><button class="toolbtn" id="navb" title="See every question's status (Alt+V)">Na<u>v</u>igation</button><button class="toolbtn" id="kbb" title="Keyboard shortcuts">⌨ Shortcuts</button></span>${tools(q,it.subj)}</div>
   ${T.real?"":`<div class="dots">${T.items.map((_,k)=>`<button class="dot ${T.ans[k]!==null?"ans":""} ${k===i?"cur":""} ${T.flag[k]?"flag":""}" data-k="${k}">${k+1}</button>`).join("")}</div>`}
-  ${it.p?`<div class="pgrid"><div class="passage" data-hl="p:${it.p.id}"><div class="phdr">${T.hdr[i]}</div>${it.p.text}</div><div>${body}</div></div>`:body}
+  ${it.p?`<div class="pgrid"><div class="passage" data-hl="p:${it.p.id}"><div class="phdr">${T.hdr[i]}</div>${it.p.text}</div><div>${pfullBtn()}${body}</div></div>`:body}
   <div class="actions"><button class="btn ghost" id="prev" ${i===0?"disabled":""}>← <u>P</u>revious</button><button class="btn alt" id="flag">${T.flag[i]?"Un<u>f</u>lag":"<u>F</u>lag for review"}</button><button class="btn ghost" id="next">${T.rv?(T.rv.find(k=>k>i)==null?"<u>N</u>ext: review screen":"<u>N</u>ext "+T.rvName+" →"):(i===T.items.length-1?"<u>N</u>ext: review screen":"<u>N</u>ext →")}</button><button class="btn main" id="end">End section</button></div>`;
+  pRestore(ps);
   const root=stage.querySelector(".opts");
   root.querySelectorAll(".opt").forEach((o,pos)=>{ if(T.struck[i].includes(pos))o.classList.add("struck"); if(T.ans[i]!==null&&order[pos]===T.ans[i])o.querySelector(".pick").classList.add("sel");});
   wireOptions(root,oi=>{if(T.first&&T.first[i]==null)T.first[i]=oi; T.ans[i]=oi;const d=stage.querySelectorAll(".dot")[i]; if(d)d.classList.add("ans");saveExam();});
@@ -844,8 +943,8 @@ function startTimed(){
   stage.innerHTML=`<h2 style="font-size:22px">Timed Mini-Section: ${label}</h2><p>${items.length} questions · ${Math.round(secs/60)} minutes. That's real MCAT pace (${sec==="cars"?"about 100 seconds per CARS question":"about 95 seconds per question"}). No calculator! Cross out choices with ✕ and flag questions to revisit.</p><div class="actions"><button class="btn main" id="go">Start the clock</button></div>`;
   $("#go").onclick=()=>runBlock({items,secs,title:label,onDone:B=>{
     const pct=Math.round(B.score/B.items.length*100); if(pct>=70)award("clock"); save(); renderProgress();
-    const est=label!=="Mixed"?estScore(B.score,B.items.length):null;
-    stage.innerHTML=`<h2 style="font-size:24px">Score: ${B.score} / ${B.items.length} (${pct}%)</h2>${est?`<p>Estimated ${label} section score: ${estHTML(est,sec)}</p>${EST_NOTE}${PCT_NOTE}`:""}<p>Time used: ${fmt(B.used)}. ${pct>=70?"Great pacing and accuracy!":"Tap any question number to see the steps."} Missed questions were added to <b>Review My Misses</b>.</p>${reportHTML(B)}<div id="rvm"></div><div class="actions"><button class="btn main" id="again">New timed set</button></div>`;
+    S.tn=(S.tn||0)+1; save();
+    stage.innerHTML=`<h2 style="font-size:24px">Score: ${B.score} / ${B.items.length} (${pct}%)</h2><p class="mini">A set this short can't support an MCAT score estimate, so you get percent correct and pacing instead.</p><p>Time used: ${fmt(B.used)}. ${pct>=70?"Great pacing and accuracy!":"Tap any question number to see the steps."} Missed questions were added to <b>Review My Misses</b>.</p>${reportHTML(B)}<div id="rvm"></div><div class="actions"><button class="btn main" id="again">New timed set</button></div>`;
     reviewList(B,$("#rvm")); $("#again").onclick=startTimed;}});
 }
 
@@ -866,7 +965,7 @@ function startFull(){
   <tr><td>CARS</td><td>53 questions · 90 min</td><td>1 passage · about 10–12 min</td></tr>
   <tr><td>Bio/Biochem</td><td>59 questions · 95 min</td><td>10 questions · about 16 min</td></tr>
   <tr><td>Psych/Soc</td><td>59 questions · 95 min</td><td>10 questions · about 16 min</td></tr></table>
-  <p class="mini">On the real test, each section is scored 118–132 and the total is 472–528. At the end you'll see percent correct plus a <b>rough estimated</b> score for each section. With only about 10 questions per section, treat it as a ballpark, not a prediction.</p>
+  <p class="mini">On the real test, each section is scored 118–132 and the total is 472–528. Here you'll see percent correct and pacing for each section. About 10 questions per section is too few to estimate a scaled score, so this mini version doesn't show one.</p>
   <div class="actions"><button class="btn main" id="go">Start Section 1: Chem/Phys</button></div>`;
   $("#go").onclick=()=>{FL={order:["cp","cars","bb","ps"],k:0,results:[]};nextFull();};
 }
@@ -920,8 +1019,9 @@ function finishFull(){
   const ests=FL.results.map(r=>estScore(r.B.score,r.B.items.length));
   const tm=ests.reduce((n,e)=>n+e.mid,0), tlo=Math.max(472,ests.reduce((n,e)=>n+e.lo,0)), thi=Math.min(528,ests.reduce((n,e)=>n+e.hi,0));
   stage.innerHTML=`<h2 style="font-size:24px">${FL.real?"Full-Length Exam":"Mini Full-Length"}: ${tot} / ${all} (${Math.round(tot/all*100)}%)</h2>
-  ${FL.voided?'<div class="tip" style="margin:6px 0 10px"><b>You chose to void this exam.</b> On test day, no scores would be reported to you or to medical schools. Here are your results anyway so you can learn from them.</div>':""}<p style="font-size:18px">Estimated total: <span class="estv">≈ ${tm}</span> <span class="mini">(likely ${tlo}–${thi}; a ${tm} is the ${ord(totPct(tm))} percentile)</span></p>
-  <table class="data"><tr><th>Section</th><th>Correct</th><th>Estimated score</th><th>Time used</th></tr>${FL.results.map((r,i)=>`<tr><td>${SECN[r.sec]}</td><td>${r.B.score} / ${r.B.items.length}</td><td>${estHTML(ests[i],r.sec)}</td><td>${fmt(r.B.used)} of ${fmt(r.B.secs)}</td></tr>`).join("")}</table>${EST_NOTE}${PCT_NOTE}
+  ${FL.voided?'<div class="tip" style="margin:6px 0 10px"><b>You chose to void this exam.</b> On test day, no scores would be reported to you or to medical schools. Here are your results anyway so you can learn from them.</div>':""}${FL.real?`<p style="font-size:18px">Estimated total: <span class="estv">≈ ${tm}</span> <span class="mini">(likely ${tlo}–${thi}; a ${tm} is the ${ord(totPct(tm))} percentile)</span></p>
+  <table class="data"><tr><th>Section</th><th>Correct</th><th>Estimated score</th><th>Time used</th></tr>${FL.results.map((r,i)=>`<tr><td>${SECN[r.sec]}</td><td>${r.B.score} / ${r.B.items.length}</td><td>${estHTML(ests[i],r.sec)}</td><td>${fmt(r.B.used)} of ${fmt(r.B.secs)}</td></tr>`).join("")}</table>${EST_NOTE}${PCT_NOTE}`
+  :`<table class="data"><tr><th>Section</th><th>Correct</th><th>Percent</th><th>Time used</th></tr>${FL.results.map(r=>`<tr><td>${SECN[r.sec]}</td><td>${r.B.score} / ${r.B.items.length}</td><td>${Math.round(r.B.score/r.B.items.length*100)}%</td><td>${fmt(r.B.used)} of ${fmt(r.B.secs)}</td></tr>`).join("")}</table><p class="mini">This mini version is too short to estimate a scaled MCAT score. Use it to check pacing and to find weak categories in each section's report below.</p>`}
   <div class="row seg" id="flTabs" style="margin-top:10px">${FL.results.map((r,i)=>`<button data-i="${i}" class="${i===0?"on":""}">Review ${SECN[r.sec]}</button>`).join("")}</div>
   <div id="rvm"></div><div class="actions"><button class="btn main" id="again">Take another</button></div>`;
   const tabs=[...document.querySelectorAll("#flTabs button")];
@@ -958,6 +1058,7 @@ const XKEY="premedpulse_exam";
 const QBYID={}; Q.forEach(q=>QBYID[q.id]=q);
 const PQBYID={}; P.forEach(p=>p.qs.forEach(q=>PQBYID[q.pid]={q,p}));
 function itemFromId(id){ if(QBYID[id]){const q=QBYID[id];return {q,p:null,subj:q.subj,unit:q.unit};} const r=PQBYID[id]; return r?{q:r.q,p:r.p,subj:r.p.subj,unit:r.p.unit}:null; }
+for(const id in S.srs){ if(!itemFromId(id)) delete S.srs[id]; }   // questions that no longer exist leave the review queue
 function packB(B){return {items:B.items.map(it=>qid(it.q)),orders:B.orders,ans:B.ans,flag:B.flag,struck:B.struck,tq:B.tq,first:B.first,seen:B.seen,i:B.i,left:B.left,secs:B.secs,title:B.title,score:B.score,used:B.used};}
 function unpackB(o){const items=o.items.map(itemFromId); if(items.some(x=>!x))return null; return Object.assign({},o,{items});}
 function saveExam(){ if(!FL||!FL.real)return; try{ localStorage.setItem(XKEY,JSON.stringify({order:FL.order,k:FL.k,results:FL.results.map(r=>({sec:r.sec,B:packB(r.B)})),cur:T&&!T.done?packB(T):null,brk:BR?{left:BR.left,nx:BR.nx}:null,ts:Date.now()})); }catch(e){} }
@@ -1220,9 +1321,14 @@ document.addEventListener("keydown",e=>{
 function modal(html,cls){
   const m=document.createElement("div"); m.className="modal "+(cls||"");
   m.innerHTML=`<div class="mbox" role="dialog" aria-modal="true"><button class="mclose" aria-label="Close">✕</button>${html}</div>`;
+  const prev=document.activeElement, rm=m.remove.bind(m);
+  m.remove=()=>{ rm(); if(prev&&prev.isConnected&&prev.focus){ try{prev.focus();}catch(e){} } };   // hand focus back to the button that opened it
+  const h=m.querySelector("h3"); if(h) m.querySelector(".mbox").setAttribute("aria-label",h.textContent);
   m.addEventListener("click",e=>{if(e.target===m||e.target.closest(".mclose"))m.remove();});
+  m.addEventListener("keydown",e=>{ if(e.key!=="Tab") return; const f=[...m.querySelectorAll("button,a[href],input,select,textarea,summary")].filter(x=>!x.disabled&&x.offsetParent!==null); if(!f.length) return;
+    if(e.shiftKey&&document.activeElement===f[0]){ e.preventDefault(); f[f.length-1].focus(); } else if(!e.shiftKey&&document.activeElement===f[f.length-1]){ e.preventDefault(); f[0].focus(); } });
   document.addEventListener("keydown",function k(e){if(e.key==="Escape"){m.remove();document.removeEventListener("keydown",k);}});
-  document.body.appendChild(m); return m;
+  document.body.appendChild(m); m.querySelector(".mclose").focus(); return m;
 }
 function ptHTML(){
   const cell=e=>`<div class="el r${e[3]}" style="grid-row:${e[3]>7?e[3]+1:e[3]};grid-column:${e[4]}"><small>${e[0]}</small><b>${e[1]}</b><small>${e[2]}</small></div>`;
@@ -1245,9 +1351,40 @@ function reportModal(id){
   };
 }
 document.addEventListener("click",e=>{
+  const nx=e.target.closest("[data-nx]"); if(nx){ const n=NEXT[+nx.dataset.nx]; if(n) n.go(); return; }
+  const pf=e.target.closest("[data-pfull]"); if(pf){ passFull=!passFull; const n=stage.querySelector(".passage"); if(n) n.classList.toggle("full",passFull); pf.textContent=passFull?"Shrink the passage":"Show the full passage"; return; }
+  const lg=e.target.closest("[data-log]"); if(lg){ logModal(+lg.dataset.log); return; }
+  const wb=e.target.closest("[data-why]"); if(wb){ const box=wb.closest(".whymiss"), id=box.dataset.wq, W=S.why||(S.why={});
+    if(W[id]===wb.dataset.why) delete W[id]; else W[id]=wb.dataset.why;
+    const ks=Object.keys(W); if(ks.length>600) delete W[ks[0]];
+    box.querySelectorAll("[data-why]").forEach(b=>{const on=W[id]===b.dataset.why; b.classList.toggle("on",on); b.setAttribute("aria-pressed",on);}); save(); renderWhy(); return; }
   const pt=e.target.closest("[data-pt]"); if(pt){modal(ptHTML(),"ptm");return;}
   const rp=e.target.closest("[data-report]"); if(rp){reportModal(rp.dataset.report||"unknown");}
 });
+
+/* ---------- Backup file: the student's own copy of their progress; nothing is uploaded ---------- */
+const BK=["premedpulse_v2","premedpulse_exam","mcathub_daily_v1","mcathub_plan_v1"];
+$("#logMiss").onchange=renderLog;
+$("#bkSave").onclick=()=>{ save(); const data={}; BK.forEach(k=>{ try{ const v=localStorage.getItem(k); if(v!=null) data[k]=v; }catch(e){} });
+  if(!Object.keys(data).length){ toast("Nothing is saved in this browser yet."); return; }
+  const url=URL.createObjectURL(new Blob([JSON.stringify({app:"itsdrdan-mcat",v:1,saved:new Date().toISOString(),data})],{type:"application/json"}));
+  const a=document.createElement("a"); a.href=url; a.download="mcat-progress-"+new Date().toISOString().slice(0,10)+".json"; document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(url),4000);
+  toast("Backup file saved to your downloads."); };
+$("#bkFile").onchange=e=>{ const f=e.target.files[0]; e.target.value=""; if(!f) return; const rd=new FileReader();
+  rd.onload=()=>{ let o=null, n=0;
+    try{ o=JSON.parse(rd.result); if(!o||o.app!=="itsdrdan-mcat"||!o.data||typeof o.data!=="object") throw 0;
+      for(const k of BK){ if(k in o.data){ if(typeof o.data[k]!=="string") throw 0; JSON.parse(o.data[k]); } }
+      n=o.data.premedpulse_v2?(JSON.parse(o.data.premedpulse_v2).ans||0):0;
+    }catch(err){ toast("That file isn't an MCAT progress backup."); return; }
+    const when=o.saved?new Date(o.saved).toLocaleDateString(undefined,{year:"numeric",month:"short",day:"numeric"}):"an unknown date";
+    const m=modal(`<h3>Restore this backup?</h3><p>This backup is from <b>${when}</b> and has <b>${n}</b> answered question${n===1?"":"s"}. It will replace the progress in this browser (${S.ans} answered), including your study plan and Daily 5 streak. This can't be undone, so save a backup of this browser first if you want to keep it.</p><div class="actions"><button class="btn main" id="bkYes">Replace my progress</button><button class="btn ghost" id="bkNo">Cancel</button></div>`);
+    m.querySelector("#bkNo").onclick=()=>m.remove();
+    m.querySelector("#bkYes").onclick=()=>{ try{ BK.forEach(k=>{ if(typeof o.data[k]==="string") localStorage.setItem(k,o.data[k]); else localStorage.removeItem(k); }); location.reload(); }catch(err){ m.remove(); toast("This browser blocked saving, so the backup wasn't restored."); } };
+  };
+  rd.readAsText(f); };
+/* Tell the student plainly when this browser can't save progress (private mode, blocked storage). */
+(()=>{ let okLS=true; try{ localStorage.setItem("pmp_t","1"); localStorage.removeItem("pmp_t"); }catch(e){ okLS=false; }
+  if(!okLS) $("#bkNote").innerHTML="<b>This browser isn't saving progress</b> (private mode, or storage is blocked). You can still practice, but your progress will be gone when you close the tab."; })();
 
 </script>
 </body>
