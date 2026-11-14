@@ -174,7 +174,6 @@ table.navt tr[data-k]:hover td{background:#f3efff}
 .qtime{font-size:13px;font-weight:700;color:#6b6785;margin:8px 0 0}
 .kbd{display:inline-block;border:1px solid #cfc8e6;border-bottom-width:2px;border-radius:6px;padding:0 6px;font-size:13px;font-weight:800;background:#fff}
 button.timer{border:none;cursor:pointer}
-.estv{font-family:Fredoka,sans-serif;font-weight:600;font-size:1.15em;color:var(--lav-d)}
 .mini.est{background:#fff8e6;border:1px solid #f3e2b3;border-radius:12px;padding:8px 12px}
 .modal{position:fixed;inset:0;z-index:80;background:rgba(40,35,60,.45);display:flex;align-items:center;justify-content:center;padding:12px}
 .mbox{background:#fff;border-radius:18px;padding:18px 18px 14px;max-width:560px;width:100%;max-height:92vh;overflow:auto;position:relative;box-shadow:0 12px 40px rgba(0,0,0,.25)}
@@ -309,7 +308,7 @@ details.why li.mine{background:#fff3f3;border-radius:8px;padding:2px 6px;margin-
     </button>
     <button class="mode" data-mode="real">
       <div class="ic"><img src="https://itsdrdan.github.io/MCAT/assets/m_real_exam.webp" alt="" width="52" height="52"></div>
-      <b>Full-Length Exam</b><span>The real thing: 230 questions, real timing, real breaks.</span>
+      <b>Full-Length Exam</b><span>Test-day length: 230 questions, real timing, real breaks.</span>
     </button>
   </div>
   <details class="topics" id="topicBox">
@@ -362,8 +361,8 @@ details.why li.mine{background:#fff3f3;border-radius:8px;padding:2px 6px;margin-
 <script src="https://itsdrdan.github.io/games/brand/icons.js" defer></script>
 <script src="https://itsdrdan.github.io/games/brand/embed.js" defer></script>
 <script src="https://itsdrdan.github.io/games/track.js" defer></script>
-<script src="data/bank-q.js?v=509de456d2"></script>
-<script src="data/bank-p.js?v=509de456d2"></script>
+<script src="data/bank-q.js?v=f5b5aade92"></script>
+<script src="data/bank-p.js?v=f5b5aade92"></script>
 <script>
 "use strict";
 if(typeof Q==="undefined"||typeof P==="undefined"){ document.getElementById("stage").innerHTML='<h2 style="font-size:22px">The questions didn\'t load</h2><p>Check your connection, then reload this page. If it keeps happening, tell Dr. Dan with the Feedback button.</p><div class="actions"><button class="btn main" onclick="location.reload()">Reload</button></div>'; throw new Error("question bank failed to load"); }
@@ -886,20 +885,6 @@ function weightedPassages(s,n){
   return shuffle(out);
 }
 
-/* ---------- Scaled-score ESTIMATE (rough, not AAMC) ---------- */
-function estScore(c,n){
-  const pct=n?c/n:0, mid=Math.round(Math.min(132,Math.max(118,118+14*(pct-0.25)/0.65)));
-  const pm=n<=6?4:n<=12?3:n<=25?2:1;
-  return {mid,lo:Math.max(118,mid-pm),hi:Math.min(132,mid+pm)};
-}
-const EST_NOTE='<p class="mini est"><b>This is a rough estimate, not a real MCAT score.</b> It turns percent correct into the 118–132 scale with a simple straight-line rule, from a very small set of questions. Real scaled scores depend on the AAMC\'s own scoring of a full-length exam. For a true prediction, take the official AAMC practice exams.</p>';
-const PCT={"cp":[2,4,9,16,25,35,46,56,67,77,85,91,96,99,100],"cars":[1,3,8,15,25,37,50,62,74,84,90,95,98,99,100],"bb":[1,4,8,15,23,32,43,53,64,75,84,90,96,98,100],"ps":[1,3,6,10,17,25,34,44,54,65,76,85,92,97,100]}, TPCT=[0, 0, 0, 1, 1, 2, 2, 3, 4, 5, 6, 8, 9, 11, 12, 14, 16, 18, 20, 23, 25, 28, 31, 33, 36, 39, 42, 45, 48, 52, 55, 58, 61, 64, 67, 71, 74, 76, 79, 82, 84, 86, 89, 91, 92, 94, 95, 96, 97, 98, 99, 99, 99, 100, 100, 100, 100];
-const ordN=n=>n+(n%100>=11&&n%100<=13?"th":({1:"st",2:"nd",3:"rd"}[n%10]||"th"));
-const ord=n=>n<1?"bottom 1%, below the 1st":ordN(n);
-const secPct=(s,sc)=>PCT[s]?PCT[s][Math.min(14,Math.max(0,sc-118))]:null;
-const totPct=sc=>TPCT[Math.min(56,Math.max(0,sc-472))];
-const estHTML=(e,s)=>`<span class="estv">≈ ${e.mid}</span> <span class="mini">(likely ${e.lo}–${e.hi}${s&&PCT[s]?`; a ${e.mid} is the ${ord(secPct(s,e.mid))} percentile`:""})</span>`;
-const PCT_NOTE='<p class="mini">Percentiles use the AAMC\'s official percentile ranks in effect May 1, 2026 – April 30, 2027 (test takers from 2023–2025). They tell you where that score would place on the real exam; your score here is still only an estimate.</p>';
 /* ---------- Score report: pacing, passages, categories, skills, answer changes ---------- */
 const paceOf=B=>B.items.length&&B.items.every(it=>it.subj==="cars")?102:97;
 function catOf(it){ const q=it.q; if(q.c&&CATS[q.c])return q.c; const c=CATMAP[it.subj]&&CATMAP[it.subj][it.unit-1]; return c?[].concat(c)[0]:null; }
@@ -999,10 +984,17 @@ function sectionDone(s){ return B=>{
     } else if(FL.real) voidScreen(); else finishFull();
   };
 }
-/* ---------- Optional, anonymous score calibration (improves the estimate over time) ---------- */
+/* ---------- Why this site shows no scaled score, and how to get a real one for free ---------- */
+const NOSCORE=`<div class="tip" style="margin-top:12px"><b>Why no 472–528 score?</b> Real MCAT scores come from the AAMC's statistical scoring of each test form. Turning percent correct into that scale without that data would give you a number that looks exact but could be several points off in either direction, enough to make you over- or under-confident going into test day. So this exam shows what it can measure honestly: accuracy, pacing and where your points went.
+<br><br><b>Get a real scaled score for free.</b> The AAMC's official sample test and one full practice exam are free in its <a href="https://students-residents.aamc.org/prepare-mcat-exam/free-planning-and-study-resources" target="_blank" rel="noopener">free study resources ↗</a>. If money is tight, apply to the <a href="https://students-residents.aamc.org/fee-assistance-program/fee-assistance-program-fap" target="_blank" rel="noopener">AAMC Fee Assistance Program ↗</a> before you register: if you qualify, it lowers the exam fee and includes the official prep products. Use this site to learn and practice, and save the official exams for checking where you stand.</div>`;
+/* The three weakest units on one exam (at least 3 questions each), so the student leaves with a plan. */
+function priorities(results){ const u={};
+  results.forEach(r=>r.B.items.forEach((it,k)=>{ const key=it.subj+":"+it.unit; const x=u[key]||(u[key]={s:it.subj,u:it.unit,a:0,c:0}); x.a++; if(r.B.ans[k]===it.q.a) x.c++; }));
+  return Object.values(u).filter(x=>x.a>=3&&x.c<x.a&&SUBJ[x.s]&&x.s!=="cars").sort((x,y)=>x.c/x.a-y.c/y.a||y.a-x.a).slice(0,3); }
+/* ---------- Optional, anonymous score sharing, to test whether an honest estimate is possible ---------- */
 function calibCard(rows){
   const box=document.createElement("div"); box.className="tip"; box.style.marginTop="14px";
-  box.innerHTML=`<b>Help make these estimates more accurate (optional).</b> If you've taken an official AAMC practice exam or the real MCAT, enter those section scores. Your raw scores from this exam and the scores you type are sent with no name, email or ID, and Dr. Dan uses them to tune the score estimate for everyone.
+  box.innerHTML=`<b>Help build an honest score estimate (optional).</b> If you've taken an official AAMC practice exam or the real MCAT, enter those section scores. Your percent correct on this exam and the scores you type are sent with no name, email or ID. Once enough students share both, Dr. Dan can check whether this exam can predict a real score reliably, and add an estimate only if it can.
   <div class="row" style="flex-wrap:wrap;gap:8px;margin-top:8px">${["cp","cars","bb","ps"].map(k=>`<label class="mini">${SECN[k]} <input type="number" min="118" max="132" step="1" data-cs="${k}" style="width:70px"></label>`).join("")}
   <label class="mini">From <select id="csrc"><option>AAMC practice exam</option><option>Real MCAT</option><option>Another company's full-length</option></select></label>
   <label class="mini">Taken <select id="cwhen"><option>within a week of this one</option><option>within a month</option><option>more than a month apart</option></select></label></div>
@@ -1029,19 +1021,19 @@ function finishFull(){
   if(FL.real) clearExam();
   award("full"); save(); renderProgress();
   const tot=FL.results.reduce((n,r)=>n+r.B.score,0), all=FL.results.reduce((n,r)=>n+r.B.items.length,0);
-  const ests=FL.results.map(r=>estScore(r.B.score,r.B.items.length));
-  const tm=ests.reduce((n,e)=>n+e.mid,0), tlo=Math.max(472,ests.reduce((n,e)=>n+e.lo,0)), thi=Math.min(528,ests.reduce((n,e)=>n+e.hi,0));
+  const pr=priorities(FL.results);
   stage.innerHTML=`<h2 style="font-size:24px">${FL.real?"Full-Length Exam":"Mini Full-Length"}: ${tot} / ${all} (${Math.round(tot/all*100)}%)</h2>
-  ${FL.voided?'<div class="tip" style="margin:6px 0 10px"><b>You chose to void this exam.</b> On test day, no scores would be reported to you or to medical schools. Here are your results anyway so you can learn from them.</div>':""}${FL.real?`<p style="font-size:18px">Estimated total: <span class="estv">≈ ${tm}</span> <span class="mini">(likely ${tlo}–${thi}; a ${tm} is the ${ord(totPct(tm))} percentile)</span></p>
-  <table class="data"><tr><th>Section</th><th>Correct</th><th>Estimated score</th><th>Time used</th></tr>${FL.results.map((r,i)=>`<tr><td>${SECN[r.sec]}</td><td>${r.B.score} / ${r.B.items.length}</td><td>${estHTML(ests[i],r.sec)}</td><td>${fmt(r.B.used)} of ${fmt(r.B.secs)}</td></tr>`).join("")}</table>${EST_NOTE}${PCT_NOTE}`
-  :`<table class="data"><tr><th>Section</th><th>Correct</th><th>Percent</th><th>Time used</th></tr>${FL.results.map(r=>`<tr><td>${SECN[r.sec]}</td><td>${r.B.score} / ${r.B.items.length}</td><td>${Math.round(r.B.score/r.B.items.length*100)}%</td><td>${fmt(r.B.used)} of ${fmt(r.B.secs)}</td></tr>`).join("")}</table><p class="mini">This mini version is too short to estimate a scaled MCAT score. Use it to check pacing and to find weak categories in each section's report below.</p>`}
+  ${FL.voided?'<div class="tip" style="margin:6px 0 10px"><b>You chose to void this exam.</b> On test day, no scores would be reported to you or to medical schools. Here are your results anyway so you can learn from them.</div>':""}<table class="data"><tr><th>Section</th><th>Correct</th><th>Percent</th><th>Time used</th></tr>${FL.results.map(r=>`<tr><td>${SECN[r.sec]}</td><td>${r.B.score} / ${r.B.items.length}</td><td>${Math.round(r.B.score/r.B.items.length*100)}%</td><td>${fmt(r.B.used)} of ${fmt(r.B.secs)}</td></tr>`).join("")}</table>
+  ${pr.length?`<div class="nextbox" style="margin-top:12px"><h3>Your study priorities from this exam</h3>${pr.map((x,i)=>`<div class="nx ${i?"":"first"}"><div><b>${SUBJ[x.s].n}: ${SUBJ[x.s].u[x.u-1]}</b><span>${x.c} of ${x.a} right on this exam</span></div><button class="btn alt" data-prio="${x.s}:${x.u}">Practice →</button></div>`).join("")}<p class="mini" style="margin:6px 0 0">Units with at least 3 questions on this exam, lowest accuracy first. Each section's report below shows where else your points went.</p></div>`:""}
+  ${FL.real?NOSCORE:`<p class="mini">This mini version is too short to judge a section. Use it to check pacing and to find weak categories in each section's report below.</p>`}
   <div class="row seg" id="flTabs" style="margin-top:10px">${FL.results.map((r,i)=>`<button data-i="${i}" class="${i===0?"on":""}">Review ${SECN[r.sec]}</button>`).join("")}</div>
   <div id="rvm"></div><div class="actions"><button class="btn main" id="again">Take another</button></div>`;
   const tabs=[...document.querySelectorAll("#flTabs button")];
   const showSec=i=>{ $("#rvm").innerHTML=""; const rp=document.createElement("div"); rp.innerHTML=reportHTML(FL.results[i].B); const lst=document.createElement("div"); $("#rvm").append(rp,lst); reviewList(FL.results[i].B,lst); };
   tabs.forEach(b=>b.onclick=()=>{tabs.forEach(x=>x.classList.toggle("on",x===b));showSec(+b.dataset.i);});
   showSec(0); $("#again").onclick=FL.real?startReal:startFull;
-  if(FL.real&&!FL.voided) calibCard(FL.results.map(r=>({s:r.sec,c:r.B.score,n:r.B.items.length,e:estScore(r.B.score,r.B.items.length).mid})));
+  stage.querySelectorAll("[data-prio]").forEach(b=>b.onclick=()=>{ const [s2,u2]=b.dataset.prio.split(":"); goMode("drill",{sec:SEC_OF[s2],subj:s2,unit:u2}); });
+  if(FL.real&&!FL.voided) calibCard(FL.results.map(r=>({s:r.sec,c:r.B.score,n:r.B.items.length})));
 }
 
 /* ---------- Full-Length Exam (real length, real timing) ---------- */

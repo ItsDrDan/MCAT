@@ -55,7 +55,7 @@ Fields added to `premedpulse_v2` in November 2026. All are optional, so older sa
 
 "Back up or move my progress" in Pre-Med Pulse saves these four keys to a file and restores them. The file has `app: "itsdrdan-mcat"` and `v: 1`.
 
-Rules the progress screens follow: a number is always shown with how many answers it rests on, fewer than 5 answers in a unit is "limited evidence", and no scaled score is estimated from a short set.
+Rules the progress screens follow: a number is always shown with how many answers it rests on, fewer than 5 answers in a unit is "limited evidence", and no 118–132 or 472–528 score is shown anywhere. The Full-Length Exam reports accuracy, pacing and the weakest units instead, and points students to the free official AAMC exam and the Fee Assistance Program for a real scaled score. Students who have taken an official exam can share both results anonymously; an estimate should only be added if that data shows this exam predicts real scores reliably.
 
 ## Finding problem questions from real answers
 
