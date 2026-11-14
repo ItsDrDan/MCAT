@@ -7,6 +7,7 @@ then add_to_practice() writes the passages into practice.html's P array.
 Figures use the same look as the existing passages (white card, lavender grid,
 Nunito labels), so new and old passages match.
 """
+from pathlib import Path
 import json, math, re, html
 
 FONT = 'font-family="Nunito,Arial,sans-serif"'
@@ -231,11 +232,10 @@ def passage(pid, s, subj, unit, title, parts, qs):
     return {"id": pid, "s": s, "subj": subj, "unit": unit, "title": title, "text": "\n".join(body), "qs": out}
 
 
-def add_to_practice(new, path="data/bank-p.js"):
-    """Insert or replace passages (matched by id) in practice.html's P array."""
-    src = open(path, encoding="utf-8").read()
-    m = re.search(r"\nconst P = (\[.*?\]);\n", src, re.S)
-    P = json.loads(m.group(1))
+def add_to_practice(new):
+    """Insert or replace passages (matched by id) in the bank (data/bank/p-*.js)."""
+    import sys as _s; _s.path.insert(0, str(Path(__file__).resolve().parent)); import bank
+    Q, P = bank.load()
     ids = {p["id"]: i for i, p in enumerate(P)}
     for p in new:
         words = len(re.sub(r"<svg.*?</svg>|<table.*?</table>|<[^>]+>", " ", p["text"], flags=re.S).split())
@@ -245,6 +245,5 @@ def add_to_practice(new, path="data/bank-p.js"):
             P[ids[p["id"]]] = p
         else:
             P.append(p)
-    src = src[:m.start(1)] + "[\n" + ",\n".join(json.dumps(x, ensure_ascii=False) for x in P) + "\n]" + src[m.end(1):]
-    open(path, "w", encoding="utf-8").write(src)
+    bank.save("P", P)
     return len(new)

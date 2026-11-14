@@ -31,11 +31,7 @@ ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(Path(__file__).resolve().parent)); import bank
 src = bank.src()
 app = (ROOT / "practice.html").read_text(encoding="utf-8")
-def grab(name):
-    m = re.search(rf"\nconst {name} = (\[.*?\]);\n", src, re.S)
-    if not m: sys.exit(f"Could not find const {name} in data/bank-q.js or data/bank-p.js")
-    return json.loads(m.group(1))
-Q, P = grab("Q"), grab("P")
+Q, P = bank.load()
 
 UNITS = {"gc": 12, "oc": 12, "pm": 12, "bc": 12, "bio": 12, "beh": 12, "cars": 3}
 LEVELS = set("FCARM")
@@ -155,6 +151,25 @@ for p in P:
     if not isinstance(m, dict) or not all(isinstance(m.get(k), str) and m.get(k).strip() for k in ("main", "turn", "tip")): err(p["id"], "guided-review map needs main, turn and tip text")
     elif not isinstance(m.get("paras"), list) or len(m["paras"]) != n_body: err(p["id"], f"guided-review map lists {len(m.get('paras') or [])} paragraphs but the passage has {n_body}")
 
+# ---- 3-minute lessons: one per unit, links to real units, only <b> markup ----
+lp = ROOT / "data" / "learn.json"
+if lp.exists():
+    L = json.loads(lp.read_text(encoding="utf-8"))
+    have = {(l["s"], l["u"]) for l in L}
+    for sb, n in UNITS.items():
+        for u in range(1, n + 1):
+            if (sb, u) not in have: err("learn.json", f"no lesson for {sb}:{u}")
+    for l in L:
+        k = f"{l['s']}:{l['u']}"
+        if not (4 <= len(l.get("big", [])) <= 6) or not l.get("ex", {}).get("steps"): err("learn.json", f"{k}: lesson is missing parts")
+        for x in l.get("pre", []):
+            sb, _, un = x.partition(":")
+            if sb not in UNITS or not un.isdigit() or not 1 <= int(un) <= UNITS[sb]: err("learn.json", f"{k}: prerequisite {x} is not a unit")
+        for t in l["big"] + [l["why"], l["trap"], l["memory"], l["ex"]["q"]] + l["ex"]["steps"]:
+            if re.search(r"<(?!/?b>)[a-zA-Z/]", t): err("learn.json", f"{k}: only <b> is allowed in lesson text")
+else:
+    err("learn.json", "missing (the hub's Learn it lessons)")
+
 # ---- tags the app reads: AAMC skill (k), CARS skill (c) ----
 for q in Q + [x for p in P for x in p["qs"]]:
     iid = q.get("id") or q.get("q", "")[:40]
@@ -174,11 +189,13 @@ for mode in ("drill", "review", "passage", "timed", "eqs", "full", "gym", "real"
     if f'"{mode}"' not in app: err("practice.html", f"deep link ?mode={mode} is no longer handled")
 
 # ---- practice.html must load both data files, with the cache stamp build_hub_data.py writes ----
-for n in ("q", "p"):
-    if not re.search(rf'<script src="data/bank-{n}\.js\?v=[0-9a-f]+"></script>', app): err("practice.html", f"does not load data/bank-{n}.js")
-if "const Q = [" in app or "const P = [" in app: err("practice.html", "the bank is back inside practice.html; it belongs in data/bank-q.js and data/bank-p.js")
+if "BANK.q.push" in app or "const Q = [" in app: err("practice.html", "the bank is back inside practice.html; it belongs in data/bank/")
 stamp = __import__("hashlib").md5(src.encode("utf-8")).hexdigest()[:10]
-if f"bank-q.js?v={stamp}" not in app: err("practice.html", "bank cache stamp is out of date; run python3 tools/build_hub_data.py")
+if f'const BANKV="{stamp}"' not in app: err("practice.html", "bank cache stamp is out of date; run python3 tools/build_hub_data.py")
+for c in bank.CHUNKS:
+    if f'"{c.split("-",1)[1]}"' not in app.split("const CHUNKS=")[1][:200]: err("practice.html", f"CHUNKS does not list {c}")
+sw = (ROOT / "sw.js").read_text(encoding="utf-8") if (ROOT / "sw.js").exists() else ""
+if f'const CACHE = "mcat-{stamp}"' not in sw: err("sw.js", "offline cache name is out of date; run python3 tools/build_hub_data.py")
 
 strict = "--strict" in sys.argv
 kinds = C.Counter(w.split(": ", 1)[1].split(":")[0].split("(")[0].strip() for w in warns)

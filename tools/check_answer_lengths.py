@@ -11,8 +11,7 @@ import json, re, sys
 from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent)); import bank
 src = open(sys.argv[1], encoding="utf-8").read() if len(sys.argv) > 1 else bank.src()
-P = json.loads(re.search(r"\nconst P = (\[.*?\]);\n", src, re.S).group(1))
-Q = json.loads(re.search(r"\nconst Q = (\[.*?\]);\n", src, re.S).group(1))
+Q, P = bank.load()
 strip = lambda h: re.sub(r"<[^>]+>", "", str(h))
 def lens(q): return [len(strip(o)) for o in q["o"]]
 def pick_longest(q):

@@ -291,10 +291,10 @@ peds = [
      [("Autosomal dominant", "Two unaffected parents can't have an affected child with a dominant allele (barring a new mutation)."),
       ("X-linked recessive", "An affected daughter (II-1) would need an affected father, but I-1 is unaffected."),
       ("Mitochondrial", "Mitochondrial disease passes from an affected mother, but the mother here (I-2) is unaffected.")]),
-    ("X-linked recessive", {"a": (1, 1, "M", "U"), "b": (1, 2.5, "F", "U"), "c": (2, 0.5, "M", "A"), "d": (2, 1.5, "F", "U"), "e": (2, 2.5, "M", "U"), "f": (2, 3.5, "M", "U"),
-                            "g": (3, 1.5, "M", "A"), "h": (3, 2.5, "F", "U")},
+    ("X-linked recessive", {"a": (1, 1, "M", "U"), "b": (1, 2.5, "F", "U"), "c": (2, 0.5, "M", "A"), "e": (2, 1.5, "M", "U"), "d": (2, 2.5, "F", "U"), "f": (2, 3.5, "M", "U"),
+                            "g": (3, 2.5, "M", "A"), "h": (3, 3.5, "F", "U")},
      [("a", "b"), ("d", "f")], [(("a", "b"), ["c", "d", "e"]), (("d", "f"), ["g", "h"])],
-     "Only males are affected, and each affected male's mother (I-2, II-2) is unaffected: a carrier passing the allele on her X.",
+     "Only males are affected, and each affected male's mother (I-2, II-3) is unaffected: a carrier passing the allele on her X.",
      [("Autosomal dominant", "Affected sons (II-1, III-1) have two unaffected parents, which doesn't fit a dominant trait."),
       ("Mitochondrial", "Mitochondrial disease passes from affected mothers to all their children. These mothers are unaffected."),
       ("X-linked dominant", "With an X-linked dominant trait, the mothers of affected sons would themselves be affected.")]),
@@ -313,13 +313,12 @@ for ans, ppl, cps, fams, why, wr in peds:
 print(len(V), "visual discrete questions")
 
 
-def insert(path="data/bank-q.js"):
-    src = open(path, encoding="utf-8").read()
-    m = re.search(r"\nconst Q = (\[.*?\]);\n", src, re.S)
-    Q = [q for q in json.loads(m.group(1)) if not q["id"].startswith("vq-")]
-    Q += V
-    src = src[:m.start(1)] + "[\n" + ",\n".join(json.dumps(x, ensure_ascii=False) for x in Q) + "\n]" + src[m.end(1):]
-    open(path, "w", encoding="utf-8").write(src)
+def insert():
+    """Insert or replace this script's questions (ids starting with "vq-") in the bank (data/bank/q-*.js)."""
+    import sys as _s; from pathlib import Path as _P; _s.path.insert(0, str(_P(__file__).resolve().parent)); import bank
+    Q, P = bank.load()
+    Q = [q for q in Q if not q["id"].startswith("vq-")] + V
+    bank.save("Q", Q)
 
 
 if __name__ == "__main__" and "--write" in sys.argv:

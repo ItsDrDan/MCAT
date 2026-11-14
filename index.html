@@ -250,6 +250,14 @@ nav.links a.sicon{display:none}
 details.faq{background:#fff;border:1px solid var(--line);border-radius:14px;padding:10px 16px;margin:8px 0}
 details.faq summary{cursor:pointer;font-weight:800}
 details.faq p{margin:8px 0 2px;color:var(--muted)}
+.ucard a.lrn{font-size:14px;font-weight:800;color:var(--sc);text-decoration:none}
+.lesson{max-width:760px}.lesson .why{font-size:18px;color:var(--ink);margin:6px 0 14px}
+.lesson ul.big{padding-left:20px;margin:0}.lesson ul.big li{margin:8px 0;font-size:16.5px;line-height:1.5}
+.lesson .ex{background:#fff;border:1px solid var(--line);border-radius:16px;padding:14px 18px;margin:16px 0}
+.lesson .ex ol{margin:8px 0 0;padding-left:22px}.lesson .ex li{margin:5px 0}
+.lesson .ex .ans{margin-top:8px}
+.lesson .trap{background:#fff1f1;border-left:5px solid #e0626a;border-radius:10px;padding:10px 14px;margin:12px 0}
+.lidx{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0 14px}.lidx a{background:#fff;border:1px solid var(--line2);border-radius:999px;padding:5px 12px;font-weight:700;font-size:14.5px;text-decoration:none;color:var(--ink)}
 .ucard .rel{font-size:13px;color:var(--muted);font-weight:700}
 .ucard .rel a{color:var(--sc)}
 .weak .ev{flex-basis:100%;font-size:12.5px;color:var(--muted);font-weight:700;margin:-2px 0 2px}
@@ -277,6 +285,7 @@ button{color:inherit}
     <nav class="links" aria-label="Main">
       <a href="#/" data-nav="home">Home</a>
       <a href="#/daily" data-nav="daily">Daily 5</a>
+      <a href="#/learn" data-nav="learn">Lessons</a>
       <a href="#/plan" data-nav="plan">Study plan</a>
       <a href="#/search" data-nav="search" class="sicon" aria-label="Search topics"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg></a>
       <a href="practice.html" class="navcta" title="Open Pre-Med Pulse, the practice app"><img src="assets/logo_pulse.webp" alt="">Practice</a>
@@ -442,7 +451,7 @@ function home(){
           <h2 style="font-size:24px;margin-bottom:8px">How this hub works</h2>
           <details class="faq"><summary>What's the difference between the Study Hub and Pre-Med Pulse?</summary><p>This Study Hub is where you plan: sections, units, your study plan and the Daily 5. Pre-Med Pulse is where you practice: every "Practice" button opens it on the right unit or mode.</p></details>
           <details class="faq"><summary>Where is my progress saved?</summary><p>Only in this browser on this device. If you clear your browser data or switch devices, your plan, streak and scores start over. Nothing is tied to your name.</p></details>
-          <details class="faq"><summary>Where should I start?</summary><p>Do the Daily 5, then build a study plan. The plan spreads every unit across your weeks. If you already know your weak subject, open that section and start with its first unit.</p></details>
+          <details class="faq"><summary>Where should I start?</summary><p>Do the Daily 5, then build a study plan. New to a topic? Each unit has a 3-minute <a href="#/learn">lesson</a> to read before you practice. The plan spreads every unit across your weeks. If you already know your weak subject, open that section and start with its first unit.</p></details>
           <details class="faq"><summary>Can these questions replace the official AAMC exams?</summary><p>No. These are original practice questions written from the public AAMC content outline. The official AAMC practice exams are the closest thing to the real test, so save them for your final weeks, as your plan suggests.</p></details>
           <details class="faq"><summary>I found a mistake. How do I report it?</summary><p>Use the Feedback button at the bottom of the page and include the question's topic and what looks wrong. Every report gets checked.</p></details>
         </div>
@@ -499,6 +508,7 @@ function subjBlock(sb,secId){
         <span class="un">Unit ${i+1}</span>
         <h3>${esc(u)}</h3>
         <span class="q">${c} questions${HUB.pcount[sb]&&HUB.pcount[sb][i]?` · ${HUB.pcount[sb][i]} passage${HUB.pcount[sb][i]>1?"s":""}`:""}</span>
+        <a class="lrn" href="#/learn/${sb}/${i+1}">Learn it · 3 min</a>
         ${sb==="gc"?`<a class="x" href="https://itsdrdan.github.io/games/#/search?q=${encodeURIComponent(GCQ[i]||u)}" target="_blank" rel="noopener">Dr. Dan's videos &amp; games ↗</a>`:""}
         ${relHTML(sb,i+1)}
         <div class="row">${acc?`<span class="bar"><i style="width:${acc.p}%"></i></span><b style="font-size:14px">${acc.p}%</b>`:`<span class="mini">Not started</span>`}
@@ -514,6 +524,41 @@ const REL={"gc:3":["oc:12","bc:1"],"gc:5":["bc:2"],"gc:6":["gc:10","bc:12"],"gc:
  "bio:1":["bc:8"],"bio:4":["beh:1","gc:12"],"bio:5":["beh:5"],"bio:6":["gc:8"],"bio:7":["pm:4"],"bio:10":["gc:10","gc:9"],"bio:12":["bc:6","pm:12"],
  "beh:1":["bio:4"],"beh:2":["pm:8","pm:7"],"beh:5":["bio:5"]};
 const relHTML=(sb,u)=>{const r=REL[sb+":"+u]; return r?`<span class="rel">Connects to: ${r.map(k=>{const [s,n]=k.split(":");return `<a href="${practice({subj:s,unit:n})}" title="${HUB.sn[s]}">${esc(HUB.units[s][n-1])}</a>`;}).join(", ")}</span>`:"";};
+/* ---------------- Learn it: 3-minute lessons ---------------- */
+let LEARN=null;
+async function loadLearn(){ if(LEARN) return LEARN; const r=await fetch("data/learn.json"); LEARN=await r.json(); return LEARN; }
+const rich=t=>esc(t).replace(/&lt;(\/?)b&gt;/g,"<$1b>");   // lessons may use <b> only; everything else is shown as text
+const ukey=(s,u)=>`<a href="#/learn/${s}/${u}">${esc(HUB.units[s][u-1])}</a>`;
+async function learnPage(sb,u){
+  setNav("learn");
+  app.innerHTML=`<div class="wrap" style="padding-top:28px"><p>Loading the lesson…</p></div>`;
+  let L; try{ L=await loadLearn(); }catch(e){ app.innerHTML=`<div class="wrap" style="padding-top:28px"><div class="card"><h2>Lessons couldn't load</h2><p>Check your connection and try again.</p></div></div>`; return; }
+  if(!sb){
+    app.innerHTML=`<div class="wrap" style="padding-top:28px"><div class="kicker">Learn it</div><h1 style="font-size:clamp(30px,4vw,44px);margin-bottom:8px">3-minute lessons</h1>
+      <p style="color:var(--muted);max-width:760px">One short lesson for every unit: the core ideas, a worked example, the most common trap and a way to remember it. Read the lesson, then practice the unit. For more depth, each section page links a free OpenStax textbook.</p>
+      ${SECS.map(sc=>`<h2 style="font-size:22px;margin-top:18px" class="s-${sc.id}">${sc.n}</h2>`+sc.subs.filter((x,i,a)=>a.indexOf(x)===i).map(x=>`<div class="mini" style="font-weight:800;margin-top:8px">${HUB.sn[x]}</div><div class="lidx">${HUB.units[x].map((n,i)=>`<a href="#/learn/${x}/${i+1}">${esc(n)}</a>`).join("")}</div>`).join("")).join("")}</div>`;
+    return;
+  }
+  const l=L.find(x=>x.s===sb&&x.u===+u); if(!l||!HUB.units[sb]){ app.innerHTML=`<div class="wrap" style="padding-top:28px"><div class="card"><h2>No lesson here yet</h2><p><a href="#/learn">See all lessons</a></p></div></div>`; return; }
+  const sec=SEC_OF[sb], rel=REL[sb+":"+u]||[], idx=L.indexOf(l), next=L[idx+1]&&L[idx+1].s===sb?L[idx+1]:null;
+  document.title=HUB.units[sb][u-1]+" · Learn it · MCAT Study Hub";
+  app.innerHTML=`<div class="wrap lesson s-${sec}" style="padding-top:24px">
+    <div class="crumb"><a href="#/learn">Lessons</a> › <a href="#/sec/${sec}/${sb}">${HUB.sn[sb]}</a> › Unit ${u}</div>
+    <div class="kicker">Learn it · about 3 minutes</div>
+    <h1 style="font-size:clamp(28px,4vw,40px);margin-bottom:4px">${esc(HUB.units[sb][u-1])}</h1>
+    <p class="why">${rich(l.why)}</p>
+    ${l.pre&&l.pre.length?`<p class="mini">Learn first: ${l.pre.map(k=>{const [s,n]=k.split(":");return HUB.units[s]?ukey(s,+n):"";}).filter(Boolean).join(", ")}</p>`:""}
+    <h2 style="font-size:21px">The big ideas</h2>
+    <ul class="big">${l.big.map(b=>`<li>${rich(b)}</li>`).join("")}</ul>
+    <div class="ex"><h2 style="font-size:19px;margin:0 0 6px">Worked example</h2><p style="margin:0">${rich(l.ex.q)}</p>
+      <details style="margin-top:10px"><summary style="cursor:pointer;font-weight:800;color:var(--accent-d)">Try it first, then show the steps</summary><ol>${l.ex.steps.map(x=>`<li>${rich(x)}</li>`).join("")}</ol></details></div>
+    <div class="trap"><b>Common trap:</b> ${rich(l.trap)}</div>
+    <div class="tip"><b>Remember it:</b> ${rich(l.memory)}</div>
+    <div class="actions" style="margin-top:18px"><a class="btn" href="${practice({subj:sb,unit:u,mode:sb==="cars"&&+u<3?"passage":"drill"})}">Practice this unit →</a>${next?`<a class="btn ghost" href="#/learn/${sb}/${next.u}">Next lesson: ${esc(HUB.units[sb][next.u-1])}</a>`:""}</div>
+    ${rel.length?`<p class="mini" style="margin-top:14px">Connects to: ${rel.map(k=>{const [s,n]=k.split(":");return ukey(s,+n);}).join(", ")}</p>`:""}
+    ${BOOK[sb]?`<p class="mini">Want more depth? <a href="${BOOK[sb][1]}" target="_blank" rel="noopener">${BOOK[sb][0]} ↗</a> (free)</p>`:""}
+  </div>`;
+}
 const GCQ=["atomic structure","periodic trends","intermolecular forces","stoichiometry","kinetics","equilibrium","thermochemistry","gas laws","solutions","acids and bases","redox","electrochemistry"];
 
 /* ---------------- Daily 5 ---------------- */
@@ -721,7 +766,7 @@ async function search(q){
   let terms=words, out=runSearch(terms,only), fixed=null;
   if(!out.length&&terms.length){ const t2=terms.map(t=>fixTypo(t)||t); if(t2.join(" ")!==terms.join(" ")){ const o2=runSearch(t2,only); if(o2.length){ out=o2; fixed=t2.join(" "); terms=t2; } } }
   const top=out.slice(0,12), shown=fixed||terms.join(" ");
-  $("#sres").innerHTML=top.length?(fixed?`<p class="mini" role="status">No matches for “${esc(q)}”. Showing results for <b>${esc(fixed)}</b>.</p>`:"")+top.map(({u,hits,all})=>{const sec=SEC_OF[u.s], pc=HUB.pcount[u.s]&&HUB.pcount[u.s][u.u-1], isP=u.s==="cars"&&u.u<3;return `<div class="sr s-${sec}"><div class="t"><span class="tag">${SEC[sec].n}</span> <b>${HUB.sn[u.s]}: ${esc(u.name)}</b><span class="sub">${all?`${HUB.counts[u.s][u.u-1]} questions`:hits?`${hits} question${hits>1?"s match":" matches"} “${esc(shown)}”`:"Unit title match"}</span></div><div class="acts"><a class="btn sm" href="${practice({subj:u.s,unit:u.u,mode:isP?"passage":"drill"})}">Practice this unit →</a>${pc&&!isP?`<a class="btn sm ghost" href="${practice({subj:u.s,unit:u.u,mode:"passage"})}">Passages</a>`:""}<a class="btn sm ghost" href="#/sec/${sec}/${u.s}">See the unit</a></div></div>`;}).join("")
+  $("#sres").innerHTML=top.length?(fixed?`<p class="mini" role="status">No matches for “${esc(q)}”. Showing results for <b>${esc(fixed)}</b>.</p>`:"")+top.map(({u,hits,all})=>{const sec=SEC_OF[u.s], pc=HUB.pcount[u.s]&&HUB.pcount[u.s][u.u-1], isP=u.s==="cars"&&u.u<3;return `<div class="sr s-${sec}"><div class="t"><span class="tag">${SEC[sec].n}</span> <b>${HUB.sn[u.s]}: ${esc(u.name)}</b><span class="sub">${all?`${HUB.counts[u.s][u.u-1]} questions`:hits?`${hits} question${hits>1?"s match":" matches"} “${esc(shown)}”`:"Unit title match"}</span></div><div class="acts"><a class="btn sm" href="${practice({subj:u.s,unit:u.u,mode:isP?"passage":"drill"})}">Practice this unit →</a><a class="btn sm ghost" href="#/learn/${u.s}/${u.u}">Learn it</a>${pc&&!isP?`<a class="btn sm ghost" href="${practice({subj:u.s,unit:u.u,mode:"passage"})}">Passages</a>`:""}<a class="btn sm ghost" href="#/sec/${sec}/${u.s}">See the unit</a></div></div>`;}).join("")
    :`<div class="card"><b>No matches for “${esc(q)}”.</b> <span class="mini">Try one or two plain words, like “enzyme” or “circuit”, or browse a section:</span><div class="chips">${SECS.map(x=>`<a class="chip" href="#/sec/${x.id}">${x.n}</a>`).join("")}</div></div>`;
 }
 
@@ -735,7 +780,7 @@ function searchPage(){
     </form>
     <div class="chips"><span class="mini" style="font-weight:700">Try:</span>${["buffers","Michaelis–Menten","Hardy–Weinberg","operant conditioning","lens","Doppler","schizophrenia"].map(t=>`<a class="chip" href="#/search?q=${encodeURIComponent(t)}">${t}</a>`).join("")}</div></div>`;
 }
-const TITLES={home:"MCAT Study Hub · ItsDrDan",daily:"Daily 5 · MCAT Study Hub",plan:"Study plan · MCAT Study Hub",search:"Search · MCAT Study Hub"};
+const TITLES={home:"MCAT Study Hub · ItsDrDan",daily:"Daily 5 · MCAT Study Hub",plan:"Study plan · MCAT Study Hub",learn:"Lessons · MCAT Study Hub",search:"Search · MCAT Study Hub"};
 let firstRoute=true;
 function route(){
   const h=location.hash||"#/";
@@ -749,6 +794,7 @@ function route(){
   }
   else if(h.startsWith("#/daily")){daily();view="daily";}
   else if(h.startsWith("#/plan")){plan();view="plan";}
+  else if(h.startsWith("#/learn")){const [,,sb,u]=h.split("/");learnPage(sb,u);view=sb?null:"learn";}
   else if(h.startsWith("#/search")){const q=new URLSearchParams(h.split("?")[1]||"").get("q")||"";q?search(q):searchPage();view="search";}
   else home();
   if(view) document.title=TITLES[view];
@@ -761,6 +807,7 @@ function route(){
 window.addEventListener("hashchange",route);
 route();
 </script>
+<script>if("serviceWorker" in navigator&&(location.protocol==="https:"||location.hostname==="localhost")) addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}));</script>
 <script src="https://itsdrdan.github.io/games/brand/embed.js" defer></script>
 <script src="https://itsdrdan.github.io/games/track.js" defer></script>
 </body>

@@ -241,12 +241,12 @@ add("beh", 7, "A", "A researcher concludes from this survey that social media us
 print(len(V), "visual discrete questions (batch 2)")
 
 
-def insert(path="data/bank-q.js"):
-    src = open(path, encoding="utf-8").read()
-    m = re.search(r"\nconst Q = (\[.*?\]);\n", src, re.S)
-    Q = [q for q in json.loads(m.group(1)) if not q["id"].startswith("vq2-")] + V
-    src = src[:m.start(1)] + "[\n" + ",\n".join(json.dumps(x, ensure_ascii=False) for x in Q) + "\n]" + src[m.end(1):]
-    open(path, "w", encoding="utf-8").write(src)
+def insert():
+    """Insert or replace this script's questions (ids starting with "vq2-") in the bank (data/bank/q-*.js)."""
+    import sys as _s; from pathlib import Path as _P; _s.path.insert(0, str(_P(__file__).resolve().parent)); import bank
+    Q, P = bank.load()
+    Q = [q for q in Q if not q["id"].startswith("vq2-")] + V
+    bank.save("Q", Q)
 
 
 if __name__ == "__main__" and "--write" in sys.argv:

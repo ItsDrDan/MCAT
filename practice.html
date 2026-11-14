@@ -368,11 +368,30 @@ details.why li.mine{background:#fff3f3;border-radius:8px;padding:2px 6px;margin-
 <script src="https://itsdrdan.github.io/games/brand/icons.js" defer></script>
 <script src="https://itsdrdan.github.io/games/brand/embed.js" defer></script>
 <script src="https://itsdrdan.github.io/games/track.js" defer></script>
-<script src="data/bank-q.js?v=379a4db9f8"></script>
-<script src="data/bank-p.js?v=379a4db9f8"></script>
 <script>
 "use strict";
-if(typeof Q==="undefined"||typeof P==="undefined"){ document.getElementById("stage").innerHTML='<h2 style="font-size:22px">The questions didn\'t load</h2><p>Check your connection, then reload this page. If it keeps happening, tell Dr. Dan with the Feedback button.</p><div class="actions"><button class="btn main" onclick="location.reload()">Reload</button></div>'; throw new Error("question bank failed to load"); }
+/* ---------- Question bank loader ----------
+   The bank is split into data/bank/q-<subject>.js and p-<section>.js. We load what the current mode needs first,
+   show a question as soon as it arrives, then fetch the rest in the background. BANKV is written by
+   tools/build_hub_data.py so a new page never pairs with an old saved bank. */
+const BANKV="62b1a38ef1";
+const BANK=window.BANK||(window.BANK={q:[],p:[],got:{}});
+const CHUNKS={q:["gc","oc","pm","bc","bio","beh","cars"],p:["cp","cars","bb","ps"]};
+const ALLCHUNKS=CHUNKS.q.map(s=>"q-"+s).concat(CHUNKS.p.map(s=>"p-"+s));
+const chunkWait={};
+function loadChunk(n){
+  if(BANK.got[n]) return Promise.resolve();
+  if(chunkWait[n]) return chunkWait[n];
+  return chunkWait[n]=new Promise((res,rej)=>{ const el=document.createElement("script"); el.src="data/bank/"+n+".js?v="+BANKV; el.async=true;
+    el.onload=()=>{ if(BANK.got[n]){ res(); if(window.onBankData) window.onBankData(n); } else { delete chunkWait[n]; rej(new Error(n)); } };
+    el.onerror=()=>{ delete chunkWait[n]; el.remove(); rej(new Error(n)); };
+    document.head.appendChild(el); });
+}
+const bankReady=()=>ALLCHUNKS.every(n=>BANK.got[n]);
+</script>
+<script>
+"use strict";
+const Q=BANK.q, P=BANK.p;   // these arrays fill in as chunks arrive
 const CATS = {
   "1A":{s:"bb",n:"1A Proteins & amino acids"},
   "1B":{s:"bb",n:"1B DNA → protein"},
@@ -496,7 +515,8 @@ function tagFor(subj,unit,lv){return `<span class="tag ${SEC_OF[subj]}">${SUBJ[s
 const SKILLS={1:"Skill 1 · Knowing concepts",2:"Skill 2 · Problem solving",3:"Skill 3 · Research design",4:"Skill 4 · Data & statistics"};
 const CARSD={R1:"Understand the main idea, the author's tone and what words mean in context",R2:"Connect parts of the passage and judge how well claims are supported",R3:"Apply the passage to new situations and weigh new information"};
 const SKILLD={1:"Recall and understand science concepts",2:"Use concepts to solve problems and calculations",3:"Reason about how studies and experiments are designed",4:"Read graphs, tables and statistics and draw conclusions"};
-P.forEach(p=>p.qs.forEach((q,i)=>{q.pid=p.id+"-q"+(i+1);}));
+function tagPids(){ P.forEach(p=>{ if(!p._pid){ p.qs.forEach((q,i)=>{q.pid=p.id+"-q"+(i+1);}); p._pid=1; } }); }
+tagPids();
 const qid=q=>q.id||q.pid||"";
 const carsTag=q=>q&&q.c&&CATS[q.c]?` <span class="tag cars">${CATS[q.c].n.replace("CARS: ","")}</span>`:"";
 const skillTag=q=>q&&q.c&&CATS[q.c]&&CATS[q.c].s==="cars"?carsTag(q):q&&q.k&&SKILLS[q.k]?` <span class="tag sk" title="${SKILLD[q.k]} (tag is approximate)">${SKILLS[q.k]}</span>`:"";
@@ -599,7 +619,7 @@ function logModal(i){ const r=(S.log||[])[i], it=r&&itemFromId(r[0]); if(!it) re
   const root=m.querySelector(".opts"); reveal(root,q,ch); root.querySelectorAll(".strike").forEach(b=>b.remove()); }
 
 /* ---------- Filters ---------- */
-function countFor(subj,unit){return Q.filter(q=>q.subj===subj&&(unit==null||q.unit===unit)).length+P.filter(p=>p.subj===subj&&(unit==null||p.unit===unit)).reduce((n,p)=>n+p.qs.length,0);}
+function countFor(subj,unit){ if(!bankReady()) return "…"; return Q.filter(q=>q.subj===subj&&(unit==null||q.unit===unit)).length+P.filter(p=>p.subj===subj&&(unit==null||p.unit===unit)).reduce((n,p)=>n+p.qs.length,0);}
 function renderFilters(){
   const subs=SEC_SUBJ[sec];
   if(!subs.includes(fSubj)) fSubj="any";
@@ -695,7 +715,7 @@ function showDrill(){
     if(chosen===null)return; const ok=chosen===q.a; reveal(root,q,chosen); record(subj,unit,ok,q,chosen);
     $("#fb").innerHTML=feedbackHTML(q,ok,order,chosen); $("#chk").textContent="Next question →"; $("#skip").classList.add("hidden");
     if(!ok&&!reviewing){   // a miss: offer one more question on the same unit right away
-      $("#fb").insertAdjacentHTML("beforeend",`<div class="actions"><button class="btn ghost" id="sim">Try another on ${SUBJ[subj].u[unit-1]} →</button></div>`);
+      $("#fb").insertAdjacentHTML("beforeend",`<div class="actions"><button class="btn ghost" id="sim">Try another on ${SUBJ[subj].u[unit-1]} →</button><a class="btn ghost" href="./#/learn/${subj}/${unit}" style="text-decoration:none;display:inline-flex;align-items:center">Read the 3-minute lesson</a></div>`);
       $("#sim").onclick=()=>{ const j=drillQ.findIndex((x,k)=>k>drillI&&x.subj===q.subj&&x.unit===q.unit);
         if(j>=0){ const [x]=drillQ.splice(j,1); drillQ.splice(drillI+1,0,x); }
         else { const c=shuffle(Q.filter(x=>x.subj===q.subj&&x.unit===q.unit&&x!==q)); if(c.length) drillQ.splice(drillI+1,0,c[0]); }
@@ -1068,10 +1088,11 @@ function buildReal(s){
   return {sec:s,items,secs:95*60};
 }
 const XKEY="premedpulse_exam";
-const QBYID={}; Q.forEach(q=>QBYID[q.id]=q);
-const PQBYID={}; P.forEach(p=>p.qs.forEach(q=>PQBYID[q.pid]={q,p}));
+const QBYID={}, PQBYID={};
+function indexBank(){ tagPids(); Q.forEach(q=>QBYID[q.id]=q); P.forEach(p=>p.qs.forEach(q=>PQBYID[q.pid]={q,p})); }
+indexBank();
 function itemFromId(id){ if(QBYID[id]){const q=QBYID[id];return {q,p:null,subj:q.subj,unit:q.unit};} const r=PQBYID[id]; return r?{q:r.q,p:r.p,subj:r.p.subj,unit:r.p.unit}:null; }
-for(const id in S.srs){ if(!itemFromId(id)) delete S.srs[id]; }   // questions that no longer exist leave the review queue
+function pruneSrs(){ if(!bankReady()) return; let ch=0; for(const id in S.srs){ if(!itemFromId(id)){ delete S.srs[id]; ch=1; } } if(ch) save(); }   // questions that no longer exist leave the review queue (only once every chunk has loaded)
 function packB(B){return {items:B.items.map(it=>qid(it.q)),orders:B.orders,ans:B.ans,flag:B.flag,struck:B.struck,tq:B.tq,first:B.first,seen:B.seen,i:B.i,left:B.left,secs:B.secs,title:B.title,score:B.score,used:B.used};}
 function unpackB(o){const items=o.items.map(itemFromId); if(items.some(x=>!x))return null; return Object.assign({},o,{items});}
 function saveExam(){ if(!FL||!FL.real)return; try{ localStorage.setItem(XKEY,JSON.stringify({order:FL.order,k:FL.k,results:FL.results.map(r=>({sec:r.sec,B:packB(r.B)})),cur:T&&!T.done?packB(T):null,brk:BR?{left:BR.left,nx:BR.nx}:null,ts:Date.now()})); }catch(e){} }
@@ -1251,12 +1272,44 @@ function startEqs(){
   <ol>${CARSPLAN.map(x=>`<li>${x}</li>`).join("")}</ol>`;
 }
 
-function start(){ carsDrill=false; if(T&&!T.done){clearInterval(T.iv);T=null;} curQ=null; if(BR&&BR.iv){clearInterval(BR.iv);BR=null;} FL=FL&&(mode==="full"||mode==="real")?FL:null; ({drill:startDrill,review:startReview,passage:startPassage,timed:startTimed,eqs:startEqs,full:startFull,gym:startGym,real:startReal})[mode](); }
+/* Which chunks each mode needs before it can run. Quick Drill may start with any one of its chunks. */
+function chunksFor(){
+  const qOf=list=>list.map(s=>"q-"+s), pAll=CHUNKS.p.map(s=>"p-"+s);
+  if(mode==="eqs"||mode==="gym") return {need:[],some:false};
+  if(mode==="review"||mode==="timed"||mode==="full"||mode==="real") return {need:ALLCHUNKS,some:false};
+  if(mode==="passage"){ if(fSubj!=="any") return {need:Object.keys(SEC_SUBJ).filter(k=>k!=="all"&&SEC_SUBJ[k].includes(fSubj)).map(k=>"p-"+k),some:false}; return {need:sec==="all"?pAll:["p-"+sec],some:false}; }
+  if(carsPassageMode()) return {need:["p-cars"],some:false};
+  const subs=SEC_SUBJ[sec].filter(x=>fSubj==="any"||fSubj===x).sort((a,b)=>(a==="cars")-(b==="cars")||["gc","pm","oc","bc","bio","beh"].indexOf(a)-["gc","pm","oc","bc","bio","beh"].indexOf(b));
+  return {need:qOf(subs),some:true};
+}
+let startTok=0;
+function loadingHTML(msg){ return `<div role="status" style="text-align:center;padding:24px 8px"><img src="${ART}pulse_reading.webp" alt="" width="96" height="96" style="height:auto"><h2 style="font-size:21px;margin:8px 0 4px">${msg}</h2><p class="mini" style="max-width:460px;margin:0 auto">This only happens the first time. After that your browser keeps a copy, and the practice app works even without internet.</p></div>`; }
+function start(){
+  const tok=++startTok, r=chunksFor(), have=r.need.filter(n=>BANK.got[n]);
+  if(r.need.length&&(r.some?have.length===0:have.length<r.need.length)){
+    stage.innerHTML=loadingHTML(r.need.length>3?"Loading the full question bank…":"Loading questions…");
+    const first=r.some?[r.need[0]]:r.need;
+    Promise.all(first.map(loadChunk)).then(()=>{ if(tok===startTok) startNow(); }).catch(()=>{ if(tok!==startTok) return;
+      stage.innerHTML=`<h2 style="font-size:22px">The questions didn't load</h2><p>Check your internet connection, then try again. Once a visit finishes loading, the practice app keeps working offline.</p><div class="actions"><button class="btn main" id="retryLoad">Try again</button></div>`;
+      $("#retryLoad").onclick=()=>{ start(); loadRest(); }; });
+    if(!r.some) r.need.forEach(n=>loadChunk(n).catch(()=>{}));   // a drill needs just one file to start; the rest arrive one at a time
+    return;
+  }
+  startNow();
+}
+function startNow(){ carsDrill=false; if(T&&!T.done){clearInterval(T.iv);T=null;} curQ=null; if(BR&&BR.iv){clearInterval(BR.iv);BR=null;} FL=FL&&(mode==="full"||mode==="real")?FL:null; ({drill:startDrill,review:startReview,passage:startPassage,timed:startTimed,eqs:startEqs,full:startFull,gym:startGym,real:startReal})[mode](); }
 
 document.querySelectorAll("#modes .mode").forEach(x=>x.classList.toggle("on",x.dataset.mode===mode));
 if(["eqs","full","review","gym","real"].includes(mode)) $("#topicBox").classList.add("hidden");
 if(fSubj!=="any") $("#topicBox").open=true;
+/* When a chunk arrives: index it, and let a running Quick Drill pick up the new questions. */
+window.onBankData=()=>{ indexBank();
+  if(mode==="drill"&&!reviewing&&!carsDrill&&!rotP&&drillQ.length&&!T){ const have=new Set(drillQ), add=pool().filter(q=>!have.has(q)); if(add.length) drillQ=drillQ.slice(0,drillI+1).concat(shuffle(drillQ.slice(drillI+1).concat(add))); if(!drillP.length) drillP=rotPool(); }
+  if(bankReady()){ pruneSrs(); renderFilters(); renderProgress(); registerOffline(); } };
+function loadRest(){ ALLCHUNKS.reduce((pr,n)=>pr.then(()=>loadChunk(n).catch(()=>{})),Promise.resolve()); }
+function registerOffline(){ if("serviceWorker" in navigator&&(location.protocol==="https:"||location.hostname==="localhost")) navigator.serviceWorker.register("sw.js").catch(()=>{}); }
 renderFilters(); renderProgress(); start();
+setTimeout(loadRest,0);
 setPicked(["subj","unit","mode","section"].some(k=>params.has(k)),false);
 
 /* ---------- Test-day tools: highlight / strikethrough ---------- */

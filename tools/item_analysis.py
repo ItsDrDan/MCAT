@@ -44,7 +44,7 @@ def qver(q):
 
 sys.path.insert(0, str(Path(__file__).resolve().parent)); import bank
 src = bank.src()
-grab = lambda n: json.loads(re.search(rf"\nconst {n} = (\[.*?\]);\n", src, re.S).group(1))
+Q_, P_ = bank.load(); grab = lambda n: Q_ if n == "Q" else P_
 bank = {}
 for q in grab("Q"): bank[q["id"]] = q
 for p in grab("P"):

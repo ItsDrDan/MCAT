@@ -4,15 +4,16 @@ Free MCAT prep covering all four sections: Chem/Phys, CARS, Bio/Biochem and Psyc
 
 - **index.html: MCAT Study Hub.** Section pages with every unit, a Daily 5, a week-by-week study plan builder, topic search and progress tracking.
 - **practice.html: Pre-Med Pulse.** Quick Drill, Passage Sets, Timed Mini-Section and a Mini Full-Length in real test order. Deep links: `practice.html?subj=gc&unit=5`, `?section=cars&mode=passage`, `?mode=eqs`. Modes: `drill`, `review`, `passage`, `timed`, `full`, `real`, `gym`, `eqs`.
-- **data/:** the question bank (`bank-q.js`, `bank-p.js`), the Daily 5 question pool and the search index used by the hub.
+- **data/:** the question bank (`bank/`), the 3-minute lessons (`learn.json`), the Daily 5 question pool and the search index used by the hub.
+- **sw.js:** offline support. After one full visit the hub, the practice app, every question and every lesson work without internet. Pages are network-first (updates show up right away); bank files are versioned, so saved copies are used first.
 
 Every question is original and written from the public AAMC content outline, with background from free OpenStax textbooks.
 
 ## Maintaining the bank
 
-The questions live in two data files that `practice.html` loads: `data/bank-q.js` (`const Q`, single questions) and `data/bank-p.js` (`const P`, passages). Each question or passage is on its own line, so a git diff shows exactly which ones changed. Other tools should read and write them through `tools/bank.py` (`load()`, `save()`). After any edit:
+The questions live in `data/bank/`, split so the practice app can load one section at a time: `q-<subject>.js` (single questions for gc, oc, pm, bc, bio, beh, cars) and `p-<section>.js` (passages for cp, cars, bb, ps). Each question or passage is on its own line, so a git diff shows exactly which ones changed. Always read and write them through `tools/bank.py` (`load()`, `save()`). After any edit:
 
-1. `python3 tools/build_hub_data.py` rebuilds the hub's counts, the topic search index (`data/search.json`) and the Daily 5 pool (`data/daily.json`) from the bank. It also stamps the data-file links in `practice.html` with a hash of the bank, so a browser never pairs a new page with an old cached bank.
+1. `python3 tools/build_hub_data.py` rebuilds the hub's counts, the topic search index (`data/search.json`) and the Daily 5 pool (`data/daily.json`) from the bank. It also writes a hash of the bank into `practice.html` (`BANKV`) and into the offline worker `sw.js` (its cache name and file list), so a browser never pairs a new page with an old saved bank.
 2. `python3 tools/validate_bank.py` must show `ERRORS: 0`. It catches:
    - broken items
    - duplicate IDs or passage titles
@@ -30,6 +31,15 @@ GitHub runs steps 2 and 3 on every push and pull request (`.github/workflows/val
 Rules that keep student progress safe:
 - **Don't renumber or reorder.** Question IDs (`id`, and `<passage id>-q<n>` for passage questions) are what saved progress, review queues and stats point to. Never renumber them or reorder a passage's questions; add new passage questions at the end.
 - **Shuffle-proof answers.** Options are shuffled in the app. Put the key first with `"a": 0`, and never refer to option letters.
+
+## How the practice app loads
+
+`practice.html` asks for only the files the current mode needs (for example `q-beh.js` for a Psych/Soc drill), shows a question as soon as they arrive, then downloads the rest in the background. Modes that need everything (Review My Misses, timed sets, full-length exams) wait with a short message. If a file can't be downloaded, the page says so and offers a retry.
+
+## 3-minute lessons and figure descriptions
+
+- `data/learn.json` has one lesson per unit (`s`, `u`, `why`, `big`, `ex`, `trap`, `memory`, `pre`), shown on the hub at `#/learn/<subject>/<unit>`. Only `<b>` is allowed in lesson text; the validator checks every unit has one and every prerequisite is a real unit.
+- Every figure's `aria-label` holds its title plus a text description written for screen-reader users: the same information a sighted student reads off the figure, with no conclusions the questions ask for. Keep this true when you edit a figure.
 
 ## Guided CARS review
 

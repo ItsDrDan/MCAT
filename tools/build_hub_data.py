@@ -14,8 +14,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(Path(__file__).resolve().parent)); import bank
 src = bank.src()
-Q = json.loads(re.search(r"\nconst Q = (\[.*?\]);\n", src, re.S).group(1))
-P = json.loads(re.search(r"\nconst P = (\[.*?\]);\n", src, re.S).group(1))
+Q, P = bank.load()
 
 idx_path = ROOT / "index.html"
 idx = idx_path.read_text(encoding="utf-8")
@@ -84,10 +83,19 @@ print(f"HUB updated: {HUB['total']:,} questions ({len(Q):,} single + {HUB['total
 print("Sections:", HUB["secCount"])
 print(f"Daily 5 pool: {len(daily_new)} questions, {refreshed} refreshed from the bank" + (f", {len(dropped)} dropped (no longer in the bank): {dropped[:5]}" if dropped else ""))
 
-# Stamp practice.html's data-file links with a hash of the bank, so browsers never pair a new page with a cached old bank.
+# Stamp practice.html's bank version (BANKV) and the offline worker's cache name with a hash of the bank,
+# so a browser never pairs a new page with an old saved bank, and old offline copies are dropped.
 import hashlib
 stamp = hashlib.md5(src.encode("utf-8")).hexdigest()[:10]
 app_path = ROOT / "practice.html"
 app = app_path.read_text(encoding="utf-8")
-app2 = re.sub(r'(data/bank-[qp]\.js\?v=)[0-9a-f]+', lambda m: m.group(1) + stamp, app)
-if app2 != app: app_path.write_text(app2, encoding="utf-8"); print("Bank cache stamp:", stamp)
+app2 = re.sub(r'const BANKV="[0-9a-f]*"', f'const BANKV="{stamp}"', app)
+if app2 != app: app_path.write_text(app2, encoding="utf-8"); print("Bank stamp:", stamp)
+sw_path = ROOT / "sw.js"
+if sw_path.exists():
+    sw = sw_path.read_text(encoding="utf-8")
+    assets = sorted("assets/" + p.relative_to(ROOT / "assets").as_posix() for p in (ROOT / "assets").rglob("*") if p.is_file() and p.suffix in (".webp", ".png", ".svg", ".jpg"))
+    sw2 = re.sub(r'const CACHE = "mcat-[0-9a-f]*";', f'const CACHE = "mcat-{stamp}";', sw)
+    sw2 = re.sub(r'const DATA = \[.*?\];', "const DATA = " + json.dumps([f"data/bank/{c}.js?v={stamp}" for c in bank.CHUNKS] + ["data/daily.json", "data/search.json", "data/learn.json"]) + ";", sw2, flags=re.S)
+    sw2 = re.sub(r'const ART = \[.*?\];', "const ART = " + json.dumps(assets) + ";", sw2, flags=re.S)
+    if sw2 != sw: sw_path.write_text(sw2, encoding="utf-8"); print("Offline worker updated:", f"mcat-{stamp}", len(assets), "images")
