@@ -374,7 +374,7 @@ details.why li.mine{background:#fff3f3;border-radius:8px;padding:2px 6px;margin-
    The bank is split into data/bank/q-<subject>.js and p-<section>.js. We load what the current mode needs first,
    show a question as soon as it arrives, then fetch the rest in the background. BANKV is written by
    tools/build_hub_data.py so a new page never pairs with an old saved bank. */
-const BANKV="62b1a38ef1";
+const BANKV="3e646946f4";
 const BANK=window.BANK||(window.BANK={q:[],p:[],got:{}});
 const CHUNKS={q:["gc","oc","pm","bc","bio","beh","cars"],p:["cp","cars","bb","ps"]};
 const ALLCHUNKS=CHUNKS.q.map(s=>"q-"+s).concat(CHUNKS.p.map(s=>"p-"+s));
