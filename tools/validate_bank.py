@@ -15,6 +15,9 @@ ERRORS (must fix):
   - two passages with the same title (the bank once had 107 duplicates)
   - "paragraph N" references to a paragraph the passage doesn't have
   - hub counts in index.html out of date (fix: python3 tools/build_hub_data.py)
+  - a question ID or passage question that existed before is gone (tools/id_manifest.json);
+    after a deliberate removal run with --accept-ids
+  - bad skill tags; hub "Connects to" links to units that don't exist; a ?mode= deep link no longer handled
 WARNINGS (worth a look):
   - "all/none of the above" style options
   - figures with no text alternative for screen readers; images hot-linked from other sites
@@ -123,6 +126,42 @@ if daily_path.exists():
     stale = [d["id"] for d in json.loads(daily_path.read_text(encoding="utf-8"))
              if d["id"] not in QB or any(d.get(k) != QB[d["id"]].get(k) for k in ("q", "o", "a", "e", "w", "t", "lv", "k", "fig"))]
     if stale: err("data/daily.json", f"{len(stale)} Daily 5 question(s) differ from the bank (e.g. {stale[:3]}); run python3 tools/build_hub_data.py")
+
+# ---- stable IDs: saved progress, review queues and item stats all point at these ----
+# tools/id_manifest.json lists every question ID and each passage's question count. An ID that disappears,
+# or a passage that loses questions, is an error. After a deliberate removal: python3 tools/validate_bank.py --accept-ids
+man_path = ROOT / "tools" / "id_manifest.json"
+now_ids = {"q": sorted(q["id"] for q in Q), "p": {p["id"]: len(p["qs"]) for p in P}}
+if "--accept-ids" in sys.argv or not man_path.exists():
+    man_path.write_text(json.dumps(now_ids, ensure_ascii=False, separators=(",", ":")) + "\n", encoding="utf-8")
+    print(f"ID manifest written: {len(now_ids['q']):,} question IDs, {len(now_ids['p'])} passages")
+else:
+    man = json.loads(man_path.read_text(encoding="utf-8"))
+    gone = sorted(set(man["q"]) - set(now_ids["q"]))
+    if gone: err("id_manifest", f"{len(gone)} question ID(s) were removed or renamed (e.g. {gone[:3]}); students' saved progress points at them")
+    for pid, n_old in man["p"].items():
+        if pid not in now_ids["p"]: err(pid, "passage ID was removed or renamed; saved progress points at its questions")
+        elif now_ids["p"][pid] < n_old: err(pid, f"passage had {n_old} questions and now has {now_ids['p'][pid]}; add new questions at the end, never remove or renumber")
+    added = len(set(now_ids["q"]) - set(man["q"])) + sum(1 for pid in now_ids["p"] if pid not in man["p"])
+    if added: warn("id_manifest", f"new IDs not in the manifest yet ({added}); run python3 tools/validate_bank.py --accept-ids")
+
+# ---- tags the app reads: AAMC skill (k), CARS skill (c) ----
+for q in Q + [x for p in P for x in p["qs"]]:
+    iid = q.get("id") or q.get("q", "")[:40]
+    if "k" in q and q["k"] not in (1, 2, 3, 4): err(iid, f"bad skill tag k={q['k']!r}")
+    if "c" in q and q["c"] not in ("R1", "R2", "R3"): err(iid, f"bad CARS skill tag c={q['c']!r}")
+
+# ---- hub links between related units must point at real units ----
+m = re.search(r'^const REL=(\{.*?\});$', idx, re.M | re.S)
+if m:
+    for k, vs in json.loads(m.group(1)).items():
+        for x in [k] + vs:
+            sb, _, un = x.partition(":")
+            if sb not in UNITS or not un.isdigit() or not 1 <= int(un) <= UNITS[sb]: err("index.html", f"related-unit link points at a unit that doesn't exist: {x}")
+
+# ---- deep links documented in the README must still be understood by practice.html ----
+for mode in ("drill", "review", "passage", "timed", "eqs", "full", "gym", "real"):
+    if f'"{mode}"' not in src.split("const Q = ")[0] + src[-60000:]: err("practice.html", f"deep link ?mode={mode} is no longer handled")
 
 strict = "--strict" in sys.argv
 kinds = C.Counter(w.split(": ", 1)[1].split(":")[0].split("(")[0].strip() for w in warns)

@@ -250,6 +250,14 @@ nav.links a.sicon{display:none}
 details.faq{background:#fff;border:1px solid var(--line);border-radius:14px;padding:10px 16px;margin:8px 0}
 details.faq summary{cursor:pointer;font-weight:800}
 details.faq p{margin:8px 0 2px;color:var(--muted)}
+.ucard .rel{font-size:13px;color:var(--muted);font-weight:700}
+.ucard .rel a{color:var(--sc)}
+.weak .ev{flex-basis:100%;font-size:12.5px;color:var(--muted);font-weight:700;margin:-2px 0 2px}
+.weak{flex-wrap:wrap}
+.catch{background:#eef8f2;border:1px solid #cfe9da;border-radius:14px;padding:12px 16px;margin-top:16px}
+.catch .actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+.sr .acts{display:flex;gap:8px;flex-wrap:wrap}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important;scroll-behavior:auto!important}}
 </style>
 <link rel="stylesheet" href="https://itsdrdan.github.io/games/brand/itsdrdan.css">
 </head>
@@ -370,6 +378,7 @@ function home(){
           <span class="go">${st.ans?"Open Pre-Med Pulse":"See the sections"} →</span>
         </a>
       </div>
+      <div class="chips" aria-label="Shortcuts"><span class="mini" style="font-weight:700">Or jump straight in:</span><a class="chip" href="${practice({mode:"drill"})}">I have 15 minutes</a><a class="chip" href="${practice({mode:"passage"})}">Give me passages</a><a class="chip" href="${practice({mode:"review"})}">Review my misses</a><a class="chip" href="${practice({mode:"timed"})}">Practice test-day pacing</a></div>
     </section>
     <section class="blk" aria-labelledby="sec-h">
       <div class="kicker">The four sections, in test-day order</div>
@@ -442,11 +451,11 @@ function home(){
 }
 function progressHTML(st){
   if(!st.ans) return `<img class="cardart" src="assets/pulse_thinking.webp" alt=""><div class="kicker">Your progress</div><h2 style="font-size:24px;margin-bottom:6px">Nothing here yet</h2><p style="color:var(--muted);margin:0 0 14px">Answer a few questions in the Daily 5 or Pre-Med Pulse and your weakest units will show up here, so you know what to study next.</p><a class="btn ghost" href="#/daily">Try the Daily 5 →</a>`;
-  const rows=Object.entries(st.units).filter(([k,v])=>v.a>=3).map(([k,v])=>{const [s,u]=k.split(":");return {s,u:+u,p:v.c/v.a,a:v.a};}).filter(r=>HUB.units[r.s]).sort((a,b)=>a.p-b.p).slice(0,5);
+  const rows=Object.entries(st.units).filter(([k,v])=>v.a>=5).map(([k,v])=>{const [s,u]=k.split(":");const r=v.r||"";return {s,u:+u,p:v.c/v.a,a:v.a,c:v.c,rn:r.length,rc:r.split("1").length-1};}).filter(r=>HUB.units[r.s]).sort((a,b)=>a.p-b.p).slice(0,5);
   return `<img class="cardart" src="assets/m_progress.webp" alt=""><div class="kicker">Your progress</div>
   <div class="statrow"><div><b>${fmt(st.ans)}</b><span>answered</span></div><div><b>${Math.round(st.cor/st.ans*100)}%</b><span>correct</span></div><div><b>${fmt(st.xp||0)}</b><span>XP</span></div><div><b>${Object.keys(st.units).length}</b><span>units tried</span></div></div>
   ${(()=>{const sr=st.srs||{},n=Object.keys(sr).length,d=Object.values(sr).filter(r=>r.due<=Date.now()).length;return n?`<div class="srsbox"><b>${d}</b> missed question${d===1?"":"s"} due for review${d?"":" today"} · ${n} in your queue <a class="btn sm" href="practice.html?mode=review">Review My Misses →</a></div>`:"";})()}
-  ${rows.length?`<div style="font-weight:800;margin:6px 0 2px">Study these next (weakest first)</div>`+rows.map(r=>`<div class="weak s-${SEC_OF[r.s]}"><span class="tag">${HUB.sn[r.s]}</span><span class="nm">${esc(HUB.units[r.s][r.u-1])}</span><span class="bar"><i style="width:${Math.round(r.p*100)}%"></i></span><b style="width:42px;text-align:right">${Math.round(r.p*100)}%</b><a class="btn sm ghost" href="${practice({subj:r.s,unit:r.u})}">Practice</a></div>`).join(""):`<p class="mini">Answer at least 3 questions in a unit to see it ranked here.</p>`}`;
+  ${rows.length?`<div style="font-weight:800;margin:6px 0 2px">Study these next (weakest first)</div>`+rows.map(r=>`<div class="weak s-${SEC_OF[r.s]}"><span class="tag">${HUB.sn[r.s]}</span><span class="nm">${esc(HUB.units[r.s][r.u-1])}</span><span class="bar"><i style="width:${Math.round(r.p*100)}%"></i></span><b style="width:42px;text-align:right">${Math.round(r.p*100)}%</b><a class="btn sm ghost" href="${practice({subj:r.s,unit:r.u})}">Practice</a><span class="ev">${r.c} of ${r.a} right${r.rn>=5?` · ${r.rc} of your last ${r.rn}`:""}</span></div>`).join(""):`<p class="mini">Answer at least 5 questions in a unit to see it ranked here. Fewer than that can't show much yet.</p>`}`;
 }
 
 /* ---------------- Section page ---------------- */
@@ -490,11 +499,20 @@ function subjBlock(sb,secId){
         <h3>${esc(u)}</h3>
         <span class="q">${c} questions${HUB.pcount[sb]&&HUB.pcount[sb][i]?` · ${HUB.pcount[sb][i]} passage${HUB.pcount[sb][i]>1?"s":""}`:""}</span>
         ${sb==="gc"?`<a class="x" href="https://itsdrdan.github.io/games/#/search?q=${encodeURIComponent(GCQ[i]||u)}" target="_blank" rel="noopener">Dr. Dan's videos &amp; games ↗</a>`:""}
+        ${relHTML(sb,i+1)}
         <div class="row">${acc?`<span class="bar"><i style="width:${acc.p}%"></i></span><b style="font-size:14px">${acc.p}%</b>`:`<span class="mini">Not started</span>`}
           <a class="p" href="${practice({subj:sb,unit:i+1,mode:sb==="cars"&&i<2?"passage":"drill"})}">Practice →</a></div>
       </div>`;}).join("")}</div>
   </div>`;
 }
+/* A short list of the strongest links between units, so students see where a topic comes back. */
+const REL={"gc:3":["oc:12","bc:1"],"gc:5":["bc:2"],"gc:6":["gc:10","bc:12"],"gc:7":["bc:12","pm:3"],"gc:8":["pm:4","bio:6"],"gc:9":["bc:8","bio:10"],"gc:10":["bc:1","bio:10"],"gc:11":["gc:12","bc:10"],"gc:12":["gc:11","bio:4"],
+ "oc:11":["pm:8"],"oc:12":["gc:3","bc:3"],
+ "pm:3":["gc:7"],"pm:4":["bio:7","gc:8"],"pm:6":["bio:4"],"pm:7":["beh:2"],"pm:8":["beh:2","oc:11"],"pm:9":["gc:1"],"pm:11":["pm:12"],"pm:12":["pm:11","bio:12"],
+ "bc:1":["gc:10","bc:3"],"bc:2":["gc:5","bc:12"],"bc:6":["bio:12","bio:2"],"bc:8":["gc:9","bio:1"],"bc:10":["gc:11"],"bc:12":["gc:7","bc:2"],
+ "bio:1":["bc:8"],"bio:4":["beh:1","gc:12"],"bio:5":["beh:5"],"bio:6":["gc:8"],"bio:7":["pm:4"],"bio:10":["gc:10","gc:9"],"bio:12":["bc:6","pm:12"],
+ "beh:1":["bio:4"],"beh:2":["pm:8","pm:7"],"beh:5":["bio:5"]};
+const relHTML=(sb,u)=>{const r=REL[sb+":"+u]; return r?`<span class="rel">Connects to: ${r.map(k=>{const [s,n]=k.split(":");return `<a href="${practice({subj:s,unit:n})}" title="${HUB.sn[s]}">${esc(HUB.units[s][n-1])}</a>`;}).join(", ")}</span>`:"";};
 const GCQ=["atomic structure","periodic trends","intermolecular forces","stoichiometry","kinetics","equilibrium","thermochemistry","gas laws","solutions","acids and bases","redox","electrochemistry"];
 
 /* ---------------- Daily 5 ---------------- */
@@ -521,7 +539,8 @@ function logAnswer(q,ok,pick){
   S.ans=(S.ans||0)+1; if(ok){S.cor=(S.cor||0)+1;S.xp=(S.xp||0)+10;S.streak=(S.streak||0)+1;S.best=Math.max(S.best||0,S.streak);} else S.streak=0;
   S.subj=S.subj||{}; S.units=S.units||{};
   const c=S.subj[q.subj]||(S.subj[q.subj]={a:0,c:0}); c.a++; if(ok)c.c++;
-  const k=q.subj+":"+q.unit; const u=S.units[k]||(S.units[k]={a:0,c:0}); u.a++; if(ok)u.c++;
+  const k=q.subj+":"+q.unit; const u=S.units[k]||(S.units[k]={a:0,c:0}); u.a++; if(ok)u.c++; u.r=((u.r||"")+(ok?1:0)).slice(-12);
+  if(q.id){ const L=S.log||(S.log=[]); L.push([q.id,ok?1:0,pick==null?-1:pick]); if(L.length>300) L.splice(0,L.length-300); }
   if(q.k){S.skills=S.skills||{};const sk=S.skills[q.k]||(S.skills[q.k]={a:0,c:0});sk.a++;if(ok)sk.c++;}
   if(!ok&&q.id){S.srs=S.srs||{};S.srs[q.id]={b:0,due:Date.now()+864e5};}
   LS.set(GKEY,S);
@@ -620,6 +639,7 @@ function buildPlan(date,hrs){
   const extraCars=+hrs>=25?3:2;
   for(let w=0;w<contentW;w++){
     for(let c=0;c<extraCars;c++) W[w].items.push({id:`cars-${w}-${c}`,k:"cars",n:c});
+    W[w].items.push({id:`srs-${w}`,k:"srs"});
     if(w%2===1) W[w].items.push({id:`review-${w}`,k:"review"});
     if(w>0&&w%4===3) W[w].items.push({id:`timed-${w}`,k:"timed",sec:["cp","bb","ps","cp"][Math.floor(w/4)%4]});
   }
@@ -631,12 +651,20 @@ function buildPlan(date,hrs){
     W[w].items.push({id:`weak-${w}`,k:"weak"});
     if(!last) W[w].items.push({id:`aamc-${w}`,k:"aamc",first:f===0});
   }
-  return {date,hrs,weeks:W,made:today(),done:{}};
+  return {date,hrs,weeks:W,made:today(),done:{},per};
+}
+/* Move unchecked units from past weeks into the content weeks that are left, spread evenly. Checkmarks are kept. */
+function catchUp(P,curW){
+  const late=[]; P.weeks.forEach(w=>{ if(w.n<curW){ const keep=[]; w.items.forEach(it=>{ (it.k==="unit"&&!P.done[it.id]?late:keep).push(it); }); w.items=keep; } });
+  let dest=P.weeks.filter(w=>w.n>=curW&&w.ph==="Content"); if(!dest.length) dest=P.weeks.filter(w=>w.n>=curW&&w.ph!=="Final week"); if(!dest.length) dest=[P.weeks[P.weeks.length-1]];
+  late.forEach((it,k)=>{ const w=dest[k%dest.length]; const at=w.items.findIndex(x=>x.k!=="unit"); w.items.splice(at<0?w.items.length:at,0,it); });
+  return late.length;
 }
 function itemHTML(it,P){
   const dn=P.done[it.id]; let t="",link="";
   if(it.k==="unit"){const sec=SEC_OF[it.s];t=`<span class="tag s-${sec}" style="background:var(--sbg);color:var(--sc)">${HUB.sn[it.s]}</span> <b>${esc(HUB.units[it.s][it.u-1])}</b> <span class="mini">· read the ${(BOOK[it.s]||["textbook"])[0].replace("OpenStax ","")} section, then 20+ questions</span>`;link=practice({subj:it.s,unit:it.u});}
   else if(it.k==="cars"){t=`<span class="tag s-cars" style="background:var(--cars-bg);color:var(--cars)">CARS</span> <b>One CARS passage</b> <span class="mini">· timed (about 10 minutes), then read every explanation</span>`;link=practice({section:"cars",mode:"passage"});}
+  else if(it.k==="srs"){t=`<b>Clear Review My Misses</b> <span class="mini">· missed questions come back after 1, 3 and 7 days</span>`;link=practice({mode:"review"});}
   else if(it.k==="review"){t=`<b>Review your weakest units</b> <span class="mini">· from the progress panel on the hub</span>`;link="#/";}
   else if(it.k==="timed"){t=`<span class="tag s-${it.sec}" style="background:var(--${it.sec}-bg);color:var(--${it.sec})">${SEC[it.sec].n}</span> <b>Timed mini-section</b>`;link=practice({section:it.sec,mode:"timed"});}
   else if(it.k==="full"){t=`<b>Mini Full-Length</b> <span class="mini">· all four sections in test order, with breaks</span>`;link=practice({mode:"full"});}
@@ -650,8 +678,11 @@ function renderPlan(P){
   const curW=Math.max(1,Math.min(P.weeks.length,Math.floor((pd(today())-start)/(7*864e5))+1));
   $("#planOut").innerHTML=`<div class="card" style="margin-top:16px;display:flex;gap:20px;flex-wrap:wrap;align-items:center">
       <div class="statrow" style="margin:0"><div><b>${P.weeks.length}</b><span>weeks</span></div><div><b>${pd(P.date).toLocaleDateString("en-US",{month:"short",day:"numeric",year:"numeric"})}</b><span>test date</span></div><div><b>${Math.round(dn/tot*100)}%</b><span>done (${dn}/${tot})</span></div></div>
-      <div class="tip" style="margin:0;flex:1;min-width:240px"><b>Professor Tip:</b> If you fall behind, don't skip the practice weeks. Shorten the reading and keep doing questions.</div></div>
+      <div class="tip" style="margin:0;flex:1;min-width:240px"><b>Professor Tip:</b> Checkmarks show time spent. Your accuracy on each unit, under Your progress on the home page, shows what you learned. Plan one day off every week.</div></div>
+    ${(()=>{ const per=P.per||Math.max(...P.weeks.map(w=>w.items.filter(it=>it.k==="unit").length)); const need=Math.round(per*2.5+3); return need>+P.hrs?`<div class="note">This plan has about <b>${per} units a week</b>. As a rough guide, a unit takes 2 to 3 hours (reading plus 20 or more questions), so that is around ${need} hours a week with CARS, more than the ${P.hrs} you chose. Two honest options: pick a later test date, or skip the reading for units you already know and go straight to the questions.</div>`:""; })()}
+    ${(()=>{ const late=P.weeks.filter(w=>w.n<curW).reduce((n,w)=>n+w.items.filter(it=>it.k==="unit"&&!P.done[it.id]).length,0); return late?`<div class="catch noprint"><b>${late} unit${late===1?"":"s"} from earlier weeks ${late===1?"is":"are"} still unchecked.</b> That happens to almost everyone. You can spread them over the weeks you have left, or leave the plan as it is and keep going from this week.<div class="actions"><button class="btn sm" id="catchBtn">Spread them over the weeks left</button><a class="btn sm ghost" href="#/plan" onclick="document.querySelector('.catch').remove();return false">Keep going from this week</a></div></div>`:""; })()}
     ${P.weeks.map(w=>{const d=w.items.filter(it=>P.done[it.id]).length;const from=new Date(start.getTime()+(w.n-1)*7*864e5);return `<details class="week" ${w.n===curW?"open":""}><summary><span>Week ${w.n}</span><span class="ph ${w.ph==="Content"?"":w.ph==="Practice"?"pr":"fl"}">${w.ph}</span><span class="mini">${from.toLocaleDateString("en-US",{month:"short",day:"numeric"})}</span><span class="cnt">${d}/${w.items.length}</span></summary><ul>${w.items.map(it=>itemHTML(it,P)).join("")}</ul></details>`;}).join("")}`;
+  const cb0=$("#catchBtn"); if(cb0) cb0.onclick=()=>{ const p=LS.get(PKEY,P); const n=catchUp(p,curW); LS.set(PKEY,p); plan(); const live=document.createElement("div"); live.setAttribute("role","status"); live.className="note noprint"; live.textContent=`Moved ${n} unit${n===1?"":"s"} into the weeks you have left. Your checkmarks are unchanged.`; $("#planOut").prepend(live); };
   document.querySelectorAll(".week input[type=checkbox]").forEach(cb=>cb.onchange=()=>{const p=LS.get(PKEY,P);p.done[cb.dataset.id]=cb.checked;LS.set(PKEY,p);cb.closest("li").classList.toggle("dn",cb.checked);const ul=cb.closest("ul");const det=cb.closest("details");det.querySelector(".cnt").textContent=[...ul.querySelectorAll("input")].filter(x=>x.checked).length+"/"+ul.querySelectorAll("input").length;});
 }
 
@@ -659,22 +690,38 @@ function renderPlan(P){
 let SIDX=null;
 function doSearch(q){q=(q||"").trim();if(!q)return;location.hash="#/search?q="+encodeURIComponent(q);}
 const norm=s=>String(s).toLowerCase().normalize("NFKD").replace(/[̀-ͯ]/g,"").replace(/[–—−-]/g," ").replace(/\s+/g," ");
+/* Search helpers: abbreviations and related words, section words as filters, plurals, and one-typo forgiveness. */
+const SYN={hasselbalch:["buffer","pka"],henderson:["buffer","pka"],pcr:["polymerase chain"],etc:["electron transport"],tca:["citric acid","krebs"],krebs:["citric acid","krebs"],hplc:["chromatograph"],tlc:["thin layer","chromatograph"],ir:["infrared","cm⁻¹"],uv:["ultraviolet","uv"],nmr:["nmr"],gfr:["filtration rate"],cns:["central nervous"],pns:["peripheral nervous"],rbc:["red blood cell","erythrocyte"],hb:["hemoglobin"],ecg:["electrocardiogram","ecg"],ekg:["electrocardiogram","ecg"],ses:["socioeconomic"],ptsd:["posttraumatic","post traumatic","ptsd"],ocd:["obsessive"],jnd:["just noticeable","difference threshold"],inference:["infer","implies","suggests"],tone:["tone","attitude"],kinetics:["kinetic","rate law","rate constant"],optics:["lens","mirror","refract"],redox:["redox","oxidiz","oxidation"],imf:["intermolecular","hydrogen bond","dispersion"],sn1:["sn1"],sn2:["sn2"],atp:["atp"],dna:["dna"],rna:["rna"]};
+const SUBJW={cars:["cars"],reading:["cars"],chem:["gc","oc"],chemistry:["gc","oc"],gchem:["gc"],orgo:["oc"],ochem:["oc"],organic:["oc"],physics:["pm"],biochem:["bc"],biochemistry:["bc"],bio:["bio"],biology:["bio"],psych:["beh"],psychology:["beh"],soc:["beh"],sociology:["beh"]};
+const STOP=new Set(["the","and","for","with","what","how","does","are","of","in","on","to","is","vs"]);
+let VOCAB=null;
+function vocab(){ if(VOCAB) return VOCAB; VOCAB=new Map(); for(const u of SIDX) for(const t of u.t) for(const w of t.split(/[^a-z]+/)) if(w.length>=5) VOCAB.set(w,(VOCAB.get(w)||0)+1); return VOCAB; }
+function near(a,b){ if(Math.abs(a.length-b.length)>1) return false; let i=0,j=0,d=0; while(i<a.length&&j<b.length){ if(a[i]===b[j]){i++;j++;continue;} if(++d>1) return false; if(a.length>b.length) i++; else if(b.length>a.length) j++; else {i++;j++;} } return d+(a.length-i)+(b.length-j)<=1; }
+function fixTypo(t){ if(t.length<5) return null; let best=null,bn=2; for(const [w,n] of vocab()){ if(n>bn&&w[0]===t[0]&&near(t,w)){best=w;bn=n;} } return best; }
+const altsOf=t=>{ const a=[t].concat(SYN[t]||[]); if(t.length>3&&t.endsWith("s")) a.push(t.endsWith("ies")?t.slice(0,-3)+"y":t.slice(0,-1)); return a; };
+const hit=(text,alt)=>alt.length<=3?new RegExp("(^|[^a-z0-9])"+alt.replace(/[.*+?^${}()|[\]\\]/g,"\\$&")+"([^a-z0-9]|$)").test(text):text.includes(alt);
+function runSearch(terms,only){
+  const A=terms.map(altsOf), out=[];
+  for(const u of SIDX){ if(only&&!only.includes(u.s)) continue;
+    if(!terms.length){ out.push({u,hits:0,score:1,all:true}); continue; }
+    const nm=norm(u.name+" "+HUB.sn[u.s]);
+    let hits=0; for(const st of u.t){ if(A.every(al=>al.some(x=>hit(st,x)))) hits++; }
+    const nameHit=A.every(al=>al.some(x=>hit(nm,x)));
+    if(hits||nameHit) out.push({u,hits,score:hits+(nameHit?40:0)});
+  }
+  return out.sort((a,b)=>b.score-a.score);
+}
 async function search(q){
   setNav("search");
   app.innerHTML=`<div class="wrap" style="padding-top:28px"><img class="cardart" src="assets/m_search.webp" alt=""><div class="kicker">Search</div><h1 style="font-size:36px">Results for “${esc(q)}”</h1><div id="sres" class="sres"><p>Searching…</p></div></div>`;
   try{ if(!SIDX){const r=await fetch("data/search.json");SIDX=await r.json();} }catch(e){$("#sres").innerHTML="<p>Search couldn't load. Check your connection.</p>";return;}
-  const terms=norm(q).split(" ").filter(t=>t.length>1);
-  const out=[];
-  for(const u of SIDX){
-    const nm=norm(u.name+" "+HUB.sn[u.s]);
-    let hits=0; for(const st of u.t){ if(terms.every(t=>st.includes(t))) hits++; }
-    const nameHit=terms.every(t=>nm.includes(t));
-    if(hits||nameHit) out.push({u,hits,score:hits+(nameHit?40:0)});
-  }
-  out.sort((a,b)=>b.score-a.score);
-  const top=out.slice(0,12);
-  $("#sres").innerHTML=top.length?top.map(({u,hits})=>{const sec=SEC_OF[u.s];return `<div class="sr s-${sec}"><div class="t"><span class="tag">${SEC[sec].n}</span> <b>${HUB.sn[u.s]}: ${esc(u.name)}</b><span class="sub">${hits?`${hits} question${hits>1?"s mention":" mentions"} “${esc(q)}”`:"Unit title match"}</span></div><a class="btn sm" href="${practice({subj:u.s,unit:u.u,mode:u.s==="cars"&&u.u<3?"passage":"drill"})}">Practice this unit →</a></div>`;}).join("")
-   :`<div class="card"><b>No matches.</b> <span class="mini">Try a shorter or more general term, like “enzyme” or “circuit”.</span></div>`;
+  let words=norm(q).split(" ").filter(t=>t.length>1&&!STOP.has(t)), only=null;
+  const sw=words.filter(t=>SUBJW[t]); if(sw.length&&sw.length<words.length||sw.length&&words.length===sw.length){ only=[...new Set(sw.flatMap(t=>SUBJW[t]))]; words=words.filter(t=>!SUBJW[t]); }
+  let terms=words, out=runSearch(terms,only), fixed=null;
+  if(!out.length&&terms.length){ const t2=terms.map(t=>fixTypo(t)||t); if(t2.join(" ")!==terms.join(" ")){ const o2=runSearch(t2,only); if(o2.length){ out=o2; fixed=t2.join(" "); terms=t2; } } }
+  const top=out.slice(0,12), shown=fixed||terms.join(" ");
+  $("#sres").innerHTML=top.length?(fixed?`<p class="mini" role="status">No matches for “${esc(q)}”. Showing results for <b>${esc(fixed)}</b>.</p>`:"")+top.map(({u,hits,all})=>{const sec=SEC_OF[u.s], pc=HUB.pcount[u.s]&&HUB.pcount[u.s][u.u-1], isP=u.s==="cars"&&u.u<3;return `<div class="sr s-${sec}"><div class="t"><span class="tag">${SEC[sec].n}</span> <b>${HUB.sn[u.s]}: ${esc(u.name)}</b><span class="sub">${all?`${HUB.counts[u.s][u.u-1]} questions`:hits?`${hits} question${hits>1?"s match":" matches"} “${esc(shown)}”`:"Unit title match"}</span></div><div class="acts"><a class="btn sm" href="${practice({subj:u.s,unit:u.u,mode:isP?"passage":"drill"})}">Practice this unit →</a>${pc&&!isP?`<a class="btn sm ghost" href="${practice({subj:u.s,unit:u.u,mode:"passage"})}">Passages</a>`:""}<a class="btn sm ghost" href="#/sec/${sec}/${u.s}">See the unit</a></div></div>`;}).join("")
+   :`<div class="card"><b>No matches for “${esc(q)}”.</b> <span class="mini">Try one or two plain words, like “enzyme” or “circuit”, or browse a section:</span><div class="chips">${SECS.map(x=>`<a class="chip" href="#/sec/${x.id}">${x.n}</a>`).join("")}</div></div>`;
 }
 
 /* ---------------- Router ---------------- */

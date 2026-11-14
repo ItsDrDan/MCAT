@@ -3,7 +3,7 @@
 Free MCAT prep covering all four sections: Chem/Phys, CARS, Bio/Biochem and Psych/Soc.
 
 - **index.html: MCAT Study Hub.** Section pages with every unit, a Daily 5, a week-by-week study plan builder, topic search and progress tracking.
-- **practice.html: Pre-Med Pulse.** Quick Drill, Passage Sets, Timed Mini-Section and a Mini Full-Length in real test order. Deep links: `practice.html?subj=gc&unit=5`, `?section=cars&mode=passage`, `?mode=eqs`.
+- **practice.html: Pre-Med Pulse.** Quick Drill, Passage Sets, Timed Mini-Section and a Mini Full-Length in real test order. Deep links: `practice.html?subj=gc&unit=5`, `?section=cars&mode=passage`, `?mode=eqs`. Modes: `drill`, `review`, `passage`, `timed`, `full`, `real`, `gym`, `eqs`.
 - **data/:** the Daily 5 question pool and the search index used by the hub.
 
 Every question is original and written from the public AAMC content outline, with background from free OpenStax textbooks.
@@ -20,6 +20,7 @@ All questions live in `practice.html` (`const Q` = single questions, `const P` =
    - bad paragraph references
    - stale hub counts
    - a Daily 5 pool that no longer matches the bank
+   - a question ID that used to exist and is gone (`tools/id_manifest.json`). After adding questions, or a deliberate removal, run `python3 tools/validate_bank.py --accept-ids`.
 
    Add `--all` to list every warning.
 3. `python3 tools/check_answer_lengths.py` guards against "the longest answer is right."
@@ -29,6 +30,28 @@ GitHub runs steps 2 and 3 on every push and pull request (`.github/workflows/val
 Rules that keep student progress safe:
 - **Don't renumber or reorder.** Question IDs (`id`, and `<passage id>-q<n>` for passage questions) are what saved progress, review queues and stats point to. Never renumber them or reorder a passage's questions; add new passage questions at the end.
 - **Shuffle-proof answers.** Options are shuffled in the app. Put the key first with `"a": 0`, and never refer to option letters.
+
+## What is saved in the student's browser
+
+Progress never leaves the device (the anonymous stats described below are separate). Keys in `localStorage`:
+
+| Key | Holds |
+|---|---|
+| `premedpulse_v2` | Totals, per-subject and per-unit counts, badges, skills, the review queue and the fields below |
+| `premedpulse_exam` | A Full-Length Exam in progress |
+| `mcathub_daily_v1` | Daily 5 history and streak |
+| `mcathub_plan_v1` | The study plan and its checkmarks |
+
+Fields added to `premedpulse_v2` in November 2026. All are optional, so older saved progress loads unchanged:
+- `units["gc:10"].r`: the last 12 results in that unit as a string of 1s and 0s. Drives "strong recent performance" and "more practice recommended".
+- `srs`: now also holds passage-question IDs (`<passage id>-q<n>`). IDs that no longer exist are dropped on load.
+- `log`: the last 300 answers as `[id, right, pick]`, for "My recent answers".
+- `why`: the student's own reason for a miss, by question ID.
+- `tn`: timed sets finished.
+
+"Back up or move my progress" in Pre-Med Pulse saves these four keys to a file and restores them. The file has `app: "itsdrdan-mcat"` and `v: 1`.
+
+Rules the progress screens follow: a number is always shown with how many answers it rests on, fewer than 5 answers in a unit is "limited evidence", and no scaled score is estimated from a short set.
 
 ## Finding problem questions from real answers
 
