@@ -31,6 +31,10 @@ Rules that keep student progress safe:
 - **Don't renumber or reorder.** Question IDs (`id`, and `<passage id>-q<n>` for passage questions) are what saved progress, review queues and stats point to. Never renumber them or reorder a passage's questions; add new passage questions at the end.
 - **Shuffle-proof answers.** Options are shuffled in the app. Put the key first with `"a": 0`, and never refer to option letters.
 
+## Guided CARS review
+
+Each CARS passage can carry a `map`: `main` (the central argument), `paras` (what each body paragraph does, one entry per paragraph), `turn` (where the reasoning shifts) and `tip` (a reading habit). Pre-Med Pulse shows it only after the passage is finished or in the review after a timed set, never while the clock is running. The validator checks that `paras` matches the paragraph count.
+
 ## What is saved in the student's browser
 
 Progress never leaves the device (the anonymous stats described below are separate). Keys in `localStorage`:
