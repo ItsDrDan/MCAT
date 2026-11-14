@@ -4,15 +4,15 @@ Free MCAT prep covering all four sections: Chem/Phys, CARS, Bio/Biochem and Psyc
 
 - **index.html: MCAT Study Hub.** Section pages with every unit, a Daily 5, a week-by-week study plan builder, topic search and progress tracking.
 - **practice.html: Pre-Med Pulse.** Quick Drill, Passage Sets, Timed Mini-Section and a Mini Full-Length in real test order. Deep links: `practice.html?subj=gc&unit=5`, `?section=cars&mode=passage`, `?mode=eqs`. Modes: `drill`, `review`, `passage`, `timed`, `full`, `real`, `gym`, `eqs`.
-- **data/:** the Daily 5 question pool and the search index used by the hub.
+- **data/:** the question bank (`bank-q.js`, `bank-p.js`), the Daily 5 question pool and the search index used by the hub.
 
 Every question is original and written from the public AAMC content outline, with background from free OpenStax textbooks.
 
 ## Maintaining the bank
 
-All questions live in `practice.html` (`const Q` = single questions, `const P` = passages). After any edit:
+The questions live in two data files that `practice.html` loads: `data/bank-q.js` (`const Q`, single questions) and `data/bank-p.js` (`const P`, passages). Each question or passage is on its own line, so a git diff shows exactly which ones changed. Other tools should read and write them through `tools/bank.py` (`load()`, `save()`). After any edit:
 
-1. `python3 tools/build_hub_data.py` rebuilds the hub's counts, the topic search index (`data/search.json`) and the Daily 5 pool (`data/daily.json`) from the bank.
+1. `python3 tools/build_hub_data.py` rebuilds the hub's counts, the topic search index (`data/search.json`) and the Daily 5 pool (`data/daily.json`) from the bank. It also stamps the data-file links in `practice.html` with a hash of the bank, so a browser never pairs a new page with an old cached bank.
 2. `python3 tools/validate_bank.py` must show `ERRORS: 0`. It catches:
    - broken items
    - duplicate IDs or passage titles

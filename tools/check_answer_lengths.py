@@ -8,7 +8,9 @@ are at least 1.2x longer than every other choice, or if any subject's
 single (discrete) questions score above 30%. Chance is 25%.
 """
 import json, re, sys
-src = open(sys.argv[1] if len(sys.argv) > 1 else "practice.html", encoding="utf-8").read()
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).resolve().parent)); import bank
+src = open(sys.argv[1], encoding="utf-8").read() if len(sys.argv) > 1 else bank.src()
 P = json.loads(re.search(r"\nconst P = (\[.*?\]);\n", src, re.S).group(1))
 Q = json.loads(re.search(r"\nconst Q = (\[.*?\]);\n", src, re.S).group(1))
 strip = lambda h: re.sub(r"<[^>]+>", "", str(h))

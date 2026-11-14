@@ -313,12 +313,12 @@ for ans, ppl, cps, fams, why, wr in peds:
 print(len(V), "visual discrete questions")
 
 
-def insert(path="practice.html"):
+def insert(path="data/bank-q.js"):
     src = open(path, encoding="utf-8").read()
     m = re.search(r"\nconst Q = (\[.*?\]);\n", src, re.S)
     Q = [q for q in json.loads(m.group(1)) if not q["id"].startswith("vq-")]
     Q += V
-    src = src[:m.start(1)] + json.dumps(Q, ensure_ascii=False, separators=(", ", ": ")) + src[m.end(1):]
+    src = src[:m.start(1)] + "[\n" + ",\n".join(json.dumps(x, ensure_ascii=False) for x in Q) + "\n]" + src[m.end(1):]
     open(path, "w", encoding="utf-8").write(src)
 
 

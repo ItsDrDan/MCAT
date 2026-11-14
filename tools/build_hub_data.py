@@ -12,7 +12,8 @@ import json, re, sys, unicodedata
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-src = (ROOT / "practice.html").read_text(encoding="utf-8")
+sys.path.insert(0, str(Path(__file__).resolve().parent)); import bank
+src = bank.src()
 Q = json.loads(re.search(r"\nconst Q = (\[.*?\]);\n", src, re.S).group(1))
 P = json.loads(re.search(r"\nconst P = (\[.*?\]);\n", src, re.S).group(1))
 
@@ -82,3 +83,11 @@ daily_path.write_text(json.dumps(daily_new, ensure_ascii=False, separators=(",",
 print(f"HUB updated: {HUB['total']:,} questions ({len(Q):,} single + {HUB['total'] - len(Q):,} in {len(P)} passages)")
 print("Sections:", HUB["secCount"])
 print(f"Daily 5 pool: {len(daily_new)} questions, {refreshed} refreshed from the bank" + (f", {len(dropped)} dropped (no longer in the bank): {dropped[:5]}" if dropped else ""))
+
+# Stamp practice.html's data-file links with a hash of the bank, so browsers never pair a new page with a cached old bank.
+import hashlib
+stamp = hashlib.md5(src.encode("utf-8")).hexdigest()[:10]
+app_path = ROOT / "practice.html"
+app = app_path.read_text(encoding="utf-8")
+app2 = re.sub(r'(data/bank-[qp]\.js\?v=)[0-9a-f]+', lambda m: m.group(1) + stamp, app)
+if app2 != app: app_path.write_text(app2, encoding="utf-8"); print("Bank cache stamp:", stamp)

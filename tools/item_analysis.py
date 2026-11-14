@@ -42,7 +42,8 @@ def qver(q):
         h, r = divmod(h, 36); out = digits[r] + out
         if h == 0: return out
 
-src = (ROOT / "practice.html").read_text(encoding="utf-8")
+sys.path.insert(0, str(Path(__file__).resolve().parent)); import bank
+src = bank.src()
 grab = lambda n: json.loads(re.search(rf"\nconst {n} = (\[.*?\]);\n", src, re.S).group(1))
 bank = {}
 for q in grab("Q"): bank[q["id"]] = q

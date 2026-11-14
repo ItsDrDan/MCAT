@@ -231,7 +231,7 @@ def passage(pid, s, subj, unit, title, parts, qs):
     return {"id": pid, "s": s, "subj": subj, "unit": unit, "title": title, "text": "\n".join(body), "qs": out}
 
 
-def add_to_practice(new, path="practice.html"):
+def add_to_practice(new, path="data/bank-p.js"):
     """Insert or replace passages (matched by id) in practice.html's P array."""
     src = open(path, encoding="utf-8").read()
     m = re.search(r"\nconst P = (\[.*?\]);\n", src, re.S)
@@ -245,6 +245,6 @@ def add_to_practice(new, path="practice.html"):
             P[ids[p["id"]]] = p
         else:
             P.append(p)
-    src = src[:m.start(1)] + json.dumps(P, ensure_ascii=False, separators=(", ", ": ")) + src[m.end(1):]
+    src = src[:m.start(1)] + "[\n" + ",\n".join(json.dumps(x, ensure_ascii=False) for x in P) + "\n]" + src[m.end(1):]
     open(path, "w", encoding="utf-8").write(src)
     return len(new)
