@@ -26,7 +26,7 @@ html,body{margin:0;padding:0}
 body{background:var(--bg);color:var(--ink);font-family:Nunito,system-ui,sans-serif;font-size:17px;line-height:1.5}
 h1,h2,h3,.fred{font-family:Fredoka,Nunito,sans-serif;font-weight:600;margin:0}
 .wrap{max-width:1040px;margin:0 auto;padding:16px}
-button{font:inherit;cursor:pointer}
+button{font:inherit;cursor:pointer;color:var(--ink)}  /* iOS Safari otherwise paints button text in its link blue */
 .card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow);padding:18px;margin-bottom:16px}
 
 /* header */
@@ -246,6 +246,13 @@ details.why li.mine{background:#fff3f3;border-radius:8px;padding:2px 6px;margin-
 .gmap{margin:12px 0;background:#fffdf8;border:1px solid #f1e6cf;border-radius:14px;padding:10px 14px;text-align:left;clear:both}
 .gmap h4{font-family:Fredoka,sans-serif;font-weight:600;margin:10px 0 2px;color:var(--lav-d);font-size:16px}
 .gmap ol{margin:4px 0;padding-left:22px}.gmap li{margin:3px 0}.gmap p{margin:4px 0}
+/* phones: keep the feedback heading readable, and the shared floating Feedback button off the answer choices
+   (every question already has its own Report button) */
+@media (max-width:560px){.fb .fbrep{float:none;display:inline-block;margin:0 0 8px}.fb .pulse{width:56px;margin:-4px -4px 4px 8px}
+ body:has(#stage .opts) .ddfb-float{display:none!important}}
+.pickp{display:block;min-height:0}
+.pickp .tag{display:inline-block}.pickp b{display:block}.pickp span{display:block}
+@media (max-width:560px){.modes .mode.pickp{display:block;padding:12px 14px}}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important;scroll-behavior:auto!important}}
 </style>
 </head>
@@ -323,7 +330,7 @@ details.why li.mine{background:#fff3f3;border-radius:8px;padding:2px 6px;margin-
   </div>
 </div>
 
-<div class="card" id="stage"></div>
+<div class="card" id="stage"><div role="status" style="text-align:center;padding:24px 8px"><img src="https://itsdrdan.github.io/MCAT/assets/pulse_reading.webp" alt="" width="110" height="110" style="height:auto"><h2 style="font-size:21px;margin:8px 0 4px">Loading 9,000+ practice questions…</h2><p class="mini" style="max-width:460px;margin:0 auto">The first visit downloads the whole question bank (about 3.5 MB), which can take up to 20 seconds on a slow connection. After that, your browser keeps a copy, so the next visit opens in about a second.</p></div></div>
 
 <div class="card">
   <h2 style="font-size:22px">Your progress</h2>
@@ -361,8 +368,8 @@ details.why li.mine{background:#fff3f3;border-radius:8px;padding:2px 6px;margin-
 <script src="https://itsdrdan.github.io/games/brand/icons.js" defer></script>
 <script src="https://itsdrdan.github.io/games/brand/embed.js" defer></script>
 <script src="https://itsdrdan.github.io/games/track.js" defer></script>
-<script src="data/bank-q.js?v=f5b5aade92"></script>
-<script src="data/bank-p.js?v=f5b5aade92"></script>
+<script src="data/bank-q.js?v=b6acc5e76f"></script>
+<script src="data/bank-p.js?v=b6acc5e76f"></script>
 <script>
 "use strict";
 if(typeof Q==="undefined"||typeof P==="undefined"){ document.getElementById("stage").innerHTML='<h2 style="font-size:22px">The questions didn\'t load</h2><p>Check your connection, then reload this page. If it keeps happening, tell Dr. Dan with the Feedback button.</p><div class="actions"><button class="btn main" onclick="location.reload()">Reload</button></div>'; throw new Error("question bank failed to load"); }
@@ -735,9 +742,10 @@ function startPassage(){
   const pl=ppool().slice().sort((a,b)=>(!!a.warm-!!b.warm)||(a.s==="cars"&&b.s==="cars"?(pWords(b)>=500)-(pWords(a)>=500):0));
   if(!pl.length){stage.innerHTML='<p>No passages match this subject and unit. Choose <b>All units</b> above, or pick another subject.</p>';return;}
   const groups=["cp","cars","bb","ps"].map(s=>[s,pl.filter(p=>p.s===s)]).filter(g=>g[1].length);
-  stage.innerHTML=`<h2 style="font-size:22px">Pick a passage</h2>`+groups.map(([s,ps])=>`<div class="sechead">${SECN[s]}</div><div class="modes" style="margin-top:6px">${ps.map(p=>`<button class="mode" data-p="${p.id}"><span class="tag ${p.s}">${SUBJ[p.subj].u[p.unit-1]}</span><b style="margin-top:6px">${p.title}</b>${p.warm?`<span class="mini" style="color:var(--lav-d)">Warm-up · short passage, not used in full-lengths</span>`:""}<span>${p.qs.length} questions${p.s==="cars"?` · ${pWords(p)} words`:""}${S.pdone&&S.pdone[p.id]!=null?` · <b style="color:var(--lav-d)">✓ ${S.pdone[p.id]}/${p.qs.length}</b>`:""}</span></button>`).join("")}</div>`).join("");
-  stage.querySelectorAll("[data-p]").forEach(b=>b.onclick=()=>{curP=P.find(p=>p.id===b.dataset.p);pI=0;pScore=0;pOrder=curP.subj==="cars"?qOrd(curP):shuffle(curP.qs.map((_,i)=>i));showPQ();});
+  stage.innerHTML=`<h2 style="font-size:22px">Pick a passage</h2>`+groups.map(([s,ps])=>`<div class="sechead">${SECN[s]}</div><div class="modes" style="margin-top:6px">${ps.map(p=>`<button class="mode pickp" data-p="${p.id}"><span class="tag ${p.s}">${SUBJ[p.subj].u[p.unit-1]}</span><b style="margin-top:6px">${p.title}</b>${p.warm?`<span class="mini" style="color:var(--lav-d)">Warm-up · short passage, not used in full-lengths</span>`:""}<span>${p.qs.length} questions${p.s==="cars"?` · ${pWords(p)} words`:""}${S.pdone&&S.pdone[p.id]!=null?` · <b style="color:var(--lav-d)">✓ ${S.pdone[p.id]}/${p.qs.length}</b>`:""}</span></button>`).join("")}</div>`).join("");
+  stage.querySelectorAll("[data-p]").forEach(b=>b.onclick=()=>{curP=P.find(p=>p.id===b.dataset.p);pI=0;pScore=0;pOrder=curP.subj==="cars"?qOrd(curP):shuffle(curP.qs.map((_,i)=>i));showPQ(); toStage();});
 }
+function toStage(){ const y=stage.getBoundingClientRect().top; if(y<0||y>innerHeight*0.35) scrollTo({top:y+scrollY-8,behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth'}); }
 function showPQ(){
   const p=curP;
   if(pI>=p.qs.length){

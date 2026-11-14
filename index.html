@@ -258,6 +258,7 @@ details.faq p{margin:8px 0 2px;color:var(--muted)}
 .catch .actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
 .sr .acts{display:flex;gap:8px;flex-wrap:wrap}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important;scroll-behavior:auto!important}}
+button{color:inherit}
 </style>
 <link rel="stylesheet" href="https://itsdrdan.github.io/games/brand/itsdrdan.css">
 </head>
@@ -352,7 +353,7 @@ function home(){
     <p class="lead">${fmt(HUB.total)} free, original practice questions for all four sections, including ${fmt(HUB.passages)} MCAT-style passages. ${returning?"Welcome back. Your next steps are below.":"New here? Follow the three steps below."}</p>
     <form class="bigsearch" role="search" onsubmit="event.preventDefault();doSearch(this.q.value)">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
-      <input name="q" type="search" placeholder="Search a topic, like “buffers” or “operant conditioning”" aria-label="Search a topic">
+      <input name="q" type="search" placeholder="Search a topic, like “buffers”" aria-label="Search a topic">
       <button class="btn" type="submit">Search</button>
     </form>
     <div class="chips"><span class="mini" style="font-weight:700">Try:</span>${["buffers","Michaelis–Menten","Hardy–Weinberg","operant conditioning","lens"].map(t=>`<a class="chip" href="#/search?q=${encodeURIComponent(t)}">${t}</a>`).join("")}</div>
